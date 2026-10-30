@@ -1,0 +1,48 @@
+name: Container
+
+on:
+  push:
+    branches: [main, master, "feature/*", "fix/*"]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -t agentflow-ai:ci .
+
+      - name: Verify non-root runtime
+        run: |
+          uid="$(docker run --rm agentflow-ai:ci id -u)"
+          test "$uid" != "0"
+          test "$uid" = "10001"
+          docker run --rm agentflow-ai:ci python -c \
+            "import pathlib; assert not pathlib.Path('/app/tests').exists(); assert not pathlib.Path('/app/.env').exists()"
+
+      - name: Start container
+        run: docker run -d --name agentflow-ai-ci -p 8000:8000 agentflow-ai:ci
+
+      - name: Poll health endpoint
+        run: |
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8000/health; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Health check did not succeed within 30 seconds." >&2
+          exit 1
+
+      - name: Show container logs
+        if: always()
+        run: docker logs agentflow-ai-ci || true
+
+      - name: Stop container
+        if: always()
+        run: docker rm -f agentflow-ai-ci || true
