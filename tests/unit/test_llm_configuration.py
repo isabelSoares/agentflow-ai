@@ -43,6 +43,15 @@ class TestSettings:
         )
         assert settings.voice_supported_input_types == frozenset({"audio/wav", "audio/webm"})
 
+    def test_cors_origins_accept_comma_separated_value(self) -> None:
+        settings = Settings(
+            _env_file=None,
+            CORS_ALLOWED_ORIGINS="http://localhost:5173,http://127.0.0.1:5173",
+        )
+        assert settings.cors_allowed_origins == frozenset(
+            {"http://localhost:5173", "http://127.0.0.1:5173"}
+        )
+
     def test_llm_model_defaults_to_groq_model(self) -> None:
         settings = Settings(_env_file=None)
         assert settings.llm_model == "openai/gpt-oss-20b"

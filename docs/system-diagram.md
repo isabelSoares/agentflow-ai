@@ -1,6 +1,6 @@
 # System Architecture Diagram
 
-This page presents the project-level system view for the Intelligent Banking Support Agent.
+This page presents the project-level system view for AgentFlow AI. The banking support flow is the reference demo adapter; the service boundaries and deterministic controls are domain-agnostic.
 It shows how customers reach the service, where authorisation and deterministic security
 decisions happen, which responsibilities run inside the system, and which services remain
 external. It complements the detailed architecture overview and multi-agent workflow rather
@@ -141,7 +141,7 @@ security decision.
 | View | What it answers | Where to find it |
 |------|-----------------|------------------|
 | **System Architecture Diagram** (this page) | What the whole system contains, which boundaries it crosses, and which dependencies are external. | This page. |
-| **Architecture Overview** | Which components, trust boundaries, and optional integrations exist in more detail. | [README: Architecture Overview](../README.md#architecture-overview) |
+| **Architecture Overview** | Which components, trust boundaries, and optional integrations exist in more detail. | [README: Architecture](../README.md#architecture) |
 | **Multi-Agent Workflow** | Which nodes and conditional transitions run on a given turn, including blocked, clarification, failure, and termination outcomes. | [README: Multi-Agent Workflow](../README.md#multi-agent-workflow) |
 | **Detailed Architecture** | Component responsibilities, request lifecycle, declared-unreachable paths, and maintenance rationale. | [Detailed architecture](architecture.md) |
 
@@ -181,8 +181,6 @@ When a component, dependency, boundary, or security responsibility changes:
 ## Links
 
 - [README architecture](../README.md#architecture)
-- [README architecture overview](../README.md#architecture-overview)
 - [README multi-agent workflow](../README.md#multi-agent-workflow)
 - [Detailed architecture](architecture.md)
-- [Feature specification](../specs/013-system-architecture-diagram/spec.md)
-- [System diagram contract](../specs/013-system-architecture-diagram/contracts/system-diagram-contract.md)
+- [System diagram documentation test](../tests/unit/test_system_diagram_docs.py)

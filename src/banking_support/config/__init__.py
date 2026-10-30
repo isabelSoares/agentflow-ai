@@ -8,6 +8,21 @@ from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+def _parse_string_set(value: object) -> object:
+    """Accept a JSON list or a comma-separated environment value."""
+    if not isinstance(value, str):
+        return value
+    text = value.strip()
+    if not text:
+        return frozenset()
+    if text.startswith("["):
+        parsed = json.loads(text)
+        if not isinstance(parsed, list):
+            raise ValueError("expected a JSON list or a comma-separated string")
+        return frozenset(str(item) for item in parsed)
+    return frozenset(part.strip() for part in text.split(",") if part.strip())
+
+
 class Settings(BaseSettings):
     """Settings are loaded from environment variables and an optional `.env` file.
 
@@ -30,6 +45,12 @@ class Settings(BaseSettings):
     provider_retry_backoff_seconds: float = 0.1
     default_phone_region: str = "DE"
     log_level: str = "INFO"
+
+    # Browser origins allowed to call the API directly. The Vite dev server
+    # proxies requests, so these are only needed for direct cross-origin use.
+    cors_allowed_origins: frozenset[str] = frozenset(
+        {"http://localhost:5173", "http://127.0.0.1:5173"}
+    )
 
     # Conversation history settings.
     max_history_messages: int = 20
@@ -55,21 +76,11 @@ class Settings(BaseSettings):
             return None
         return value
 
-    @field_validator("voice_supported_input_types", mode="before")
+    @field_validator("voice_supported_input_types", "cors_allowed_origins", mode="before")
     @classmethod
-    def _parse_input_types(cls, value: object) -> object:
-        """Accept a JSON list or a comma-separated environment value."""
-        if not isinstance(value, str):
-            return value
-        text = value.strip()
-        if not text:
-            return frozenset()
-        if text.startswith("["):
-            parsed = json.loads(text)
-            if not isinstance(parsed, list):
-                raise ValueError("voice input types must be a JSON list")
-            return frozenset(str(item) for item in parsed)
-        return frozenset(part.strip() for part in text.split(",") if part.strip())
+    def _parse_string_sets(cls, value: object) -> object:
+        """Accept JSON lists or comma-separated environment values."""
+        return _parse_string_set(value)
 
 
 __all__ = ["Settings"]

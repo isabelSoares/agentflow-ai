@@ -6,6 +6,7 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from banking_support.agents.graph import build_verification_graph
 from banking_support.agents.llm import (
@@ -146,9 +147,21 @@ def create_app(app_state: AppState | None = None) -> FastAPI:
     from banking_support.api import routes
 
     app = FastAPI(
-        title="Banking Support — Identity Verification",
+        title="AgentFlow AI — Secure Multi-Agent Customer Support",
+        description=(
+            "Secure, context-aware multi-agent customer support. The banking flow is the "
+            "reference demo adapter; deterministic nodes own every security decision."
+        ),
         version="0.1.0",
         lifespan=_lifespan,
+    )
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=sorted(state.settings.cors_allowed_origins),
+        allow_credentials=False,
+        allow_methods=["GET", "POST"],
+        allow_headers=["Content-Type", "X-Session-Proof"],
+        expose_headers=["X-Session-Proof"],
     )
     app.include_router(routes.router)
     return app

@@ -1,66 +1,40 @@
-# 🤖 Personal Banking Support Agent
+# AgentFlow AI — Secure Multi-Agent Customer Support
 
-## Overview
+An independent AI engineering project exploring how multiple specialized agents can collaborate to deliver secure, context-aware customer support.
 
-This personal project implements a production-oriented, multi-agent banking customer support system. It explores how deterministic verification and agent orchestration can work together safely. Instead of forcing callers through endless phone menus, a small team of cooperating AI agents identifies the caller, classifies their relationship with the bank, and routes them to the right support destination-safely and deterministically.
+Built using **Python, FastAPI, LangGraph, React, and TypeScript**, the platform combines natural-language understanding with deterministic identity verification, authorization, customer classification, and intelligent request routing.
 
-The system is exposed as a FastAPI service and orchestrated with LangGraph. All security-critical decisions (identity matching, secret-answer verification, customer classification, and support routing) are implemented as deterministic, unit-tested Python logic. The LLM is used only for natural-language understanding and intent classification, never for authentication or authorization decisions.
+The project emphasizes responsible AI engineering, workflow orchestration, automated testing, and measurable agent reliability.
 
-## Agent Team
+**Key engineering principles:** Security by design · Human oversight · Observability · Evaluation-driven development
 
-| Agent | Responsibility | Implemented in |
-|-------|----------------|----------------|
-| 👋 **Greeter** | Starts the conversation, collects identifying details, and verifies the caller's identity. | `src/banking_support/core/matching.py`, `src/banking_support/core/verification.py`, `src/banking_support/agents/nodes.py` |
-| 🛡️ **Bouncer** | Classifies an authenticated caller as Premium, Regular, or Non-Customer. | `src/banking_support/core/classification.py` |
-| 📞 **Specialist** | Routes authenticated requests to the appropriate support department (standard, premium, or specialist such as yacht insurance). | `src/banking_support/core/routing.py` |
-| 📜 **Guardrails** | Enforces safety and policy: blocks prompt injection, pre-authentication data requests, unsupported commitments, and privacy violations. | `src/banking_support/services/guardrails_service.py`, input/output guardrail nodes |
-| 🎙️ **Voice Interface** | Optional STT/TTS adapters that convert spoken input to text and approved replies to speech without duplicating banking logic. | `src/banking_support/voice/` |
+---
 
-## Conversation History
+## What this project demonstrates
 
-The assistant remembers relevant context across multiple messages within a single customer session:
+- **Multi-agent orchestration** with a stateful LangGraph workflow, explicit routing, and guardrails at the input and output boundaries.
+- **Deterministic security** for identity matching, secret-answer verification, session ownership, customer classification, and support routing. The LLM is advisory only.
+- **Typed backend contracts** with FastAPI and Pydantic, including sanitized response models that never return PII.
+- **Full-stack delivery** with a React + TypeScript client that renders the conversation and live, sanitized agent telemetry.
+- **Observability** through structured logs, traces, bounded conversation history, and explicit turn state.
+- **Evaluation-driven engineering** with a large offline test suite, coverage gates, static typing, linting, and CI.
 
-- **Session-scoped history**: Each conversation has a unique identifier. History never leaks between sessions.
-- **Context-aware agents**: The Greeter, Specialist, and Advanced Guardrails can use recent conversation context to interpret follow-up messages and clarification replies.
-- **Secure by default**: Session identifiers are treated as untrusted inputs; authentication state is always derived from deterministic verification, not from conversation text.
-- **Privacy**: Sensitive values (names, phones, IBANs, secret answers) are pattern-redacted before persistence, and known customer identifiers are redacted once a match identifies the customer. Conversation checkpoints and in-memory state still require production-grade storage controls.
-- **Bounded context**: History is truncated to a configurable limit so that memory usage and LLM context costs do not grow indefinitely.
-- **Lifecycle**: Customers can start, continue, and explicitly reset a conversation. Reset clears history and invalidates trusted authentication state.
+## Reference scenario
 
-## Voice Interface
+The repository ships with a **banking support demo adapter**. It provides a small seed dataset and a concrete identity, authorization, classification, and routing scenario so the workflow can be exercised end to end.
 
-Customers can also interact with the assistant using spoken messages. The voice layer is optional and disabled by default; it reuses the existing text-based workflow and security controls.
-
-- **Speech-to-text (STT)**: Audio recordings are transcribed and the resulting text enters the same status-driven, per-turn workflow as typed messages.
-- **Text-to-speech (TTS)**: Approved assistant replies can be converted into spoken audio when enabled.
-- **Security first**: A voice recording or its transcription is never treated as proof of identity. Authentication and classification remain deterministic and unchanged.
-- **Guardrails**: Input Guardrails evaluate transcribed text; output Guardrails block unsafe replies from being spoken.
-- **Mixed-mode conversations**: Customers can switch between text and voice within the same session without losing context.
-- **Testability**: Fake STT/TTS adapters let the full suite run without API credentials.
-
-Enable voice by setting `VOICE_ENABLED=true` (and optionally `VOICE_STT_ENABLED=true`, `VOICE_TTS_ENABLED=true`). See `.env.example` for all voice settings.
+The platform framing is domain-agnostic: the banking adapter is the current reference implementation, not a limit on the architecture. The Python package remains named `banking_support` because it contains that demo domain.
 
 ## Architecture
 
-The system has three complementary views: a project-level system diagram, a high-level
-component map, and a detailed multi-turn workflow. All are maintained as Mermaid source so
-they render directly on GitHub and stay reviewable in pull requests. Start with the
-[System Architecture Diagram](docs/system-diagram.md) for the system-level view, then use
-the views below for component and turn-level detail. The detailed security boundaries,
-workflow rationale, and maintenance instructions live in
-[`docs/architecture.md`](docs/architecture.md). For diagram updates, see
-[maintenance and preview](docs/architecture.md#maintenance-and-preview).
-
 ### Architecture Overview
 
-This view shows components, trust boundaries, and dependencies. It does not imply
-that every agent executes on every request; agent selection is status-driven and
-is shown in the workflow below. Solid arrows are primary paths, dashed arrows are
-optional integrations or supporting calls.
+This view shows components, trust boundaries, and dependencies. It does not imply that every agent executes on every request; agent selection is status-driven and is shown in the workflow below. Solid arrows are primary paths, dashed arrows are optional integrations or supporting calls.
 
 ```mermaid
 flowchart TB
     subgraph Interfaces["Interfaces"]
+        web_client["React + TypeScript client"]
         text_client["Text API client"]
         voice_adapters["Voice adapters (STT/TTS, optional)"]
         session_api["Session create or reset"]
@@ -106,6 +80,7 @@ flowchart TB
 
     response["Customer response"]
 
+    web_client --> text_handler
     text_client --> text_handler
     voice_adapters -.-> voice_handler
     session_api --> session_gate
@@ -143,7 +118,7 @@ flowchart TB
     classDef blocked fill:#FFE2E0,stroke:#B42318,color:#1F2937
     classDef success fill:#DDF4E4,stroke:#1A7F37,color:#1F2937
 
-    class text_client,voice_adapters,session_api interface
+    class web_client,text_client,voice_adapters,session_api interface
     class text_handler,voice_handler,session_gate service
     class workflow,input_guard,output_guard control
     class greeter_agent,bouncer_agent,specialist_agent agent
@@ -154,13 +129,11 @@ flowchart TB
     class response success
 ```
 
+The [System Architecture Diagram](docs/system-diagram.md) provides the system-level backend view of channels, service boundaries, deterministic controls, state, and external dependencies. Deeper component and workflow details live in [docs/architecture.md](docs/architecture.md). For diagram updates, see [maintenance and preview](docs/architecture.md#maintenance-and-preview).
+
 ### Multi-Agent Workflow
 
-The workflow is stateful and spans multiple turns. A unique identity match ends
-the current turn with a secret question; the answer is verified on the next turn.
-Classification runs immediately after successful verification, while specialist
-routing runs on later authenticated turns. Voice transcriptions enter this same
-workflow as ordinary text. The session-ownership gate runs before LangGraph.
+The workflow is stateful and spans multiple turns. A unique identity match ends the current turn with a secret question; the answer is verified on the next turn. Classification runs immediately after successful verification, while specialist routing runs on later authenticated turns. Voice transcriptions enter this same workflow as ordinary text. The session-ownership gate runs before LangGraph.
 
 ```mermaid
 flowchart TB
@@ -206,93 +179,111 @@ flowchart TB
     end_turn -.->|next authorized turn| request
 ```
 
-Outcome labels are explicit: `OK` means progress or a successful reply,
-`BLOCKED` means refused or denied, `CLARIFY` means more information is needed,
-`FAILED` means a safe retry or fallback, and `TERMINATED` means the session is
-closed. The declared `terminated` graph node is not drawn because it is not
-reached through normal execution; termination replies still pass through the
-Output Guardrail. See the [workflow consistency
-table](docs/architecture.md#workflow-consistency) for all nodes and unreachable
-paths.
+Outcome labels are explicit: `OK` means progress or a successful reply, `BLOCKED` means refused or denied, `CLARIFY` means more information is needed, `FAILED` means a safe retry or fallback, and `TERMINATED` means the session is closed. See the [workflow consistency table](docs/architecture.md#workflow-consistency) for all nodes and unreachable paths.
+
+### Frontend
+
+The `frontend/` application is a Vite + React + TypeScript client. It provides:
+
+- A session-scoped support conversation.
+- A live workflow timeline for identity, authorization, classification, and routing.
+- Sanitized telemetry with no PII and no exposure of the session proof.
+- A responsive dark interface with accessible focus states and reduced-motion support.
+
+During development, Vite proxies `/api` to `http://127.0.0.1:8000`, so no browser CORS configuration is needed. The backend also exposes a configurable `CORS_ALLOWED_ORIGINS` setting for direct cross-origin deployments.
+
+## Agent team
+
+| Stage | Responsibility | Implemented in |
+|-------|----------------|----------------|
+| **Greeter** | Starts the conversation, collects identifying details, and verifies the caller's identity. | `src/banking_support/core/matching.py`, `src/banking_support/core/verification.py`, `src/banking_support/agents/nodes.py` |
+| **Bouncer** | Classifies an authenticated caller for the banking demo. | `src/banking_support/core/classification.py` |
+| **Specialist** | Routes authenticated requests to the appropriate support destination. | `src/banking_support/core/routing.py` |
+| **Guardrails** | Blocks prompt injection, pre-authentication data requests, unsupported commitments, and privacy violations. | `src/banking_support/services/guardrails_service.py`, input/output guardrail nodes |
+| **Voice interface** | Optional STT/TTS adapters that reuse the text workflow and security controls. | `src/banking_support/voice/` |
+
+## Security model
+
+- **The model never grants access.** Identity matching, secret-answer verification, session ownership, classification, and routing are deterministic Python logic with focused tests.
+- **Session ownership is explicit.** Every session-scoped request must carry the `X-Session-Proof` header returned when the session is created. The conversation identifier alone is not sufficient.
+- **Responses are sanitized.** The API response schema deliberately contains no PII fields.
+- **History is bounded and redacted.** Sensitive values are pattern-redacted before persistence, and history is truncated to a configurable limit.
+- **Guardrails sit at both boundaries.** Input checks run before model calls; output checks run before a reply is returned or spoken.
+- **Voice is not authentication.** A recording or transcription never proves identity.
 
 ## Quickstart
 
-### Setup
+### Prerequisites
 
-Requires **Python 3.12+** and [uv](https://docs.astral.sh/uv/).
+- Python 3.12+
+- [uv](https://docs.astral.sh/uv/)
+- Node.js 22.12+
+- npm
+
+### 1. Start the backend
 
 ```bash
-uv sync --locked                     # create venv from the committed lockfile
+uv sync --locked
 cp .env.example .env                 # leave GROQ_API_KEY empty for offline runs
-```
-
-> **Live provider note**: an empty `GROQ_API_KEY` is valid for the offline test
-> suite, which injects deterministic fake adapters. The service still starts
-> without a key, but the manual identity flow below requires a real provider
-> key because the default fake extractor has no scripted turns.
-
-> **Note on example data**: the business-requirement example shows illustrative values (`phone: +1122334455`). The project's seed dataset uses a different, valid phone number for the demo customer Lisa. The example values are not required to match the seed data exactly.
-
-### Run the service
-
-```bash
 uv run uvicorn banking_support.api.app:create_app --factory --port 8000
 ```
 
-Interactive API docs: http://localhost:8000/docs
+- Interactive API docs: http://localhost:8000/docs
+- Liveness check: `curl -fsS http://localhost:8000/health`
 
-Liveness check (no session proof required):
+> **Live provider note**: an empty `GROQ_API_KEY` is valid for the offline test suite, which injects deterministic fake adapters. The service still starts without a key, but a full manual identity flow needs a real provider key because the default fake extractor has no scripted turns.
+
+### 2. Start the frontend
 
 ```bash
-curl -fsS http://localhost:8000/health
-# {"status":"ok"}
+cd frontend
+npm ci
+npm run dev
 ```
 
-### Run with Docker
+Open http://localhost:5173. The dev server proxies `/api` to the backend on port 8000.
 
-The image installs locked runtime dependencies only and exposes the same FastAPI
-application on port 8000.
+To call a different API origin directly:
 
 ```bash
-docker build -t banking-support .
-docker run --rm -p 8000:8000 banking-support
+VITE_API_BASE_URL=http://localhost:8000 npm run dev
+```
+
+Then add the frontend origin to the backend's `CORS_ALLOWED_ORIGINS`.
+
+### 3. Run with Docker
+
+The backend image installs locked runtime dependencies only and exposes FastAPI on port 8000.
+
+```bash
+docker build -t agentflow-ai .
+docker run --rm -p 8000:8000 agentflow-ai
 curl -fsS http://localhost:8000/health
 ```
 
-The image defines a `HEALTHCHECK` against `/health`; pass configuration with
-`--env-file .env` only when you need live provider access.
+The frontend is a static build (`npm run build`) and can be served by any static host or reverse proxy. In production, route `/api` to the backend and keep the `X-Session-Proof` header exposed.
 
-### Run tests and quality gates
+### 4. Run tests and quality gates
 
-The offline suite uses scripted fake LLM and speech adapters — no API key and no
-network required.
+The offline suite uses scripted fake LLM and speech adapters. No API key and no network are required.
 
 ```bash
-uv run pytest                              # full suite; live tests skip without credentials
+uv run pytest
 uv run pytest -m "not live_llm and not live_speech" \
   --cov=src/banking_support --cov-branch --cov-report=term-missing --cov-fail-under=80
-uv run pytest -m live_llm                  # run live-LLM tests (requires GROQ_API_KEY)
-uv run pytest -m live_speech               # run live speech tests (requires GROQ_API_KEY)
+uv run pytest -m live_llm                  # requires GROQ_API_KEY
+uv run pytest -m live_speech               # requires GROQ_API_KEY
 uv run mypy src
 uv run ruff check src tests
 uv run ruff format --check src tests
-uv export --locked --format requirements.txt --no-editable --no-emit-project \
-  --output-file /tmp/banking-support-requirements.txt
-uv run pip-audit --strict -r /tmp/banking-support-requirements.txt
+cd frontend && npm run build
 ```
 
 The offline CI quality gate requires at least 80% line coverage for `src/banking_support`.
-Live-provider markers remain excluded from that job and are only run in separately gated jobs.
-Coverage failures are merge-blocking; dependency-audit failures are also merge-blocking unless
-the exception owner, rationale, and remediation date are documented in the security review.
 
-### Manual end-to-end example
+## Manual API example
 
-Every session-scoped request must carry the ownership proof returned when the
-session is created. The conversation identifier alone is **not** sufficient:
-any request without a valid `X-Session-Proof` header (or with a missing,
-malformed, unknown, or inactive proof) is rejected uniformly with
-`401 {"detail": "Session access denied."}` and does not change any session state.
+Every session-scoped request must carry the ownership proof returned when the session is created. A missing, malformed, unknown, or inactive proof is rejected uniformly with `401 {"detail": "Session access denied."}`.
 
 ```bash
 # Check service liveness (no session proof required).
@@ -304,72 +295,54 @@ CID=$(jq -r .conversation_id /tmp/conv.json)
 PROOF=$(awk 'tolower($1)=="x-session-proof:"{print $2}' /tmp/conv.headers | tr -d '\r')
 PROOF_HEADER="X-Session-Proof: $PROOF"
 
-# Greeter: provide identifying attributes
+# Greeter: provide identifying attributes.
 curl -s -X POST localhost:8000/conversations/$CID/messages \
   -H 'Content-Type: application/json' -H "$PROOF_HEADER" \
   -d '{"text": "Hi, I am Lisa, my phone is +14155552671"}' | jq
 
-# Greeter: answer the secret question
+# Greeter: answer the secret question.
 curl -s -X POST localhost:8000/conversations/$CID/messages \
   -H 'Content-Type: application/json' -H "$PROOF_HEADER" \
   -d '{"text": "It is Yoda"}' | jq
 
-# Specialist: ask for yacht insurance
+# Specialist: ask a support question.
 curl -s -X POST localhost:8000/conversations/$CID/messages \
   -H 'Content-Type: application/json' -H "$PROOF_HEADER" \
-  -d '{"text": "I need help with my yacht insurance"}' | jq
+  -d '{"text": "I need help with a card payment"}' | jq
 
-# Voice example (requires VOICE_ENABLED=true and an STT/TTS provider or fake adapters)
-curl -s -X POST "localhost:8000/conversations/$CID/voice/messages" \
-  -H "$PROOF_HEADER" \
-  -F "audio=@sample.wav" \
-  -F "enable_tts=true" | jq
-
-# Reset clears the session state and rotates the proof; reuse the new header
-# value returned by this call for any subsequent requests.
+# Reset clears session state and rotates the proof.
 curl -s -D /tmp/reset.headers -X POST localhost:8000/conversations/$CID/reset \
   -H "$PROOF_HEADER" | jq
 ```
 
+## Project structure
+
+```text
+src/banking_support/   FastAPI service, LangGraph workflow, banking demo adapter
+frontend/              React + TypeScript client (Vite)
+tests/                 Contract, integration, and unit tests
+docs/                  Architecture, system diagram, and maintenance notes
+scripts/               Local verification helpers
+```
+
 ## CI/CD
 
-The project uses GitHub Actions.
-
-- **Standard CI** (`quality` job) runs on every push to `main`, `master`, `feature/*`, or `fix/*` and on every pull request. It installs from `uv.lock` with `uv sync --locked`, runs linting, formatting, typing, and the offline test suite (`not live_llm and not live_speech`). It does **not** use any LLM API key and costs nothing.
-- **Live-LLM validation** (`live-llm` job) runs only on pull requests from the same repository. It uses the `GROQ_API_KEY` secret and is capped at a small number of provider calls.
-- **Container smoke test** (`Container` workflow) builds the multi-stage image, verifies UID `10001`, starts the image, polls `/health`, prints container logs on failure, and always cleans up. There is no deployment target or deployment workflow.
-- **Dependency audit** (`Dependency Audit` workflow) audits the locked environment on dependency-changing pull requests and weekly. `pip-audit --strict` reports actionable vulnerabilities; update `pyproject.toml` and regenerate `uv.lock` with `uv lock` when remediation is available.
-
-### Delivery maintenance
-
-The production image contains only the locked runtime venv and application source. Build-only tools,
-tests, specifications, documentation, caches, credentials, and local artifacts are excluded by
-`.dockerignore`. Dependabot opens grouped updates for the Python/uv lockfile, GitHub Actions, and
-the Docker base image. Review dependency-audit findings promptly; any temporary exception must name
-an owner and a dated remediation plan.
-
-### Optional GitHub setup
-
-1. Go to **Settings → Secrets and variables → Actions** and optionally add a repository secret named `GROQ_API_KEY` with your real Groq key. Without it, live-provider tests skip.
-2. Branch protection is **conditional**: GitHub does not offer branch protection or rulesets for free private repositories. If your repository visibility and plan support it, protect `main` (and `master` if used) and require the `quality` status check. Otherwise, rely on the CI workflow and review process.
+- **Quality** runs linting, formatting, strict typing, and the offline test suite with an 80% coverage gate.
+- **Frontend** installs from `frontend/package-lock.json` and runs the TypeScript production build.
+- **Live LLM** runs only on same-repository pull requests when `GROQ_API_KEY` is configured.
+- **Container** builds the backend image, verifies the non-root UID, starts it, and polls `/health`.
+- **Dependency audit** audits the locked Python environment on dependency-changing pull requests and weekly.
 
 ## Production readiness
 
-The application is designed as a deployable baseline with typed configuration,
-locked dependencies, deterministic authentication, redaction, health checks,
-container builds, and CI. The following operational boundaries are intentional
-and should be addressed before running it with real customer data at scale:
+The application is a deployable baseline with typed configuration, locked dependencies, deterministic authentication, redaction, health checks, container builds, CI, and a typed frontend. The following boundaries are intentional and should be addressed before running with real customer data at scale:
 
-- **State persistence**: sessions, conversation checkpoints, history, and
-  customer records live in the process. A restart or multiple workers lose
-  sessions. A shared checkpointer/session store and a database are required
-  before horizontal scaling.
-- **Edge protections**: the API does not rate-limit session creation or message
-  turns, lock out repeated secret-answer attempts globally, or enforce request
-  quotas. Deploy behind a gateway that provides TLS, request-size limits, and
-  rate limiting.
-- **Provider fallbacks**: when provider credentials are absent, deterministic
-  fake LLM and speech adapters keep the offline suite and startup working. They
-  are not a substitute for live provider integration in production.
-- **Container hardening**: the image is a smoke-tested build target. Add a
-  non-root user, image scanning, and an SBOM before production use.
+- **State persistence**: sessions, checkpoints, history, and customer records live in process memory. A restart or multiple workers lose sessions. Use a shared checkpointer and database before horizontal scaling.
+- **Edge protections**: add rate limiting, request quotas, TLS, and global lockout controls at a gateway.
+- **Provider fallbacks**: fake adapters keep offline tests and startup working; they are not a production substitute for live provider integration.
+- **Container hardening**: add image scanning and an SBOM, and keep the non-root runtime constraint.
+- **Frontend deployment**: serve the static build over HTTPS and keep the API proof header exposed through the chosen reverse proxy.
+
+## License
+
+Apache-2.0. See [LICENSE](LICENSE).

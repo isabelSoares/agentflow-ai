@@ -29,6 +29,8 @@ coverage/
 tests/
 specs/
 docs/
+frontend/
+node_modules/
 .idea/
 .vscode/
 *.log

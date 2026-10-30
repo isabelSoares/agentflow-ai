@@ -37,5 +37,5 @@ jobs:
       - name: Audit locked dependencies
         run: |
           uv export --locked --format requirements.txt --no-editable --no-emit-project \
-            --output-file /tmp/banking-support-requirements.txt
-          uv run pip-audit --strict -r /tmp/banking-support-requirements.txt
+            --output-file /tmp/agentflow-ai-requirements.txt
+          uv run pip-audit --strict -r /tmp/agentflow-ai-requirements.txt

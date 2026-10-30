@@ -3,18 +3,19 @@
 ## Purpose
 
 This document explains the component boundaries, request lifecycle, security
-decisions, and maintenance workflow for the Intelligent Banking Support Agent.
-The authoritative diagrams are the project-level System Architecture Diagram in
-[`docs/system-diagram.md`](system-diagram.md) and the two Mermaid blocks in the
-[README](../README.md#architecture); this document provides the detailed
-narrative and does not duplicate the diagram source.
+decisions, and maintenance workflow for AgentFlow AI. The banking support flow is
+the reference demo adapter; the core workflow is domain-agnostic. The authoritative
+diagrams are the project-level System Architecture Diagram in
+[`docs/system-diagram.md`](system-diagram.md) and the architecture and workflow
+Mermaid blocks in the [README](../README.md#architecture); this document provides
+the detailed narrative and does not duplicate the diagram source.
 
 ## Diagram Map
 
 | View | Purpose | Location |
 |------|---------|----------|
 | System Architecture Diagram | Project-level view of customer channels, the service boundary, deterministic controls, state, and external dependencies. | [`docs/system-diagram.md`](system-diagram.md) |
-| Architecture Overview | Components, trust boundaries, dependencies, and optional integrations. | [README: Architecture Overview](../README.md#architecture-overview) |
+| Architecture Overview | Full-stack components, trust boundaries, dependencies, and optional integrations. | [README: Architecture](../README.md#architecture) |
 | Multi-Agent Workflow | Status-driven transitions across turns, outcomes, and termination handling. | [README: Multi-Agent Workflow](../README.md#multi-agent-workflow) |
 
 The System Architecture Diagram is the entry point for whole-system orientation. The
@@ -158,12 +159,7 @@ workflow diagram and to the consistency table in the same change.
 
 - [README architecture](../README.md#architecture)
 - [System Architecture Diagram](system-diagram.md)
-- [README architecture overview](../README.md#architecture-overview)
 - [README multi-agent workflow](../README.md#multi-agent-workflow)
 - [Workflow consistency](#workflow-consistency)
 - [Declared-unreachable paths](#declared-unreachable-paths)
 - [Maintenance and preview](#maintenance-and-preview)
-- [Mermaid architecture feature specification](../specs/012-mermaid-architecture-docs/spec.md)
-- [Workflow transition contract](../specs/012-mermaid-architecture-docs/contracts/workflow-transition-contract.md)
-- [System diagram feature specification](../specs/013-system-architecture-diagram/spec.md)
-- [System diagram contract](../specs/013-system-architecture-diagram/contracts/system-diagram-contract.md)

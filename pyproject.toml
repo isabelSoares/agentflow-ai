@@ -1,7 +1,7 @@
 [project]
-name = "banking-support"
+name = "agentflow-ai"
 version = "0.1.0"
-description = "AI-powered banking customer support — identity verification agent"
+description = "AgentFlow AI — secure multi-agent customer support platform"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.115.0",
