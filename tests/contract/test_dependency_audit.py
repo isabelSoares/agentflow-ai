@@ -19,5 +19,6 @@ def test_dependency_audit_covers_schedule_and_dependency_changes() -> None:
     assert "uv export --locked --format requirements.txt" in workflow
     assert "pip-audit --strict -r" in workflow
     assert "package-ecosystem: pip" in dependabot
+    assert "package-ecosystem: npm" in dependabot
     assert "package-ecosystem: github-actions" in dependabot
     assert "package-ecosystem: docker" in dependabot

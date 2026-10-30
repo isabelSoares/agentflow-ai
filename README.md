@@ -331,7 +331,7 @@ scripts/               Local verification helpers
 - **Frontend** installs from `frontend/package-lock.json` and runs the TypeScript production build.
 - **Live LLM** runs only on same-repository pull requests when `GROQ_API_KEY` is configured.
 - **Container** builds the backend image, verifies the non-root UID, starts it, and polls `/health`.
-- **Dependency audit** audits the locked Python environment on dependency-changing pull requests and weekly.
+- **Dependency audit** audits the locked Python environment on dependency-changing pull requests and weekly. Dependabot covers Python, npm, GitHub Actions, and Docker updates.
 
 ## Production readiness
 
