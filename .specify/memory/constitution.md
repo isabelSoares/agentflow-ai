@@ -1,19 +1,4 @@
-<!--
-Sync Impact Report (temporary scratch material — remove before committing)
-- Version change: none (unratified template) -> 1.0.0
-- Modified principles: 5 template placeholders replaced by 7 ratified principles:
-  [PRINCIPLE_1_NAME] -> I. Security First
-  [PRINCIPLE_2_NAME] -> II. Deterministic Verification
-  [PRINCIPLE_3_NAME] -> III. Separation of Concerns
-  [PRINCIPLE_4_NAME] -> IV. Testability
-  [PRINCIPLE_5_NAME] -> V. Type Safety
-  (added) VI. Observability, (added) VII. Simplicity
-- Added sections: Additional Constraints; Development Workflow; Governance body
-- Removed sections: none
-- Deferred TODOs: none (RATIFICATION_DATE set to the initial adoption date, 2026-10-14)
--->
-
-# Intelligent Banking Support Agent Constitution
+# Personal Banking Support Agent Constitution
 
 ## Core Principles
 
