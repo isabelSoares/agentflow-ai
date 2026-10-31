@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -51,6 +52,21 @@ class TestSettings:
         assert settings.cors_allowed_origins == frozenset(
             {"http://localhost:5173", "http://127.0.0.1:5173"}
         )
+
+    def test_comma_separated_values_load_from_env_file(self, tmp_path: Path) -> None:
+        env_file = tmp_path / ".env"
+        env_file.write_text(
+            "CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173\n"
+            "VOICE_SUPPORTED_INPUT_TYPES=audio/wav,audio/webm\n",
+            encoding="utf-8",
+        )
+
+        settings = Settings(_env_file=env_file)
+
+        assert settings.cors_allowed_origins == frozenset(
+            {"http://localhost:5173", "http://127.0.0.1:5173"}
+        )
+        assert settings.voice_supported_input_types == frozenset({"audio/wav", "audio/webm"})
 
     def test_llm_model_defaults_to_groq_model(self) -> None:
         settings = Settings(_env_file=None)
