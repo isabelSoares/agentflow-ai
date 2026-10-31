@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import json
+from typing import Annotated
 
 from pydantic import Field, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
 def _parse_string_set(value: object) -> object:
@@ -48,7 +49,7 @@ class Settings(BaseSettings):
 
     # Browser origins allowed to call the API directly. The Vite dev server
     # proxies requests, so these are only needed for direct cross-origin use.
-    cors_allowed_origins: frozenset[str] = frozenset(
+    cors_allowed_origins: Annotated[frozenset[str], NoDecode] = frozenset(
         {"http://localhost:5173", "http://127.0.0.1:5173"}
     )
 
@@ -62,7 +63,9 @@ class Settings(BaseSettings):
     voice_tts_enabled: bool = False
     voice_max_audio_bytes: int = 1_048_576  # 1 MB
     voice_max_audio_seconds: int = 60
-    voice_supported_input_types: frozenset[str] = frozenset({"audio/wav", "audio/webm"})
+    voice_supported_input_types: Annotated[frozenset[str], NoDecode] = frozenset(
+        {"audio/wav", "audio/webm"}
+    )
     voice_output_content_type: str = "audio/wav"
     voice_stt_model: str = "whisper-1"
     voice_tts_model: str = "tts-1"

@@ -281,6 +281,19 @@ cd frontend && npm run build
 
 The offline CI quality gate requires at least 80% line coverage for `src/banking_support`.
 
+### 5. Dependency updates and lockfile troubleshooting
+
+`pyproject.toml` and `uv.lock` must stay in sync. `uv sync --locked` intentionally fails when they drift, which happens when a dependency version range changes without regenerating the lock. To recover:
+
+```bash
+uv lock
+uv sync --locked
+```
+
+Commit the regenerated `uv.lock` together with the `pyproject.toml` change.
+
+When Dependabot or a manual update raises a version requirement, run `uv lock` and include both files in the same pull request. Locked installation and the strict dependency audit remain required gates; do not replace them with an unlocked install.
+
 ## Manual API example
 
 Every session-scoped request must carry the ownership proof returned when the session is created. A missing, malformed, unknown, or inactive proof is rejected uniformly with `401 {"detail": "Session access denied."}`.
