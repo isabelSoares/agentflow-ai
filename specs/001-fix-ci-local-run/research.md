@@ -10,7 +10,8 @@
 2. Why can the updated project not be installed or run locally?
 3. Does the latest dependency set remain compatible with the application and its security tests?
 4. What is the smallest reliable fix, and how should it be validated?
-5. How should the branch relate to PR #5 and to current `main`?
+5. Why does the documented `.env` quickstart fail after the dependency update?
+6. How should the branch relate to PR #5 and to current `main`?
 
 ## Findings
 
@@ -55,7 +56,7 @@
 
 ### 3. Compatibility of the proposed dependency set
 
-**Decision**: Adopt PR #5's manifest updates and the resulting latest compatible resolution; no runtime code changes are required.
+**Decision**: Adopt PR #5's manifest updates and the resulting latest compatible resolution, with one targeted settings fix for local `.env` parsing.
 
 **Probe method**: Created a detached worktree from current `main`, applied PR #5's `pyproject.toml` diff, ran `uv lock` and `uv sync --locked`, then ran every quality gate and the frontend build in that clean worktree.
 
@@ -90,15 +91,38 @@
 - Frontend `npm ci` and `npm run build`: success with Vite 8.3.5.
 - Container validation was not executed in the probe because Docker was unavailable in the research environment; the Dockerfile and container workflow are unchanged, so the plan keeps the existing container job as the authoritative validation.
 
-**Rationale**: Every existing quality, security, typing, audit, and frontend gate passes with the newer resolved set, so adding compatibility shims or downgrading would add unjustified complexity and violate the simplicity principle.
+**Rationale**: Every existing quality, security, typing, audit, and frontend gate passes with the newer resolved set. A real quickstart run then exposed a `.env` parsing regression in the upgraded settings library, which requires only a narrow annotation on two fields rather than broad compatibility changes or a downgrade.
 
 **Alternatives considered**:
 
 - Pin the dependency set to the previous lock and ignore the PR: rejected because it does not satisfy the requested update.
-- Introduce code changes for unverified incompatibilities: rejected because no incompatibility was observed.
+- Introduce broad code changes for unverified incompatibilities: rejected because only the `.env` parsing path failed.
 - Move to a different package manager: rejected as out of scope and unnecessarily disruptive.
 
-### 4. Validation strategy
+### 4. Local `.env` parsing regression
+
+**Decision**: Mark the two comma-separated set fields, `cors_allowed_origins` and `voice_supported_input_types`, with `NoDecode` so the existing `field_validator` parses env-file strings before the settings library attempts JSON decoding.
+
+**Evidence**:
+
+- Starting the backend with `.env` copied from `.env.example` fails while constructing `Settings`:
+  `SettingsError: error parsing value for field "cors_allowed_origins" from source "DotEnvSettingsSource"`.
+- The traceback shows the settings library calls `json.loads` on the comma-separated value before the project validator runs.
+- Starting without a `.env` file succeeds, which is why the earlier probe and the offline tests did not catch it.
+- The existing unit tests pass values as constructor kwargs, which bypass the env-file decoding path.
+- After adding `NoDecode`, the copied `.env` loads, `/health` returns `{"status":"ok"}`, and `/docs` returns HTTP 200.
+- A regression test writes a temporary `.env` with comma-separated values and asserts both sets parse correctly.
+
+**Rationale**: `NoDecode` is the settings library's supported mechanism for custom field parsing. It is limited to the two affected fields and preserves the documented comma-separated format, so no environment file or user workflow needs to change.
+
+**Alternatives considered**:
+
+- Change `.env.example` to JSON arrays: rejected because the documented format is comma-separated, existing deployments may use it, and the project already supports JSON lists through its validator.
+- Set `enable_decoding=False` globally: rejected because it changes decoding behavior for every complex field rather than only the two custom-parsed fields.
+- Downgrade the settings library: rejected because the newer set passes all other gates and the issue is a narrow parsing integration point.
+- Remove custom validators: rejected because the documented comma-separated support would be lost.
+
+### 5. Validation strategy
 
 **Decision**: Use the existing pipeline as the authoritative acceptance mechanism, preceded by the same commands locally.
 
@@ -108,7 +132,7 @@
 2. `uv run pytest -m "not live_llm and not live_speech"` with the same coverage flags as CI.
 3. `uv run ruff check src tests`, `uv run ruff format --check src tests`, and `uv run mypy src`.
 4. `uv export --locked ...` followed by `uv run pip-audit --strict -r ...`.
-5. Backend startup with an empty model key and a successful `/health` request.
+5. Backend startup from a copied `.env` with an empty model key, including successful `/health` and `/docs` responses.
 6. Frontend `npm ci` and `npm run build`.
 7. Push the branch and confirm the CI, Dependency Audit, and Container workflows all pass on the pull request.
 
@@ -119,7 +143,7 @@
 - Rely only on manual checks: rejected because the specification requires pipeline evidence.
 - Add new CI jobs: rejected because the existing jobs already cover the failure and the constitution favors simplicity.
 
-### 5. Branch and history strategy
+### 6. Branch and history strategy
 
 **Decision**: Create a fresh branch from current `main`, apply only PR #5's `pyproject.toml` changes, regenerate `uv.lock`, and supersede PR #5.
 
@@ -145,6 +169,7 @@
 | Future Dependabot PRs again update only the manifest | Medium | Medium | Document that dependency changes must include a regenerated lock and keep the `--locked` gates unchanged. |
 | Docker validation differs from the local probe | Low | Medium | Treat the Container workflow as a required gate; do not merge until it passes. |
 | A developer uses a runtime outside the documented range | Low | Low | Keep Python 3.12+ and Node.js 22.12+ documented and validate CI on the production versions. |
+| Env-file parsing regresses again without a runtime test | Low | Medium | Keep the regression test that loads comma-separated values from a temporary `.env` file. |
 
 ## Unresolved Clarifications
 

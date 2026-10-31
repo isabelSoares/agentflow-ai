@@ -38,7 +38,7 @@ uv run mypy src
 
 **Expected**:
 
-- All selected tests pass. The pre-fix baseline is 509 passed and 9 deselected.
+- All selected tests pass. The baseline before this feature was 509 passed and 9 deselected; the new env-file regression test brings the expected total to 510.
 - Coverage meets or exceeds 80%. The pre-fix baseline is 91.38%.
 - Ruff reports no violations and all files are formatted.
 - mypy reports no issues.

@@ -13,6 +13,7 @@ This contract defines the observable behavior the fix must provide. It does not 
 | Manifest consistency | Every requirement in `pyproject.toml` MUST be satisfied by `uv.lock` |
 | Stale lock behavior | A manifest change without a matching lock MUST fail at installation, not later in the pipeline |
 | Offline use | After installation, application startup and the offline test suite MUST NOT require network access or a live model key |
+| Env file | A `.env` copied from `.env.example` MUST load, including comma-separated `CORS_ALLOWED_ORIGINS` and `VOICE_SUPPORTED_INPUT_TYPES` values |
 | Frontend install | `npm ci` in `frontend/` MUST succeed from `frontend/package-lock.json` |
 
 ## 2. Pipeline Contract
