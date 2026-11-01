@@ -1,7 +1,14 @@
 import type { ConversationTurn } from './types'
 
-const API_BASE = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '')
 const PROOF_HEADER = 'X-Session-Proof'
+
+export function resolveApiBase(raw: string | undefined = import.meta.env.VITE_API_BASE_URL): string {
+  const configured = raw?.trim() ?? ''
+  if (!configured) return '/api'
+  return configured.replace(/\/+$/, '')
+}
+
+const API_BASE = resolveApiBase()
 
 export class ApiError extends Error {
   readonly status: number
@@ -38,12 +45,15 @@ async function request(path: string, init: RequestInit & { headers?: RequestHead
   }
 
   if (!response.ok) {
-    let detail = `Request failed with status ${response.status}.`
+    let detail =
+      response.status === 404
+        ? 'The demo service could not be reached. Check that the API is running and /api is routed to the backend, then try again.'
+        : `Request failed with status ${response.status}.`
     try {
       const body = (await response.json()) as { detail?: unknown }
-      if (typeof body.detail === 'string') detail = body.detail
+      if (typeof body.detail === 'string' && response.status !== 404) detail = body.detail
     } catch {
-      // Keep the generic status message when the body is not JSON.
+      // Keep the actionable message when the body is not JSON.
     }
     throw new ApiError(detail, response.status)
   }

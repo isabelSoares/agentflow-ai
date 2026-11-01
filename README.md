@@ -241,7 +241,7 @@ npm ci
 npm run dev
 ```
 
-Open http://localhost:5173. The dev server proxies `/api` to the backend on port 8000.
+Open http://localhost:5173. The browser client defaults to `/api`, and the dev server proxies `/api` to the backend on port 8000.
 
 To call a different API origin directly:
 
@@ -250,6 +250,12 @@ VITE_API_BASE_URL=http://localhost:8000 npm run dev
 ```
 
 Then add the frontend origin to the backend's `CORS_ALLOWED_ORIGINS`.
+
+The production build uses the same `/api` default. `npm run preview` mirrors the dev proxy locally; a real deployment must route `/api/*` to the backend root.
+
+#### Troubleshooting a 404 on session start
+
+A 404 on `POST /conversations` means the browser reached the static frontend host instead of the API gateway. Confirm that `VITE_API_BASE_URL` is empty or set to a reachable API origin, that the dev/preview server is running, and that production routes `/api/*` to the backend. The backend's own routes stay at `/conversations`.
 
 ### 3. Run with Docker
 
@@ -276,6 +282,7 @@ uv run pytest -m live_speech               # requires GROQ_API_KEY
 uv run mypy src
 uv run ruff check src tests
 uv run ruff format --check src tests
+cd frontend && npm test
 cd frontend && npm run build
 ```
 
