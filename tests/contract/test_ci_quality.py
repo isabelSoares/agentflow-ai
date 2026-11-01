@@ -25,4 +25,5 @@ def test_frontend_workflow_typechecks_and_builds_the_client() -> None:
 
     assert "frontend/package-lock.json" in workflow
     assert "npm ci" in workflow
+    assert "npm test" in workflow
     assert "npm run build" in workflow
