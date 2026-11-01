@@ -27,9 +27,9 @@
 
 **Purpose**: Add the offline frontend test runner and configuration required by all UI tests.
 
-- [ ] T001 Add `vitest`, `jsdom`, `@testing-library/react`, and `@testing-library/jest-dom` to `frontend/package.json`, add a `test` script running `vitest run`, and regenerate `frontend/package-lock.json` with `npm install`
-- [ ] T002 [P] Create `frontend/vitest.config.ts` with the React plugin, `jsdom` environment, `frontend/src/test/setup.ts` setup file, and an include pattern for `frontend/src/__tests__/**/*.test.{ts,tsx}`
-- [ ] T003 [P] Create `frontend/src/test/setup.ts` that imports `@testing-library/jest-dom/vitest` and runs Testing Library cleanup after each test
+- [x] T001 Add `vitest`, `jsdom`, `@testing-library/react`, and `@testing-library/jest-dom` to `frontend/package.json`, add a `test` script running `vitest run`, and regenerate `frontend/package-lock.json` with `npm install`
+- [x] T002 [P] Create `frontend/vitest.config.ts` with the React plugin, `jsdom` environment, `frontend/src/test/setup.ts` setup file, and an include pattern for `frontend/src/__tests__/**/*.test.{ts,tsx}`
+- [x] T003 [P] Create `frontend/src/test/setup.ts` that imports `@testing-library/jest-dom/vitest` and runs Testing Library cleanup after each test
 
 ---
 
@@ -39,8 +39,8 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T004 [P] Create shared frontend test utilities in `frontend/src/test/demoHarness.tsx`: a fetch mock, a `renderApp` helper, and fixture builders for conversation turn responses and proof headers
-- [ ] T005 [P] Set the default browser request base to `/api` in `frontend/src/api.ts` while preserving the `VITE_API_BASE_URL` override and trailing-slash normalization, and export a typed `resolveApiBase` helper for tests
+- [x] T004 [P] Create shared frontend test utilities in `frontend/src/test/demoHarness.tsx`: a fetch mock, a `renderApp` helper, and fixture builders for conversation turn responses and proof headers
+- [x] T005 [P] Set the default browser request base to `/api` in `frontend/src/api.ts` while preserving the `VITE_API_BASE_URL` override and trailing-slash normalization, and export a typed `resolveApiBase` helper for tests
 
 **Checkpoint**: The test harness and shared request base are ready; user stories can proceed in parallel.
 
@@ -56,16 +56,16 @@
 
 > Write these tests first and confirm they fail before implementation.
 
-- [ ] T006 [P] [US1] Write `frontend/src/__tests__/App.session.test.tsx` covering automatic session start, request URL `/api/conversations`, composer enablement, greeting replacement, and absence of an error banner
-- [ ] T007 [P] [US1] Write `frontend/src/__tests__/App.retry.test.tsx` covering the starting state, duplicate-start prevention, actionable failure message, and successful retry
-- [ ] T008 [P] [US1] Write `frontend/src/__tests__/App.conversation.test.tsx` covering message send to the active session with the proof header, reply rendering, failure preservation, and reset behavior
+- [x] T006 [P] [US1] Write `frontend/src/__tests__/App.session.test.tsx` covering automatic session start, request URL `/api/conversations`, composer enablement, greeting replacement, and absence of an error banner
+- [x] T007 [P] [US1] Write `frontend/src/__tests__/App.retry.test.tsx` covering the starting state, duplicate-start prevention, actionable failure message, and successful retry
+- [x] T008 [P] [US1] Write `frontend/src/__tests__/App.conversation.test.tsx` covering message send to the active session with the proof header, reply rendering, failure preservation, and reset behavior
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] Map HTTP 404 to an actionable API-route message, status `0` to a connectivity message, and preserve string server details in `frontend/src/api.ts`
-- [ ] T010 [US1] Guarantee one automatic session start per page load, block duplicate starts while busy, clear stale errors on retry, and preserve an active session when a message send fails in `frontend/src/App.tsx`
-- [ ] T011 [US1] Verify and adjust start/reset labels, composer placeholder, and disabled states to match `specs/002-fix-demo-session-topbar/contracts/ui-contract.md` in `frontend/src/components/ChatPanel.tsx`
-- [ ] T012 [US1] Run `cd frontend && npm test -- App.session App.retry App.conversation` for the tests in `frontend/src/__tests__/` and fix all failures
+- [x] T009 [US1] Map HTTP 404 to an actionable API-route message, status `0` to a connectivity message, and preserve string server details in `frontend/src/api.ts`
+- [x] T010 [US1] Guarantee one automatic session start per page load, block duplicate starts while busy, clear stale errors on retry, and preserve an active session when a message send fails in `frontend/src/App.tsx`
+- [x] T011 [US1] Verify and adjust start/reset labels, composer placeholder, and disabled states to match `specs/002-fix-demo-session-topbar/contracts/ui-contract.md` in `frontend/src/components/ChatPanel.tsx`
+- [x] T012 [US1] Run `cd frontend && npm test -- App.session App.retry App.conversation` for the tests in `frontend/src/__tests__/` and fix all failures
 
 **Checkpoint**: User Story 1 is independently functional and is the MVP.
 
@@ -79,15 +79,15 @@
 
 ### Tests for User Story 2
 
-- [ ] T013 [P] [US2] Create `tests/contract/test_frontend_demo_contract.py` asserting the default `/api` base in `frontend/src/api.ts`, `/api` proxy entries for dev and preview in `frontend/vite.config.ts`, no root `/conversations` request literal, and `/api` routing guidance in `README.md`
-- [ ] T014 [P] [US2] Create `frontend/src/__tests__/apiBase.test.ts` covering the default `/api` resolution, `VITE_API_BASE_URL` override, and trailing-slash normalization
+- [x] T013 [P] [US2] Create `tests/contract/test_frontend_demo_contract.py` asserting the default `/api` base in `frontend/src/api.ts`, `/api` proxy entries for dev and preview in `frontend/vite.config.ts`, no root `/conversations` request literal, and `/api` routing guidance in `README.md`
+- [x] T014 [P] [US2] Create `frontend/src/__tests__/apiBase.test.ts` covering the default `/api` resolution, `VITE_API_BASE_URL` override, and trailing-slash normalization
 
 ### Implementation for User Story 2
 
-- [ ] T015 [US2] Add a `preview` proxy in `frontend/vite.config.ts` that mirrors the dev `/api` proxy to `http://127.0.0.1:8000`
-- [ ] T016 [P] [US2] Update `frontend/.env.example` to document that an empty value uses `/api` and that `VITE_API_BASE_URL` is only for direct-origin deployments
-- [ ] T017 [P] [US2] Update `README.md` quickstart and troubleshooting to state that the browser uses `/api`, that production must route `/api/*` to the backend root, and how to diagnose a 404 session start
-- [ ] T018 [US2] Run `uv run pytest tests/contract/test_frontend_demo_contract.py -q`, `cd frontend && npm test -- apiBase` for `frontend/src/__tests__/apiBase.test.ts`, and `cd frontend && npm run build` for `frontend/vite.config.ts`
+- [x] T015 [US2] Add a `preview` proxy in `frontend/vite.config.ts` that mirrors the dev `/api` proxy to `http://127.0.0.1:8000`
+- [x] T016 [P] [US2] Update `frontend/.env.example` to document that an empty value uses `/api` and that `VITE_API_BASE_URL` is only for direct-origin deployments
+- [x] T017 [P] [US2] Update `README.md` quickstart and troubleshooting to state that the browser uses `/api`, that production must route `/api/*` to the backend root, and how to diagnose a 404 session start
+- [x] T018 [US2] Run `uv run pytest tests/contract/test_frontend_demo_contract.py -q`, `cd frontend && npm test -- apiBase` for `frontend/src/__tests__/apiBase.test.ts`, and `cd frontend && npm run build` for `frontend/vite.config.ts`
 
 **Checkpoint**: User Story 2 is independently validated in both development and preview modes.
 
@@ -101,15 +101,15 @@
 
 ### Tests for User Story 3
 
-- [ ] T019 [P] [US3] Create `tests/contract/test_topbar_presentation.py` asserting the `.site-header` rule includes `position: sticky`, a top offset, margin, padding, `border-radius`, a border, `box-shadow`, and `backdrop-filter`, plus a mobile media-query override preserving radius and padding
-- [ ] T020 [P] [US3] Create `frontend/src/__tests__/App.topbar.test.tsx` asserting the page renders a `site-header` element containing the brand link and primary navigation links
+- [x] T019 [P] [US3] Create `tests/contract/test_topbar_presentation.py` asserting the `.site-header` rule includes `position: sticky`, a top offset, margin, padding, `border-radius`, a border, `box-shadow`, and `backdrop-filter`, plus a mobile media-query override preserving radius and padding
+- [x] T020 [P] [US3] Create `frontend/src/__tests__/App.topbar.test.tsx` asserting the page renders a `site-header` element containing the brand link and primary navigation links
 
 ### Implementation for User Story 3
 
-- [ ] T021 [US3] Restyle `.site-header` in `frontend/src/styles.css` as a floating sticky surface with a top offset, margin, horizontal padding, all-corner rounding, an accent-tinted border, and a layered shadow/glow
-- [ ] T022 [US3] Update the `max-width: 700px` `.site-header` rule in `frontend/src/styles.css` to preserve side spacing, rounding, highlight, and stacked layout without horizontal scrolling
-- [ ] T023 [US3] Add hover/focus-within highlight intensification and confirm focus-visible contrast for topbar links in `frontend/src/styles.css`
-- [ ] T024 [US3] Run `uv run pytest tests/contract/test_topbar_presentation.py -q`, `cd frontend && npm test -- App.topbar`, and `cd frontend && npm run build`, then perform the visual checks in `specs/002-fix-demo-session-topbar/quickstart.md`
+- [x] T021 [US3] Restyle `.site-header` in `frontend/src/styles.css` as a floating sticky surface with a top offset, margin, horizontal padding, all-corner rounding, an accent-tinted border, and a layered shadow/glow
+- [x] T022 [US3] Update the `max-width: 700px` `.site-header` rule in `frontend/src/styles.css` to preserve side spacing, rounding, highlight, and stacked layout without horizontal scrolling
+- [x] T023 [US3] Add hover/focus-within highlight intensification and confirm focus-visible contrast for topbar links in `frontend/src/styles.css`
+- [x] T024 [US3] Run `uv run pytest tests/contract/test_topbar_presentation.py -q`, `cd frontend && npm test -- App.topbar`, and `cd frontend && npm run build`, then perform the visual checks in `specs/002-fix-demo-session-topbar/quickstart.md`
 
 **Checkpoint**: All three user stories are independently functional.
 
@@ -119,11 +119,11 @@
 
 **Purpose**: Full quality gates and end-to-end validation across the feature.
 
-- [ ] T025 [P] Run `uv run pytest -m "not live_llm and not live_speech" --cov=src/banking_support --cov-branch --cov-report=term-missing --cov-fail-under=80` against `tests/`
-- [ ] T026 [P] Run `uv run mypy src`, `uv run ruff check src tests`, and `uv run ruff format --check src tests` against `src/banking_support/` and `tests/`
-- [ ] T027 [P] Run `cd frontend && npm test` for `frontend/src/__tests__/` and `cd frontend && npm run build` for `frontend/`
-- [ ] T028 Execute every scenario in `specs/002-fix-demo-session-topbar/quickstart.md`, including backend-down retry and responsive topbar checks
-- [ ] T029 [P] Review `README.md`, `frontend/.env.example`, and `specs/002-fix-demo-session-topbar/contracts/session-api.md` for consistent `/api` guidance and remove stale 404 instructions
+- [x] T025 [P] Run `uv run pytest -m "not live_llm and not live_speech" --cov=src/banking_support --cov-branch --cov-report=term-missing --cov-fail-under=80` against `tests/`
+- [x] T026 [P] Run `uv run mypy src`, `uv run ruff check src tests`, and `uv run ruff format --check src tests` against `src/banking_support/` and `tests/`
+- [x] T027 [P] Run `cd frontend && npm test` for `frontend/src/__tests__/` and `cd frontend && npm run build` for `frontend/`
+- [x] T028 Execute every scenario in `specs/002-fix-demo-session-topbar/quickstart.md`, including backend-down retry and responsive topbar checks
+- [x] T029 [P] Review `README.md`, `frontend/.env.example`, and `specs/002-fix-demo-session-topbar/contracts/session-api.md` for consistent `/api` guidance and remove stale 404 instructions
 
 ---
 
