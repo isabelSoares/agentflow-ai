@@ -4,18 +4,18 @@ from __future__ import annotations
 
 import logging
 
-from healthcare_support.data.seed import CUSTOMERS
+from healthcare_support.data.seed import PATIENTS
 from healthcare_support.observability.audit import AuditEvent, build_audit_event
 from healthcare_support.observability.logging import _JsonFormatter, redact
 
 
 class TestRedaction:
     def test_redacts_date_of_birth(self) -> None:
-        text = f"My date of birth is {CUSTOMERS[0].date_of_birth}."
+        text = f"My date of birth is {PATIENTS[0].date_of_birth}."
         assert redact(text) == "My date of birth is [REDACTED]."
 
     def test_redacts_phone(self) -> None:
-        text = f"Call me at {CUSTOMERS[0].phone}."
+        text = f"Call me at {PATIENTS[0].phone}."
         assert redact(text) == "Call me at [REDACTED]."
 
     def test_redacts_api_key(self) -> None:
@@ -34,13 +34,13 @@ class TestJsonFormatterRedaction:
             pathname=__file__,
             lineno=1,
             msg="Call %s with key %s",
-            args=(CUSTOMERS[0].phone, "gsk_abcdefghijklmnop"),
+            args=(PATIENTS[0].phone, "gsk_abcdefghijklmnop"),
             exc_info=None,
         )
 
         output = _JsonFormatter().format(record)
 
-        assert CUSTOMERS[0].phone not in output
+        assert PATIENTS[0].phone not in output
         assert "gsk_abcdefghijklmnop" not in output
         assert "[REDACTED]" in output
 

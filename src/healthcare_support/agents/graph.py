@@ -11,12 +11,12 @@ from langgraph.graph import END, START, StateGraph
 from healthcare_support.agents import nodes
 from healthcare_support.agents.llm import LLMExtractor, SupportIntentClassifier
 from healthcare_support.agents.state import GraphState, checkpoint_safe_state
-from healthcare_support.data.repository import CustomerRepository
+from healthcare_support.data.repository import PatientRepository
 from healthcare_support.domain.routing import SupportDirectory
 
 
 def build_verification_graph(
-    repository: CustomerRepository,
+    repository: PatientRepository,
     extractor: LLMExtractor,
     default_phone_region: str = "DE",
     intent_classifier: SupportIntentClassifier | None = None,

@@ -1,10 +1,10 @@
-"""Customer-facing safe replies for advanced guardrail reason categories."""
+"""Patient-facing safe replies for advanced guardrail reason categories."""
 
 from __future__ import annotations
 
 DEFAULT_ADVANCED_SAFE_REPLIES: dict[str, str] = {
     "off_topic": (
-        "I'm here to help with banking customer support. "
+        "I'm here to help with banking patient support. "
         "I can assist with questions about accounts, cards, loans, insurance, "
         "and other banking services. How can I help you today?"
     ),

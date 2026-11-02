@@ -48,7 +48,7 @@ class GraphState(TypedDict):
 
     # Workflow state.
     status: str  # ConversationStatus values
-    matched_customer_id: str | None
+    matched_patient_id: str | None
     identification_attempts: int
     secret_answer_attempts: int
     terminated: bool
@@ -69,7 +69,7 @@ class GraphState(TypedDict):
     guardrail_decision: dict[str, Any] | None
 
     # Classification result produced by the Bouncer Agent after authentication.
-    customer_classification: str | None  # CustomerClassification values
+    patient_classification: str | None  # PatientClassification values
 
     # Specialist routing outputs (sanitized — no PII or secrets).
     support_intent: str | None  # SupportIntent values
@@ -89,7 +89,7 @@ def make_initial_state(conversation_id: str) -> dict[str, Any]:
         "attr_phone": None,
         "attr_date_of_birth": None,
         "status": ConversationStatus.COLLECTING.value,
-        "matched_customer_id": None,
+        "matched_patient_id": None,
         "identification_attempts": 0,
         "secret_answer_attempts": 0,
         "terminated": False,
@@ -99,7 +99,7 @@ def make_initial_state(conversation_id: str) -> dict[str, Any]:
         "pending_secret_answer": None,
         "history_metadata": None,
         "guardrail_decision": None,
-        "customer_classification": None,
+        "patient_classification": None,
         "support_intent": None,
         "support_specialization": None,
         "routing_status": None,

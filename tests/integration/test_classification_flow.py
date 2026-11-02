@@ -8,14 +8,14 @@ from langchain_core.messages import HumanMessage
 from healthcare_support.agents.graph import build_verification_graph
 from healthcare_support.agents.llm import ExtractionIntent, ExtractionResult, ScriptedFakeExtractor
 from healthcare_support.agents.state import make_initial_state
-from healthcare_support.data.memory import InMemoryCustomerRepository
-from healthcare_support.data.seed import CUSTOMERS
+from healthcare_support.data.memory import InMemoryPatientRepository
+from healthcare_support.data.seed import PATIENTS
 from healthcare_support.domain.conversation import ConversationStatus
 
 
 @pytest.fixture
-def repository() -> InMemoryCustomerRepository:
-    return InMemoryCustomerRepository(CUSTOMERS)
+def repository() -> InMemoryPatientRepository:
+    return InMemoryPatientRepository(PATIENTS)
 
 
 def run_turn(graph, conversation_id: str, text: str) -> dict:
@@ -27,8 +27,8 @@ def run_turn(graph, conversation_id: str, text: str) -> dict:
 
 
 class TestPremiumClassification:
-    def test_premium_customer_routed_to_premium_support(
-        self, repository: InMemoryCustomerRepository
+    def test_premium_patient_routed_to_premium_support(
+        self, repository: InMemoryPatientRepository
     ) -> None:
         extractor = ScriptedFakeExtractor(
             [
@@ -46,14 +46,14 @@ class TestPremiumClassification:
         run_turn(graph, cid, "identify me")
         state = run_turn(graph, cid, "Yoda")
         assert state["status"] == ConversationStatus.AUTHENTICATED.value
-        assert state["customer_classification"] == "premium"
+        assert state["patient_classification"] == "premium"
         assert "+1999888999" in state["reply"]
         assert "premium client" in state["reply"].lower()
 
 
 class TestRegularClassification:
-    def test_regular_customer_routed_to_standard_support(
-        self, repository: InMemoryCustomerRepository
+    def test_regular_patient_routed_to_standard_support(
+        self, repository: InMemoryPatientRepository
     ) -> None:
         extractor = ScriptedFakeExtractor(
             [
@@ -71,14 +71,14 @@ class TestRegularClassification:
         run_turn(graph, cid, "identify me")
         state = run_turn(graph, cid, "Blue")
         assert state["status"] == ConversationStatus.AUTHENTICATED.value
-        assert state["customer_classification"] == "regular"
+        assert state["patient_classification"] == "regular"
         assert "+1112112112" in state["reply"]
         assert "regular client" in state["reply"].lower()
 
 
-class TestNonCustomerClassification:
+class TestNonPatientClassification:
     def test_unverified_caller_is_not_classified(
-        self, repository: InMemoryCustomerRepository
+        self, repository: InMemoryPatientRepository
     ) -> None:
         extractor = ScriptedFakeExtractor(
             [
@@ -90,17 +90,17 @@ class TestNonCustomerClassification:
         graph.update_state({"configurable": {"thread_id": cid}}, make_initial_state(cid))
         state = run_turn(graph, cid, "what is my account status?")
         assert state["status"] == ConversationStatus.COLLECTING.value
-        assert state["customer_classification"] is None
+        assert state["patient_classification"] is None
         assert "identity is verified" in state["reply"].lower()
 
-    def test_verified_but_unresolvable_customer_is_non_customer(
-        self, repository: InMemoryCustomerRepository
+    def test_verified_but_unresolvable_patient_is_non_patient(
+        self, repository: InMemoryPatientRepository
     ) -> None:
-        class MissingRecordRepository(InMemoryCustomerRepository):
-            def get_by_id(self, customer_id: str) -> None:
+        class MissingRecordRepository(InMemoryPatientRepository):
+            def get_by_id(self, patient_id: str) -> None:
                 return None
 
-        missing_repo = MissingRecordRepository(CUSTOMERS)
+        missing_repo = MissingRecordRepository(PATIENTS)
         extractor = ScriptedFakeExtractor(
             [
                 ExtractionResult(
@@ -112,22 +112,22 @@ class TestNonCustomerClassification:
             ]
         )
         graph = build_verification_graph(missing_repo, extractor)
-        cid = "conv-noncustomer-1"
+        cid = "conv-nonpatient-1"
         graph.update_state({"configurable": {"thread_id": cid}}, make_initial_state(cid))
         run_turn(graph, cid, "identify me")
         state = run_turn(graph, cid, "Yoda")
         assert state["status"] == ConversationStatus.AUTHENTICATED.value
-        assert state["customer_classification"] == "non_customer"
-        assert "existing customers" in state["reply"]
+        assert state["patient_classification"] == "non_patient"
+        assert "existing patients" in state["reply"]
 
 
 class TestClassificationStateIsolation:
     def test_new_conversation_has_no_classification(
-        self, repository: InMemoryCustomerRepository
+        self, repository: InMemoryPatientRepository
     ) -> None:
         extractor = ScriptedFakeExtractor([])
         graph = build_verification_graph(repository, extractor)
         cid = "conv-fresh-1"
         graph.update_state({"configurable": {"thread_id": cid}}, make_initial_state(cid))
         state = run_turn(graph, cid, "hello")
-        assert state["customer_classification"] is None
+        assert state["patient_classification"] is None

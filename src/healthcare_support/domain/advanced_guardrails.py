@@ -13,7 +13,7 @@ from typing import Any, Literal, cast
 from langchain_core.messages import BaseMessage
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from healthcare_support.domain.conversation import ConversationStatus, CustomerClassification
+from healthcare_support.domain.conversation import ConversationStatus, PatientClassification
 from healthcare_support.domain.guardrails import GuardrailDecisionOutcome, GuardrailInput
 from healthcare_support.domain.routing import SupportIntent
 
@@ -48,7 +48,7 @@ class ConversationContext(BaseModel):
         default=ConversationStatus.COLLECTING,
         description="Trusted authentication status from the Greeter.",
     )
-    customer_classification: CustomerClassification | None = Field(
+    patient_classification: PatientClassification | None = Field(
         default=None,
         description="Trusted tier classification from the Bouncer.",
     )

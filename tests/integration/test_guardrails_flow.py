@@ -14,8 +14,8 @@ from healthcare_support.agents.graph import build_verification_graph
 from healthcare_support.agents.llm import ExtractionIntent, ExtractionResult, LLMExtractor
 from healthcare_support.agents.nodes import make_nodes
 from healthcare_support.agents.state import make_initial_state
-from healthcare_support.data.memory import InMemoryCustomerRepository
-from healthcare_support.data.seed import CUSTOMERS
+from healthcare_support.data.memory import InMemoryPatientRepository
+from healthcare_support.data.seed import PATIENTS
 
 
 class PermissiveFakeExtractor(LLMExtractor):
@@ -71,12 +71,12 @@ class PermissiveFakeExtractor(LLMExtractor):
 
 
 @pytest.fixture
-def repository() -> InMemoryCustomerRepository:
-    return InMemoryCustomerRepository(CUSTOMERS)
+def repository() -> InMemoryPatientRepository:
+    return InMemoryPatientRepository(PATIENTS)
 
 
 @pytest.fixture
-def graph(repository: InMemoryCustomerRepository):
+def graph(repository: InMemoryPatientRepository):
     return build_verification_graph(
         repository, PermissiveFakeExtractor(), default_phone_region="DE"
     )
@@ -116,14 +116,14 @@ class TestAuthenticationAndAuthorization:
         assert "verified" in result["reply"].lower() or "identity" in result["reply"].lower()
         assert result.get("status") != "authenticated"
 
-    def test_non_customer_cannot_access_account_data(self, graph) -> None:
-        # Start with a state that looks authenticated but classified as non-customer.
-        state = make_initial_state("probe-non-customer")
+    def test_non_patient_cannot_access_account_data(self, graph) -> None:
+        # Start with a state that looks authenticated but classified as non-patient.
+        state = make_initial_state("probe-non-patient")
         state["status"] = "authenticated"
-        state["customer_classification"] = "non_customer"
-        result = _run(graph, "probe-non-customer", "What is my balance?", initial_state=state)
-        assert result.get("status") != "authenticated" or "non_customer" in (
-            result.get("customer_classification") or ""
+        state["patient_classification"] = "non_patient"
+        result = _run(graph, "probe-non-patient", "What is my balance?", initial_state=state)
+        assert result.get("status") != "authenticated" or "non_patient" in (
+            result.get("patient_classification") or ""
         )
 
 
@@ -131,7 +131,7 @@ class TestOutputGuardrail:
     def test_output_with_sensitive_data_is_sanitized(self, graph) -> None:
         state = make_initial_state("probe-privacy")
         state["status"] = "authenticated"
-        state["customer_classification"] = "regular"
+        state["patient_classification"] = "regular"
         state["reply"] = "Your date of birth is 1990-01-15."
         result = _run(graph, "probe-privacy", "Thanks", initial_state=state)
         assert "1990-01-15" not in result["reply"]
@@ -139,13 +139,13 @@ class TestOutputGuardrail:
     def _output_guardrail_state(self, conversation_id: str) -> dict:
         state = make_initial_state(conversation_id)
         state["status"] = "authenticated"
-        state["matched_customer_id"] = "cust-1"
-        state["customer_classification"] = "regular"
+        state["matched_patient_id"] = "cust-1"
+        state["patient_classification"] = "regular"
         state["reply"] = "Your date of birth is 1990-01-15."
         return state
 
     def test_previous_turn_request_does_not_authorize_current_disclosure(
-        self, repository: InMemoryCustomerRepository
+        self, repository: InMemoryPatientRepository
     ) -> None:
         nodes = make_nodes(repository, PermissiveFakeExtractor())
         state = self._output_guardrail_state("probe-current-turn-block")
@@ -157,7 +157,7 @@ class TestOutputGuardrail:
         assert "1990-01-15" not in (result.get("reply") or "")
 
     def test_current_turn_request_authorizes_disclosure(
-        self, repository: InMemoryCustomerRepository
+        self, repository: InMemoryPatientRepository
     ) -> None:
         nodes = make_nodes(repository, PermissiveFakeExtractor())
         state = self._output_guardrail_state("probe-current-turn-allow")
@@ -172,7 +172,7 @@ class TestOutputGuardrail:
     def test_output_with_unauthorized_commitment_is_blocked(self, graph) -> None:
         state = make_initial_state("probe-commitment")
         state["status"] = "authenticated"
-        state["customer_classification"] = "regular"
+        state["patient_classification"] = "regular"
         state["reply"] = "Your loan has been approved."
         result = _run(graph, "probe-commitment", "Thanks", initial_state=state)
         assert "approved" not in result["reply"].lower()
@@ -193,8 +193,8 @@ class TestMultiAgentConsistency:
         config = {"configurable": {"thread_id": cid}}
         state = make_initial_state(cid)
         state["status"] = "authenticated"
-        state["matched_customer_id"] = "cust-1"
-        state["customer_classification"] = "regular"
+        state["matched_patient_id"] = "cust-1"
+        state["patient_classification"] = "regular"
         graph.update_state(config, state)
 
         result = graph.invoke(
@@ -213,7 +213,7 @@ class TestFailureHandling:
     def test_guardrail_failure_produces_safe_response(self, graph) -> None:
         # Simulate a malformed state that causes the guardrail input builder to fail.
         state = make_initial_state("probe-failure")
-        state["customer_classification"] = "invalid_value"
+        state["patient_classification"] = "invalid_value"
         result = _run(graph, "probe-failure", "Hello", initial_state=state)
         assert result.get("reply") is not None
         assert "technical" not in result["reply"].lower()

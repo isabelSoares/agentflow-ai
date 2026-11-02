@@ -75,7 +75,7 @@ active ──send message──▶ active (messages and telemetry updated)
 **Validation rules**:
 - Network failure MUST use status `0` and a connectivity-oriented message.
 - A non-success HTTP response MUST preserve the server-provided detail when it is a string.
-- The error MUST NOT expose session proofs, customer data, or stack traces.
+- The error MUST NOT expose session proofs, patient data, or stack traces.
 
 ---
 

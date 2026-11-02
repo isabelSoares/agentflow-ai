@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from healthcare_support.domain.customer import Customer
+from healthcare_support.domain.patient import Patient
 
-CUSTOMERS: list[Customer] = [
-    Customer(
+PATIENTS: list[Patient] = [
+    Patient(
         id="cust-1",
         name="Lisa",
         phone="+14155552671",
@@ -14,8 +14,8 @@ CUSTOMERS: list[Customer] = [
         secret_answer="Yoda",
         is_premium=True,
     ),
-    # Two customers sharing a phone number to exercise ambiguous-match logic.
-    Customer(
+    # Two patients sharing a phone number to exercise ambiguous-match logic.
+    Patient(
         id="cust-2",
         name="Maria Silva",
         phone="+351912345678",
@@ -23,7 +23,7 @@ CUSTOMERS: list[Customer] = [
         secret_question="What is your mother's maiden name?",
         secret_answer="Santos",
     ),
-    Customer(
+    Patient(
         id="cust-3",
         name="Maria Souza",
         phone="+351912345678",
@@ -31,7 +31,7 @@ CUSTOMERS: list[Customer] = [
         secret_question="What was your first car?",
         secret_answer="Gol",
     ),
-    Customer(
+    Patient(
         id="cust-4",
         name="John Doe",
         phone="+12025550123",

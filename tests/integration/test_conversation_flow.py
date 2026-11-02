@@ -8,14 +8,14 @@ from langchain_core.messages import HumanMessage
 from healthcare_support.agents.graph import build_verification_graph
 from healthcare_support.agents.llm import ExtractionIntent, ExtractionResult, ScriptedFakeExtractor
 from healthcare_support.agents.state import make_initial_state
-from healthcare_support.data.memory import InMemoryCustomerRepository
-from healthcare_support.data.seed import CUSTOMERS
+from healthcare_support.data.memory import InMemoryPatientRepository
+from healthcare_support.data.seed import PATIENTS
 from healthcare_support.domain.conversation import ConversationStatus
 
 
 @pytest.fixture
-def repository() -> InMemoryCustomerRepository:
-    return InMemoryCustomerRepository(CUSTOMERS)
+def repository() -> InMemoryPatientRepository:
+    return InMemoryPatientRepository(PATIENTS)
 
 
 def run_turn(graph, conversation_id: str, text: str) -> dict:
@@ -28,7 +28,7 @@ def run_turn(graph, conversation_id: str, text: str) -> dict:
 
 class TestUS1Identification:
     def test_name_and_phone_in_one_message_identifies(
-        self, repository: InMemoryCustomerRepository
+        self, repository: InMemoryPatientRepository
     ) -> None:
         extractor = ScriptedFakeExtractor(
             [
@@ -46,7 +46,7 @@ class TestUS1Identification:
         assert state["status"] == ConversationStatus.IDENTIFIED.value
         assert "Which is the name of my dog?" in state["reply"]
 
-    def test_multi_turn_out_of_order(self, repository: InMemoryCustomerRepository) -> None:
+    def test_multi_turn_out_of_order(self, repository: InMemoryPatientRepository) -> None:
         extractor = ScriptedFakeExtractor(
             [
                 ExtractionResult(name="Lisa", intent=ExtractionIntent.PROVIDE_IDENTIFICATION),
@@ -67,7 +67,7 @@ class TestUS1Identification:
         assert state3["status"] == ConversationStatus.IDENTIFIED.value
         assert "Which is the name of my dog?" in state3["reply"]
 
-    def test_formatting_variants(self, repository: InMemoryCustomerRepository) -> None:
+    def test_formatting_variants(self, repository: InMemoryPatientRepository) -> None:
         extractor = ScriptedFakeExtractor(
             [
                 ExtractionResult(
@@ -84,7 +84,7 @@ class TestUS1Identification:
         state = run_turn(graph, cid, "here is my info")
         assert state["status"] == ConversationStatus.IDENTIFIED.value
 
-    def test_single_attribute_asks_for_more(self, repository: InMemoryCustomerRepository) -> None:
+    def test_single_attribute_asks_for_more(self, repository: InMemoryPatientRepository) -> None:
         extractor = ScriptedFakeExtractor(
             [
                 ExtractionResult(name="Lisa", intent=ExtractionIntent.PROVIDE_IDENTIFICATION),
@@ -99,7 +99,7 @@ class TestUS1Identification:
 
 
 class TestUS2Authentication:
-    def test_correct_answer_authenticates(self, repository: InMemoryCustomerRepository) -> None:
+    def test_correct_answer_authenticates(self, repository: InMemoryPatientRepository) -> None:
         extractor = ScriptedFakeExtractor(
             [
                 ExtractionResult(
@@ -116,10 +116,10 @@ class TestUS2Authentication:
         run_turn(graph, cid, "identify me")
         state = run_turn(graph, cid, "Yoda")
         assert state["status"] == ConversationStatus.AUTHENTICATED.value
-        assert state["customer_classification"] == "premium"
+        assert state["patient_classification"] == "premium"
         assert "premium client" in state["reply"].lower()
 
-    def test_wrong_answer_then_retry(self, repository: InMemoryCustomerRepository) -> None:
+    def test_wrong_answer_then_retry(self, repository: InMemoryPatientRepository) -> None:
         extractor = ScriptedFakeExtractor(
             [
                 ExtractionResult(
@@ -141,7 +141,7 @@ class TestUS2Authentication:
         state2 = run_turn(graph, cid, "Yoda")
         assert state2["status"] == ConversationStatus.AUTHENTICATED.value
 
-    def test_data_request_refused_pre_auth(self, repository: InMemoryCustomerRepository) -> None:
+    def test_data_request_refused_pre_auth(self, repository: InMemoryPatientRepository) -> None:
         extractor = ScriptedFakeExtractor(
             [
                 ExtractionResult(intent=ExtractionIntent.REQUEST_DATA),
@@ -159,7 +159,7 @@ class TestUS1DeterministicPrecedence:
     """E2: deterministic verification wins over a conflicting extraction label."""
 
     def test_answer_with_request_data_label_authenticates(
-        self, repository: InMemoryCustomerRepository
+        self, repository: InMemoryPatientRepository
     ) -> None:
         extractor = ScriptedFakeExtractor(
             [
@@ -182,7 +182,7 @@ class TestUS1DeterministicPrecedence:
         assert state["status"] == ConversationStatus.AUTHENTICATED.value
 
     def test_request_data_without_answer_still_refuses(
-        self, repository: InMemoryCustomerRepository
+        self, repository: InMemoryPatientRepository
     ) -> None:
         extractor = ScriptedFakeExtractor(
             [
@@ -204,7 +204,7 @@ class TestUS1DeterministicPrecedence:
 
 
 class TestUS3FailureHandling:
-    def test_no_match_generic_response(self, repository: InMemoryCustomerRepository) -> None:
+    def test_no_match_generic_response(self, repository: InMemoryPatientRepository) -> None:
         extractor = ScriptedFakeExtractor(
             [
                 ExtractionResult(
@@ -222,7 +222,7 @@ class TestUS3FailureHandling:
         assert "wasn't able to verify" in state["reply"].lower()
         assert "Nobody" not in state["reply"]
 
-    def test_ambiguous_match_asks_for_more(self, repository: InMemoryCustomerRepository) -> None:
+    def test_ambiguous_match_asks_for_more(self, repository: InMemoryPatientRepository) -> None:
         extractor = ScriptedFakeExtractor(
             [
                 ExtractionResult(
@@ -239,7 +239,7 @@ class TestUS3FailureHandling:
         assert state["status"] == ConversationStatus.COLLECTING.value
         assert "date of birth" in state["reply"]
 
-    def test_disambiguation_resolves(self, repository: InMemoryCustomerRepository) -> None:
+    def test_disambiguation_resolves(self, repository: InMemoryPatientRepository) -> None:
         extractor = ScriptedFakeExtractor(
             [
                 ExtractionResult(
@@ -262,7 +262,7 @@ class TestUS3FailureHandling:
         assert state["status"] == ConversationStatus.IDENTIFIED.value
         assert "mother" in state["reply"].lower()
 
-    def test_manipulation_no_disclosure(self, repository: InMemoryCustomerRepository) -> None:
+    def test_manipulation_no_disclosure(self, repository: InMemoryPatientRepository) -> None:
         extractor = ScriptedFakeExtractor(
             [
                 ExtractionResult(intent=ExtractionIntent.CHITCHAT),
@@ -279,7 +279,7 @@ class TestUS3FailureHandling:
 
 class TestUS4LimitsAndTermination:
     def test_three_wrong_secret_answers_terminate(
-        self, repository: InMemoryCustomerRepository
+        self, repository: InMemoryPatientRepository
     ) -> None:
         extractor = ScriptedFakeExtractor(
             [
@@ -305,7 +305,7 @@ class TestUS4LimitsAndTermination:
         assert "wasn't able to complete" in final["reply"].lower()
 
     def test_three_failed_identifications_terminate_non_client(
-        self, repository: InMemoryCustomerRepository
+        self, repository: InMemoryPatientRepository
     ) -> None:
         extractor = ScriptedFakeExtractor(
             [
@@ -330,7 +330,7 @@ class TestUS4LimitsAndTermination:
         assert final["terminated"] is True
         assert "not currently a client" in final["reply"].lower()
 
-    def test_new_conversation_resets_state(self, repository: InMemoryCustomerRepository) -> None:
+    def test_new_conversation_resets_state(self, repository: InMemoryPatientRepository) -> None:
         extractor = ScriptedFakeExtractor(
             [
                 ExtractionResult(

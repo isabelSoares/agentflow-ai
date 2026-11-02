@@ -1,6 +1,6 @@
 """Fixed, non-disclosing response templates used by the verification flow.
 
-No template in this module contains placeholders for customer record data, so
+No template in this module contains placeholders for patient record data, so
 pre-authentication replies cannot leak PII by construction.
 """
 
@@ -66,14 +66,14 @@ REGULAR_ROUTING = (
     "for assistance."
 )
 
-NON_CUSTOMER_RESPONSE = (
-    "Thank you for reaching out. Dedicated customer support is only available to "
-    "existing customers. If you'd like to learn more about becoming a "
-    "customer, please visit our website or your nearest branch."
+NON_PATIENT_RESPONSE = (
+    "Thank you for reaching out. Dedicated patient support is only available to "
+    "existing patients. If you'd like to learn more about becoming a "
+    "patient, please visit our website or your nearest branch."
 )
 
 PREMIUM_RESTRICTION_MESSAGE = (
-    "That service is available exclusively to premium customers. "
+    "That service is available exclusively to premium patients. "
     "For assistance with other options, please let me know what you need help with."
 )
 

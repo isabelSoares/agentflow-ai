@@ -55,17 +55,17 @@ def ensure_session_access(app_state: AppState, conversation_id: str, proof: str 
 def _sensitive_values_for_state(state: GraphState, app_state: AppState) -> set[str]:
     """Collect sensitive values that must be redacted from persisted history."""
     sensitive: set[str] = set()
-    matched_id = state.get("matched_customer_id")
+    matched_id = state.get("matched_patient_id")
     if matched_id is not None:
-        customer = app_state.customer_repository.get_by_id(matched_id)
-        if customer is not None:
+        patient = app_state.patient_repository.get_by_id(matched_id)
+        if patient is not None:
             sensitive.update(
                 value
                 for value in (
-                    customer.name,
-                    customer.phone,
-                    customer.date_of_birth,
-                    customer.secret_answer,
+                    patient.name,
+                    patient.phone,
+                    patient.date_of_birth,
+                    patient.secret_answer,
                 )
                 if value
             )
@@ -124,7 +124,7 @@ def invoke_graph(
             history_store.add_assistant_message(conversation_id, str(reply))
     except Exception:
         # History unavailability must not leak data, bypass security checks, or
-        # expose internal errors to the customer.
+        # expose internal errors to the patient.
         logger.exception("Failed to persist conversation history")
 
     return result

@@ -14,25 +14,25 @@ from healthcare_support.core.verification import (
     process_identification_failure,
     process_secret_attempt,
 )
-from healthcare_support.data.memory import InMemoryCustomerRepository
-from healthcare_support.data.seed import CUSTOMERS
+from healthcare_support.data.memory import InMemoryPatientRepository
+from healthcare_support.data.seed import PATIENTS
 from healthcare_support.domain.conversation import (
     ConversationStatus,
     ExtractionIntent,
     TerminationReason,
 )
-from healthcare_support.domain.customer import Customer
+from healthcare_support.domain.patient import Patient
 
 
 @pytest.fixture
-def lisa() -> Customer:
-    return CUSTOMERS[0]
+def lisa() -> Patient:
+    return PATIENTS[0]
 
 
 @pytest.fixture
 def authenticate():
     """Return the ``authenticate_node`` callable under test."""
-    nodes = make_nodes(InMemoryCustomerRepository(CUSTOMERS), ScriptedFakeExtractor())
+    nodes = make_nodes(InMemoryPatientRepository(PATIENTS), ScriptedFakeExtractor())
     return nodes["authenticate"]
 
 
@@ -41,9 +41,9 @@ def identified_state(**overrides):
     state.update(
         {
             "status": ConversationStatus.IDENTIFIED.value,
-            "matched_customer_id": CUSTOMERS[0].id,
-            "attr_name": CUSTOMERS[0].name,
-            "attr_phone": CUSTOMERS[0].phone,
+            "matched_patient_id": PATIENTS[0].id,
+            "attr_name": PATIENTS[0].name,
+            "attr_phone": PATIENTS[0].phone,
         }
     )
     state.update(overrides)
@@ -51,38 +51,38 @@ def identified_state(**overrides):
 
 
 class TestCheckSecretAnswer:
-    def test_exact_match(self, lisa: Customer) -> None:
+    def test_exact_match(self, lisa: Patient) -> None:
         assert check_secret_answer("Yoda", lisa) is True
 
-    def test_case_insensitive(self, lisa: Customer) -> None:
+    def test_case_insensitive(self, lisa: Patient) -> None:
         assert check_secret_answer("yoda", lisa) is True
 
-    def test_whitespace_trimmed(self, lisa: Customer) -> None:
+    def test_whitespace_trimmed(self, lisa: Patient) -> None:
         assert check_secret_answer("  Yoda  ", lisa) is True
 
-    def test_wrong_answer(self, lisa: Customer) -> None:
+    def test_wrong_answer(self, lisa: Patient) -> None:
         assert check_secret_answer("Vader", lisa) is False
 
 
 class TestProcessSecretAttempt:
-    def test_correct_answer_authenticates(self, lisa: Customer) -> None:
+    def test_correct_answer_authenticates(self, lisa: Patient) -> None:
         result = process_secret_attempt("Yoda", lisa, attempts_so_far=0)
         assert result.authenticated is True
         assert result.terminated is False
 
-    def test_wrong_answer_retries(self, lisa: Customer) -> None:
+    def test_wrong_answer_retries(self, lisa: Patient) -> None:
         result = process_secret_attempt("Vader", lisa, attempts_so_far=0)
         assert result.authenticated is False
         assert result.terminated is False
         assert "try again" in result.reply.lower()
 
-    def test_third_wrong_terminates(self, lisa: Customer) -> None:
+    def test_third_wrong_terminates(self, lisa: Patient) -> None:
         result = process_secret_attempt("Vader", lisa, attempts_so_far=MAX_ATTEMPTS - 1)
         assert result.authenticated is False
         assert result.terminated is True
         assert result.termination_reason == TerminationReason.SECRET_EXHAUSTED.value
 
-    def test_correct_on_third_attempt_succeeds(self, lisa: Customer) -> None:
+    def test_correct_on_third_attempt_succeeds(self, lisa: Patient) -> None:
         result = process_secret_attempt("Yoda", lisa, attempts_so_far=MAX_ATTEMPTS - 1)
         assert result.authenticated is True
         assert result.terminated is False
@@ -147,7 +147,7 @@ class TestAuthenticateNodePrecedence:
             extraction_intent=ExtractionIntent.ANSWER_SECRET.value,
             pending_secret_answer="Yoda",
         )
-        state["matched_customer_id"] = None
+        state["matched_patient_id"] = None
         result = authenticate(state)
         assert result.get("status") is None
 
@@ -159,7 +159,7 @@ class TestAuthenticateNodePrecedence:
             )
         )
         assert result.get("status") is None
-        assert CUSTOMERS[0].secret_question in result["reply"]
+        assert PATIENTS[0].secret_question in result["reply"]
 
 
 _WRONG_ANSWERS = [

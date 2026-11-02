@@ -1,7 +1,7 @@
 [project]
 name = "agentflow-ai"
 version = "0.1.0"
-description = "AgentFlow AI — secure multi-agent customer support platform"
+description = "AgentFlow AI — secure multi-agent patient support platform"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.162.0",

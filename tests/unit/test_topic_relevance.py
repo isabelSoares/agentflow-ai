@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 
 from healthcare_support.core.advanced_guardrails import AdvancedGuardrailEvaluator
-from healthcare_support.domain.conversation import ConversationStatus, CustomerClassification
+from healthcare_support.domain.conversation import ConversationStatus, PatientClassification
 from healthcare_support.domain.guardrails import GuardrailInput
 from healthcare_support.domain.routing import SupportIntent
 
@@ -19,15 +19,15 @@ def _input(
     content: str,
     *,
     status: ConversationStatus = ConversationStatus.COLLECTING,
-    classification: CustomerClassification | None = None,
+    classification: PatientClassification | None = None,
     intent: SupportIntent | None = None,
 ) -> GuardrailInput:
     return GuardrailInput(
         content=content,
-        content_type="customer_input",
+        content_type="patient_input",
         conversation_id="us1-conv",
         status=status,
-        customer_classification=classification,
+        patient_classification=classification,
         support_intent=intent,
         messages=[],
     )
@@ -131,7 +131,7 @@ class TestVerificationAndPremiumAllowed:
             _input(
                 "I need specialized yacht insurance",
                 status=ConversationStatus.AUTHENTICATED,
-                classification=CustomerClassification.PREMIUM,
+                classification=PatientClassification.PREMIUM,
                 intent=SupportIntent.YACHT_INSURANCE,
             )
         )
@@ -142,7 +142,7 @@ class TestVerificationAndPremiumAllowed:
             _input(
                 "Yes, I meant my savings account",
                 status=ConversationStatus.AUTHENTICATED,
-                classification=CustomerClassification.REGULAR,
+                classification=PatientClassification.REGULAR,
                 intent=SupportIntent.AMBIGUOUS,
             )
         )

@@ -12,7 +12,7 @@ from typing import Any
 from langchain_core.messages import BaseMessage
 from pydantic import BaseModel, ConfigDict, Field
 
-from healthcare_support.domain.conversation import ConversationStatus, CustomerClassification
+from healthcare_support.domain.conversation import ConversationStatus, PatientClassification
 from healthcare_support.domain.routing import SupportIntent
 
 
@@ -34,7 +34,7 @@ class SensitiveDataCategory(StrEnum):
     CREDENTIAL = "credential"
     INTERNAL_PROMPT = "internal_prompt"
     API_KEY = "api_key"
-    OTHER_CUSTOMER_DATA = "other_customer_data"
+    OTHER_PATIENT_DATA = "other_patient_data"
 
 
 class GuardrailInput(BaseModel):
@@ -43,11 +43,11 @@ class GuardrailInput(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     content: str = Field(min_length=1)
-    content_type: str = Field(pattern=r"^(customer_input|assistant_output)$")
+    content_type: str = Field(pattern=r"^(patient_input|assistant_output)$")
     conversation_id: str = Field(min_length=1)
     status: ConversationStatus = ConversationStatus.COLLECTING
-    matched_customer_id: str | None = None
-    customer_classification: CustomerClassification | None = None
+    matched_patient_id: str | None = None
+    patient_classification: PatientClassification | None = None
     support_intent: SupportIntent | None = None
     messages: Sequence[BaseMessage] = Field(default_factory=tuple)
     sensitive_values: frozenset[str] = Field(default_factory=frozenset)
@@ -70,7 +70,7 @@ class GuardrailOutput(BaseModel):
     reason_category: str = Field(min_length=1)
     safe_reply: str | None = Field(
         default=None,
-        description="Customer-facing response when the evaluation is not ALLOWED.",
+        description="Patient-facing response when the evaluation is not ALLOWED.",
     )
     sanitized_content: str | None = Field(
         default=None,
@@ -85,7 +85,7 @@ class BankingPolicyRule(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     action_type: str = Field(min_length=1)
-    allowed_tiers: frozenset[CustomerClassification] = Field(default_factory=frozenset)
+    allowed_tiers: frozenset[PatientClassification] = Field(default_factory=frozenset)
     requires_authentication: bool = True
     allow_routing_as_inquiry: bool = False
     prohibited_commitments: frozenset[str] = Field(default_factory=frozenset)

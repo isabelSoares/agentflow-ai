@@ -84,7 +84,7 @@ As a maintainer, I want dependency manifest changes and the resolved dependency 
 - **FR-008**: Offline development and testing MUST NOT require a live model provider key or network access beyond package installation.
 - **FR-009**: If a proposed dependency version is incompatible with existing behavior, the change MUST retain the closest compatible version set and document the deviation from PR #5.
 - **FR-010**: Documentation MUST reflect any change to supported runtimes, setup commands, dependency constraints, or local troubleshooting steps.
-- **FR-011**: The fix MUST preserve existing security guarantees, including deterministic identity verification, sanitized responses, and non-disclosure of sensitive customer data.
+- **FR-011**: The fix MUST preserve existing security guarantees, including deterministic identity verification, sanitized responses, and non-disclosure of sensitive patient data.
 - **FR-012**: The change MUST NOT weaken or remove existing pipeline gates, security checks, container hardening, or automated contract tests.
 - **FR-013**: Future dependency updates MUST continue to be validated by locked installation and strict audit checks.
 

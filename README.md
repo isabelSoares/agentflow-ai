@@ -1,8 +1,8 @@
-# AgentFlow AI — Secure Multi-Agent Customer Support
+# AgentFlow AI — Secure Multi-Agent Patient Support
 
-An independent AI engineering project exploring how multiple specialized agents can collaborate to deliver secure, context-aware customer support.
+An independent AI engineering project exploring how multiple specialized agents can collaborate to deliver secure, context-aware patient support.
 
-Built using **Python, FastAPI, LangGraph, React, and TypeScript**, the platform combines natural-language understanding with deterministic identity verification, authorization, customer classification, and intelligent request routing.
+Built using **Python, FastAPI, LangGraph, React, and TypeScript**, the platform combines natural-language understanding with deterministic identity verification, authorization, patient classification, and intelligent request routing.
 
 The project emphasizes responsible AI engineering, workflow orchestration, automated testing, and measurable agent reliability.
 
@@ -13,7 +13,7 @@ The project emphasizes responsible AI engineering, workflow orchestration, autom
 ## What this project demonstrates
 
 - **Multi-agent orchestration** with a stateful LangGraph workflow, explicit routing, and guardrails at the input and output boundaries.
-- **Deterministic security** for identity matching, secret-answer verification, session ownership, customer classification, and support routing. The LLM is advisory only.
+- **Deterministic security** for identity matching, secret-answer verification, session ownership, patient classification, and support routing. The LLM is advisory only.
 - **Typed backend contracts** with FastAPI and Pydantic, including sanitized response models that never return PII.
 - **Full-stack delivery** with a React + TypeScript client that renders the conversation and live, sanitized agent telemetry.
 - **Observability** through structured logs, traces, bounded conversation history, and explicit turn state.
@@ -62,7 +62,7 @@ flowchart TB
     subgraph Deterministic["Deterministic business logic"]
         matching["2-of-3 identity matching"]
         secret["Secret-answer verification"]
-        classification["Customer classification"]
+        classification["Patient classification"]
         routing["Support routing"]
         proof["Session-proof verification"]
     end
@@ -78,7 +78,7 @@ flowchart TB
         config["Environment configuration"]
     end
 
-    response["Customer response"]
+    response["Patient response"]
 
     web_client --> text_handler
     text_client --> text_handler
@@ -137,7 +137,7 @@ The workflow is stateful and spans multiple turns. A unique identity match ends 
 
 ```mermaid
 flowchart TB
-    request["Customer request"]
+    request["Patient request"]
     session_gate{"Session proof valid?"}
     deny_401["BLOCKED: 401 access denied"]
 
@@ -146,7 +146,7 @@ flowchart TB
         extract["Extract (LLM, advisory)"]
         identify["Identify (2-of-3 match)"]
         authenticate["Authenticate (secret answer)"]
-        classify["Classify (customer)"]
+        classify["Classify (patient)"]
         specialist["Specialist (routing)"]
         output_guardrail["Output Guardrail"]
         respond["Respond"]
@@ -355,9 +355,9 @@ scripts/               Local verification helpers
 
 ## Production readiness
 
-The application is a deployable baseline with typed configuration, locked dependencies, deterministic authentication, redaction, health checks, container builds, CI, and a typed frontend. The following boundaries are intentional and should be addressed before running with real customer data at scale:
+The application is a deployable baseline with typed configuration, locked dependencies, deterministic authentication, redaction, health checks, container builds, CI, and a typed frontend. The following boundaries are intentional and should be addressed before running with real patient data at scale:
 
-- **State persistence**: sessions, checkpoints, history, and customer records live in process memory. A restart or multiple workers lose sessions. Use a shared checkpointer and database before horizontal scaling.
+- **State persistence**: sessions, checkpoints, history, and patient records live in process memory. A restart or multiple workers lose sessions. Use a shared checkpointer and database before horizontal scaling.
 - **Edge protections**: add rate limiting, request quotas, TLS, and global lockout controls at a gateway.
 - **Provider fallbacks**: fake adapters keep offline tests and startup working; they are not a production substitute for live provider integration.
 - **Container hardening**: add image scanning and an SBOM, and keep the non-root runtime constraint.

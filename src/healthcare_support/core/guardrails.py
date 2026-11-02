@@ -14,7 +14,7 @@ from typing import Any
 
 from healthcare_support.domain.conversation import (
     ConversationStatus,
-    CustomerClassification,
+    PatientClassification,
 )
 from healthcare_support.domain.guardrails import (
     BankingPolicyRule,
@@ -26,7 +26,7 @@ from healthcare_support.domain.guardrails import (
 
 
 class GuardrailEvaluator:
-    """Evaluate customer inputs and assistant outputs against security rules."""
+    """Evaluate patient inputs and assistant outputs against security rules."""
 
     # Deterministic manipulation patterns (constitution Principle II).
     _MANIPULATION_PATTERNS: list[re.Pattern[str]] = [
@@ -90,7 +90,7 @@ class GuardrailEvaluator:
         checks. Heuristic checks degrade gracefully on failure.
         """
         try:
-            if input_.content_type == "customer_input":
+            if input_.content_type == "patient_input":
                 return self._evaluate_input(input_)
             return self._evaluate_output(input_)
         except Exception:
@@ -193,20 +193,20 @@ class GuardrailEvaluator:
 
     def _check_obvious_data_request(self, input_: GuardrailInput) -> GuardrailOutput | None:
         # Only apply at the entry guardrail before intent extraction.
-        if input_.content_type != "customer_input" or input_.support_intent is not None:
+        if input_.content_type != "patient_input" or input_.support_intent is not None:
             return None
 
-        # Authenticated customers may proceed; non-customer/unauthenticated are
+        # Authenticated patients may proceed; non-patient/unauthenticated are
         # blocked only when they ask for personalized data.
         if input_.status == ConversationStatus.AUTHENTICATED:
-            classification = input_.customer_classification
-            if classification is None or not isinstance(classification, CustomerClassification):
+            classification = input_.patient_classification
+            if classification is None or not isinstance(classification, PatientClassification):
                 classification = None
-            if classification == CustomerClassification.NON_CUSTOMER:
+            if classification == PatientClassification.NON_PATIENT:
                 return self._blocked(
                     input_,
                     reason="unauthenticated",
-                    reply_key="non_customer",
+                    reply_key="non_patient",
                 )
             return None
 
@@ -229,8 +229,8 @@ class GuardrailEvaluator:
         return None
 
     def _check_authentication(self, input_: GuardrailInput) -> GuardrailOutput | None:
-        classification = input_.customer_classification
-        if classification is not None and not isinstance(classification, CustomerClassification):
+        classification = input_.patient_classification
+        if classification is not None and not isinstance(classification, PatientClassification):
             classification = None
 
         if input_.status != ConversationStatus.AUTHENTICATED or classification is None:
@@ -240,18 +240,18 @@ class GuardrailEvaluator:
                 reply_key="data_request_refusal",
             )
 
-        if classification == CustomerClassification.NON_CUSTOMER:
+        if classification == PatientClassification.NON_PATIENT:
             return self._blocked(
                 input_,
                 reason="unauthenticated",
-                reply_key="non_customer",
+                reply_key="non_patient",
             )
 
         return None
 
     def _check_authorization(self, input_: GuardrailInput) -> GuardrailOutput | None:
-        classification = input_.customer_classification
-        if classification is None or not isinstance(classification, CustomerClassification):
+        classification = input_.patient_classification
+        if classification is None or not isinstance(classification, PatientClassification):
             return None
 
         action_type = self._action_type_from_intent(input_.support_intent)
@@ -310,12 +310,12 @@ class GuardrailEvaluator:
                     reply_key="internal_disclosure",
                 )
 
-        # Detect exposure of known customer-sensitive values.
+        # Detect exposure of known patient-sensitive values.
         leaked_values = self._find_leaked_sensitive_values(input_)
         if leaked_values:
             sanitized = self._sanitize_known_values(content, leaked_values)
-            # Only block if the customer did not explicitly request the data.
-            if not self._customer_requested_sensitive_data(input_):
+            # Only block if the patient did not explicitly request the data.
+            if not self._patient_requested_sensitive_data(input_):
                 return self._blocked(
                     input_,
                     reason="privacy_violation",
@@ -391,8 +391,8 @@ class GuardrailEvaluator:
                 sanitized = pattern.sub("[REDACTED]", sanitized)
         return sanitized
 
-    def _customer_requested_sensitive_data(self, input_: GuardrailInput) -> bool:
-        # Heuristic: if the most recent customer message explicitly asks for
+    def _patient_requested_sensitive_data(self, input_: GuardrailInput) -> bool:
+        # Heuristic: if the most recent patient message explicitly asks for
         # account/date of birth/phone/balance, treat the output as an authorized disclosure.
         for message in reversed(input_.messages):
             if message.type == "human":

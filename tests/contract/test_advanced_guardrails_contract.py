@@ -15,7 +15,7 @@ from healthcare_support.domain.advanced_guardrails import (
     TrustedBankingCatalog,
     TrustedBankingEntry,
 )
-from healthcare_support.domain.conversation import ConversationStatus, CustomerClassification
+from healthcare_support.domain.conversation import ConversationStatus, PatientClassification
 from healthcare_support.domain.guardrails import GuardrailDecisionOutcome, GuardrailInput
 from healthcare_support.domain.routing import SupportIntent
 
@@ -28,9 +28,9 @@ def evaluator() -> AdvancedGuardrailEvaluator:
 def _input(
     content: str,
     *,
-    content_type: str = "customer_input",
+    content_type: str = "patient_input",
     status: ConversationStatus = ConversationStatus.COLLECTING,
-    classification: CustomerClassification | None = None,
+    classification: PatientClassification | None = None,
     intent: SupportIntent | None = None,
 ) -> GuardrailInput:
     return GuardrailInput(
@@ -38,7 +38,7 @@ def _input(
         content_type=content_type,
         conversation_id="test-conv",
         status=status,
-        customer_classification=classification,
+        patient_classification=classification,
         support_intent=intent,
         messages=[],
     )
@@ -70,7 +70,7 @@ class TestHeuristicCheckerContract:
                 "Our bank guarantees a 15% annual return",
                 content_type="assistant_output",
                 status=ConversationStatus.AUTHENTICATED,
-                classification=CustomerClassification.REGULAR,
+                classification=PatientClassification.REGULAR,
             )
         )
         assert result is not None

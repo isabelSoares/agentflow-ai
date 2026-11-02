@@ -2,12 +2,12 @@
 
 This module contains no LLM, framework, repository, or API imports. Routing
 decisions are pure functions of the trusted authentication state, trusted
-customer classification, validated intent, and approved support directory.
+patient classification, validated intent, and approved support directory.
 """
 
 from __future__ import annotations
 
-from healthcare_support.domain.conversation import CustomerClassification
+from healthcare_support.domain.conversation import PatientClassification
 from healthcare_support.domain.routing import (
     IntentClassification,
     RoutingDecision,
@@ -22,7 +22,7 @@ class RoutingError(Exception):
     """Raised when routing cannot produce a safe decision."""
 
 
-# Customer-facing fallback messages. These contain no customer data and no
+# Patient-facing fallback messages. These contain no patient data and no
 # invented departments or contact details.
 _CLARIFICATION_MESSAGE = (
     "I'm not sure I understood your request correctly. Could you tell me whether "
@@ -49,10 +49,10 @@ _UNAVAILABLE_MESSAGE = (
     "your bank directly."
 )
 
-_NON_CUSTOMER_MESSAGE = (
-    "Thank you for reaching out. Dedicated customer support is only available to "
-    "existing customers. If you'd like to learn more about becoming a "
-    "customer, please visit our website or your nearest branch."
+_NON_PATIENT_MESSAGE = (
+    "Thank you for reaching out. Dedicated patient support is only available to "
+    "existing patients. If you'd like to learn more about becoming a "
+    "patient, please visit our website or your nearest branch."
 )
 
 
@@ -68,17 +68,17 @@ def _build_routed_message(department: SupportDepartment) -> str:
 def authentication_gate(
     *,
     is_authenticated: bool,
-    customer_classification: CustomerClassification | None,
+    patient_classification: PatientClassification | None,
     intent: SupportIntent,
 ) -> RoutingDecision | None:
     """Return the authorization decision, or ``None`` when routing may continue."""
-    if not is_authenticated or not isinstance(customer_classification, CustomerClassification):
+    if not is_authenticated or not isinstance(patient_classification, PatientClassification):
         return RoutingDecision(
             status=RoutingStatus.BLOCKED, intent=intent, message=_UNAUTHENTICATED_MESSAGE
         )
-    if customer_classification == CustomerClassification.NON_CUSTOMER:
+    if patient_classification == PatientClassification.NON_PATIENT:
         return RoutingDecision(
-            status=RoutingStatus.FALLBACK, intent=intent, message=_NON_CUSTOMER_MESSAGE
+            status=RoutingStatus.FALLBACK, intent=intent, message=_NON_PATIENT_MESSAGE
         )
     return None
 
@@ -95,11 +95,11 @@ def specialist_key(intent_classification: IntentClassification) -> str | None:
     return None
 
 
-def tier_key(customer_classification: CustomerClassification) -> str | None:
-    """Map a trusted customer tier to its approved support destination."""
-    if customer_classification == CustomerClassification.PREMIUM:
+def tier_key(patient_classification: PatientClassification) -> str | None:
+    """Map a trusted patient tier to its approved support destination."""
+    if patient_classification == PatientClassification.PREMIUM:
         return "premium_support"
-    if customer_classification == CustomerClassification.REGULAR:
+    if patient_classification == PatientClassification.REGULAR:
         return "standard_support"
     return None
 
@@ -107,7 +107,7 @@ def tier_key(customer_classification: CustomerClassification) -> str | None:
 def route_support_request(
     *,
     is_authenticated: bool,
-    customer_classification: CustomerClassification | None,
+    patient_classification: PatientClassification | None,
     intent_classification: IntentClassification,
     support_directory: SupportDirectory,
 ) -> RoutingDecision:
@@ -115,19 +115,19 @@ def route_support_request(
 
     Args:
         is_authenticated: Whether the Greeter Agent has authenticated the caller.
-        customer_classification: Trusted Bouncer classification, or ``None`` if
+        patient_classification: Trusted Bouncer classification, or ``None`` if
             classification has not been performed or is unknown.
         intent_classification: Validated classifier output for the support request.
         support_directory: Approved support destinations.
 
     Returns:
-        A ``RoutingDecision`` with a safe customer-facing message.
+        A ``RoutingDecision`` with a safe patient-facing message.
     """
     intent = intent_classification.intent
 
     gate = authentication_gate(
         is_authenticated=is_authenticated,
-        customer_classification=customer_classification,
+        patient_classification=patient_classification,
         intent=intent,
     )
     if gate is not None:
@@ -178,8 +178,8 @@ def route_support_request(
         )
 
     # 5. Premium / Regular tier routing for account and general banking requests.
-    assert customer_classification is not None
-    tier = tier_key(customer_classification)
+    assert patient_classification is not None
+    tier = tier_key(patient_classification)
 
     if tier is not None:
         department = support_directory.get(tier)

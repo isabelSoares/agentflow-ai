@@ -82,7 +82,7 @@ class TestResetSession:
         snapshot = store._graph.get_state(store._config("session-a"))
         assert snapshot.values is not None
         assert snapshot.values.get("messages") == []
-        assert snapshot.values.get("matched_customer_id") is None
+        assert snapshot.values.get("matched_patient_id") is None
         assert snapshot.values.get("status") == "collecting"
 
 

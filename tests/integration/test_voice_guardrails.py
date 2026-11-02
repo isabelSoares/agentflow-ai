@@ -37,7 +37,7 @@ def client() -> TestClient:
     from healthcare_support.agents.graph import build_verification_graph
 
     app_state.verification_graph = build_verification_graph(
-        app_state.customer_repository,
+        app_state.patient_repository,
         extractor,
         default_phone_region=app_state.settings.default_phone_region,
     )
@@ -158,7 +158,7 @@ def test_voice_harmful_content_with_banking_topic_is_blocked(client: TestClient)
 
 def test_low_confidence_transcription_returns_clarification(client: TestClient) -> None:
     """When STT confidence is too low, the workflow is not invoked and the
-    customer is asked to repeat.
+    patient is asked to repeat.
     """
     start = client.post("/conversations")
     conversation_id = start.json()["conversation_id"]

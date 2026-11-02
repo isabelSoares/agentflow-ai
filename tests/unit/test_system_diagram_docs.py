@@ -11,7 +11,7 @@ SYSTEM_DIAGRAM = ROOT / "docs" / "system-diagram.md"
 ARCHITECTURE_DOC = ROOT / "docs" / "architecture.md"
 
 REQUIRED_COMPONENT_IDS = [
-    "customer",
+    "patient",
     "text_channel",
     "voice_channel",
     "request_handler",
@@ -103,7 +103,7 @@ def test_system_diagram_shows_required_components_and_groups() -> None:
         assert _node_is_defined(block, node_id), f"missing required component: {node_id}"
 
     required_labels = [
-        "customer",
+        "patient",
         "text",
         "voice",
         "optional",
@@ -118,7 +118,7 @@ def test_system_diagram_shows_required_components_and_groups() -> None:
         "deterministic",
         "identity matching",
         "secret-answer verification",
-        "customer classification",
+        "patient classification",
         "support routing",
         "conversation history",
         "session state",

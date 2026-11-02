@@ -52,7 +52,7 @@ def test_empty_audio_rejected(validator: AudioValidator) -> None:
     result = validator.validate(b"", "audio/wav")
     assert result.is_valid is False
     assert result.rejected_reason == "empty_audio"
-    assert result.customer_message is not None
+    assert result.patient_message is not None
 
 
 def test_unsupported_format_rejected(validator: AudioValidator) -> None:
@@ -76,8 +76,8 @@ def test_too_long_wav_rejected(validator: AudioValidator) -> None:
     assert result.rejected_reason == "duration_too_long"
 
 
-def test_customer_message_does_not_expose_internals(validator: AudioValidator) -> None:
+def test_patient_message_does_not_expose_internals(validator: AudioValidator) -> None:
     result = validator.validate(b"", "audio/wav")
-    assert result.customer_message is not None
-    assert "rejected_reason" not in result.customer_message.lower()
-    assert "internal" not in result.customer_message.lower()
+    assert result.patient_message is not None
+    assert "rejected_reason" not in result.patient_message.lower()
+    assert "internal" not in result.patient_message.lower()

@@ -17,14 +17,14 @@ from healthcare_support.agents.node_strategies import (
 from healthcare_support.agents.response_nodes import make_response_nodes
 from healthcare_support.agents.specialist_nodes import make_specialist_node
 from healthcare_support.agents.state import GraphState
-from healthcare_support.data.repository import CustomerRepository
+from healthcare_support.data.repository import PatientRepository
 from healthcare_support.data.support_directory import default_support_directory
 from healthcare_support.domain.conversation import ConversationStatus
 from healthcare_support.domain.routing import SupportDirectory
 
 
 def make_nodes(
-    repository: CustomerRepository,
+    repository: PatientRepository,
     extractor: LLMExtractor,
     default_phone_region: str = "DE",
     intent_classifier: SupportIntentClassifier | None = None,

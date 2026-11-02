@@ -13,8 +13,8 @@ from healthcare_support.agents.llm import (
     ScriptedFakeSupportIntentClassifier,
 )
 from healthcare_support.agents.state import make_initial_state
-from healthcare_support.data.memory import InMemoryCustomerRepository
-from healthcare_support.data.seed import CUSTOMERS
+from healthcare_support.data.memory import InMemoryPatientRepository
+from healthcare_support.data.seed import PATIENTS
 from healthcare_support.domain.conversation import ConversationStatus
 from healthcare_support.domain.routing import (
     IntentClassification,
@@ -24,8 +24,8 @@ from healthcare_support.domain.routing import (
 
 
 @pytest.fixture
-def repository() -> InMemoryCustomerRepository:
-    return InMemoryCustomerRepository(CUSTOMERS)
+def repository() -> InMemoryPatientRepository:
+    return InMemoryPatientRepository(PATIENTS)
 
 
 def _run_turn(graph, conversation_id: str, text: str) -> dict:
@@ -36,7 +36,7 @@ def _run_turn(graph, conversation_id: str, text: str) -> dict:
     )
 
 
-def _authenticate_lisa(graph, cid: str, repository: InMemoryCustomerRepository) -> dict:
+def _authenticate_lisa(graph, cid: str, repository: InMemoryPatientRepository) -> dict:
     extractor = ScriptedFakeExtractor(
         [
             ExtractionResult(
@@ -55,7 +55,7 @@ def _authenticate_lisa(graph, cid: str, repository: InMemoryCustomerRepository) 
 
 class TestPremiumSpecialistRouting:
     def test_premium_yacht_insurance_routes_to_specialist(
-        self, repository: InMemoryCustomerRepository
+        self, repository: InMemoryPatientRepository
     ) -> None:
         extractor = ScriptedFakeExtractor(
             [
@@ -78,7 +78,7 @@ class TestPremiumSpecialistRouting:
 
         auth_state = _run_turn(graph, cid, "Yoda")
         assert auth_state["status"] == ConversationStatus.AUTHENTICATED.value
-        assert auth_state["customer_classification"] == "premium"
+        assert auth_state["patient_classification"] == "premium"
 
         state = _run_turn(graph, cid, "I need yacht insurance")
         assert state["status"] == ConversationStatus.AUTHENTICATED.value
@@ -89,7 +89,7 @@ class TestPremiumSpecialistRouting:
         assert "Insurance Specialist Department" in state["reply"]
 
     def test_premium_account_assistance_routes_to_premium_support(
-        self, repository: InMemoryCustomerRepository
+        self, repository: InMemoryPatientRepository
     ) -> None:
         extractor = ScriptedFakeExtractor(
             [
@@ -112,11 +112,11 @@ class TestPremiumSpecialistRouting:
         state = _run_turn(graph, cid, "I need account help")
         assert state["routing_status"] == "routed"
         assert state["support_intent"] == "account_assistance"
-        assert state["support_department"] == "Premium Customer Support"
+        assert state["support_department"] == "Premium Patient Support"
         assert state["routing_contact"] == "+1999888999"
 
     def test_unavailable_specialist_returns_fallback(
-        self, repository: InMemoryCustomerRepository
+        self, repository: InMemoryPatientRepository
     ) -> None:
         from healthcare_support.data.support_directory import default_support_directory
         from healthcare_support.domain.routing import SupportDirectory
@@ -165,7 +165,7 @@ class TestPremiumSpecialistRouting:
 
 class TestRegularRouting:
     def test_regular_account_assistance_routes_to_standard_support(
-        self, repository: InMemoryCustomerRepository
+        self, repository: InMemoryPatientRepository
     ) -> None:
         extractor = ScriptedFakeExtractor(
             [
@@ -187,14 +187,14 @@ class TestRegularRouting:
         _run_turn(graph, cid, "Blue")
         state = _run_turn(graph, cid, "I need account help")
         assert state["status"] == ConversationStatus.AUTHENTICATED.value
-        assert state["customer_classification"] == "regular"
+        assert state["patient_classification"] == "regular"
         assert state["routing_status"] == "routed"
         assert state["support_intent"] == "account_assistance"
-        assert state["support_department"] == "Standard Customer Support"
+        assert state["support_department"] == "Standard Patient Support"
         assert state["routing_contact"] == "+1112112112"
 
     def test_regular_yacht_insurance_routes_to_specialist(
-        self, repository: InMemoryCustomerRepository
+        self, repository: InMemoryPatientRepository
     ) -> None:
         extractor = ScriptedFakeExtractor(
             [
@@ -222,7 +222,7 @@ class TestRegularRouting:
 
 class TestClarificationAndFallback:
     def test_ambiguous_request_asks_clarification(
-        self, repository: InMemoryCustomerRepository
+        self, repository: InMemoryPatientRepository
     ) -> None:
         extractor = ScriptedFakeExtractor(
             [
@@ -255,7 +255,7 @@ class TestClarificationAndFallback:
         assert "Do you need account help or insurance?" in state["reply"]
 
     def test_unsupported_request_returns_fallback(
-        self, repository: InMemoryCustomerRepository
+        self, repository: InMemoryPatientRepository
     ) -> None:
         extractor = ScriptedFakeExtractor(
             [
@@ -281,7 +281,7 @@ class TestClarificationAndFallback:
         assert state["routing_contact"] is None
 
     def test_failed_classifier_returns_fallback(
-        self, repository: InMemoryCustomerRepository
+        self, repository: InMemoryPatientRepository
     ) -> None:
         extractor = ScriptedFakeExtractor(
             [
@@ -307,7 +307,7 @@ class TestClarificationAndFallback:
 
 class TestAuthenticationBoundary:
     def test_unauthenticated_request_is_not_routed(
-        self, repository: InMemoryCustomerRepository
+        self, repository: InMemoryPatientRepository
     ) -> None:
         extractor = ScriptedFakeExtractor([ExtractionResult(intent=ExtractionIntent.CHITCHAT)])
         classifier = ScriptedFakeSupportIntentClassifier(
@@ -322,9 +322,7 @@ class TestAuthenticationBoundary:
         assert state["routing_status"] is None
         assert state["support_department"] is None
 
-    def test_missing_classification_is_blocked(
-        self, repository: InMemoryCustomerRepository
-    ) -> None:
+    def test_missing_classification_is_blocked(self, repository: InMemoryPatientRepository) -> None:
         extractor = ScriptedFakeExtractor(
             [
                 ExtractionResult(
@@ -345,15 +343,15 @@ class TestAuthenticationBoundary:
         _run_turn(graph, cid, "Yoda")
         # Tamper with the state to remove classification before the next turn.
         config = {"configurable": {"thread_id": cid}}
-        graph.update_state(config, {"customer_classification": None})
+        graph.update_state(config, {"patient_classification": None})
         state = _run_turn(graph, cid, "I need account help")
         assert state["routing_status"] == "blocked"
         assert state["support_department"] is None
 
 
 class TestNoPiiExposure:
-    def test_routing_response_does_not_expose_customer_records(
-        self, repository: InMemoryCustomerRepository
+    def test_routing_response_does_not_expose_patient_records(
+        self, repository: InMemoryPatientRepository
     ) -> None:
         extractor = ScriptedFakeExtractor(
             [
@@ -375,8 +373,8 @@ class TestNoPiiExposure:
         _run_turn(graph, cid, "Yoda")
         state = _run_turn(graph, cid, "I need account help")
         reply = state["reply"]
-        for customer in CUSTOMERS:
-            assert customer.phone not in reply
-            assert customer.date_of_birth not in reply
-            assert customer.secret_answer not in reply
-            assert customer.name not in reply
+        for patient in PATIENTS:
+            assert patient.phone not in reply
+            assert patient.date_of_birth not in reply
+            assert patient.secret_answer not in reply
+            assert patient.name not in reply

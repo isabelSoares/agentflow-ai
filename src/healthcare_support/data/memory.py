@@ -1,25 +1,25 @@
-"""In-memory customer repository implementation."""
+"""In-memory patient repository implementation."""
 
 from __future__ import annotations
 
 from collections.abc import Sequence
 
-from healthcare_support.data.repository import CustomerRepository
-from healthcare_support.data.seed import CUSTOMERS
-from healthcare_support.domain.customer import Customer
+from healthcare_support.data.repository import PatientRepository
+from healthcare_support.data.seed import PATIENTS
+from healthcare_support.domain.patient import Patient
 
 
-class InMemoryCustomerRepository(CustomerRepository):
+class InMemoryPatientRepository(PatientRepository):
     """Thread-safe enough for the demo: immutable seed data, read-only access."""
 
-    def __init__(self, customers: Sequence[Customer] | None = None) -> None:
-        self._customers: tuple[Customer, ...] = tuple(customers or CUSTOMERS)
+    def __init__(self, patients: Sequence[Patient] | None = None) -> None:
+        self._patients: tuple[Patient, ...] = tuple(patients or PATIENTS)
 
-    def list_all(self) -> Sequence[Customer]:
-        return self._customers
+    def list_all(self) -> Sequence[Patient]:
+        return self._patients
 
-    def get_by_id(self, customer_id: str) -> Customer | None:
-        for customer in self._customers:
-            if customer.id == customer_id:
-                return customer
+    def get_by_id(self, patient_id: str) -> Patient | None:
+        for patient in self._patients:
+            if patient.id == patient_id:
+                return patient
         return None

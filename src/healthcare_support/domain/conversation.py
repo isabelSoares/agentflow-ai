@@ -19,12 +19,12 @@ class TerminationReason(StrEnum):
     SECRET_EXHAUSTED = "secret_exhausted"
 
 
-class CustomerClassification(StrEnum):
+class PatientClassification(StrEnum):
     """Deterministic classification produced by the Bouncer Agent."""
 
     PREMIUM = "premium"
     REGULAR = "regular"
-    NON_CUSTOMER = "non_customer"
+    NON_PATIENT = "non_patient"
 
 
 class ExtractionIntent(StrEnum):

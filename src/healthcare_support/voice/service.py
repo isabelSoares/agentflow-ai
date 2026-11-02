@@ -24,7 +24,7 @@ CLARIFICATION_MESSAGE = "I'm sorry, I didn't catch that. Could you please repeat
 class VoiceService:
     """Orchestrate a single voice turn without duplicating banking logic.
 
-    The voice layer treats audio and its transcription as untrusted customer
+    The voice layer treats audio and its transcription as untrusted patient
     input. It never makes authentication or authorization decisions; those
     remain the responsibility of the existing deterministic workflow.
     """
@@ -53,7 +53,7 @@ class VoiceService:
         """Process a voice request and return a response dictionary.
 
         The audio recording and its transcription are treated as untrusted
-        customer input. They are never used as proof of identity or authority;
+        patient input. They are never used as proof of identity or authority;
         authentication and authorization decisions remain the responsibility of
         the existing deterministic workflow.
 
@@ -65,7 +65,7 @@ class VoiceService:
         if not validation.is_valid:
             return self._build_response(
                 request,
-                reply=validation.customer_message or CLARIFICATION_MESSAGE,
+                reply=validation.patient_message or CLARIFICATION_MESSAGE,
             )
 
         transcription = self._stt.transcribe(audio, request.content_type)
@@ -99,7 +99,7 @@ class VoiceService:
             in (ConversationStatus.IDENTIFIED.value, ConversationStatus.AUTHENTICATED.value),
             authenticated=status == ConversationStatus.AUTHENTICATED.value,
             terminated=bool(result.get("terminated")),
-            classification=result.get("customer_classification"),
+            classification=result.get("patient_classification"),
             routing_status=result.get("routing_status"),
             routing_intent=result.get("support_intent"),
             support_department=result.get("support_department"),

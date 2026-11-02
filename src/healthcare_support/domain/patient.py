@@ -1,4 +1,4 @@
-"""Domain models for customers and conversations.
+"""Domain models for patients and conversations.
 
 PII/secret fields exist only inside domain objects; they are never serialized to API
 responses or logs.
@@ -12,8 +12,8 @@ import phonenumbers
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
-class Customer(BaseModel):
-    """A registered customer. `secret_answer` is NEVER logged."""
+class Patient(BaseModel):
+    """A registered patient. `secret_answer` is NEVER logged."""
 
     model_config = ConfigDict(frozen=True)
 

@@ -13,7 +13,7 @@ from typing import Any
 logger = logging.getLogger("healthcare_support.audit")
 
 # Audit is an allowlist, not a general-purpose state serializer. Raw content,
-# credentials, and customer attributes have no representable fields.
+# credentials, and patient attributes have no representable fields.
 SAFE_AUDIT_FIELDS = frozenset(
     {
         "identified",

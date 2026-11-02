@@ -15,7 +15,7 @@ from healthcare_support.agents.llm import (
     ScriptedFakeSupportIntentClassifier,
 )
 from healthcare_support.api.app import AppState, create_app
-from healthcare_support.data.seed import CUSTOMERS
+from healthcare_support.data.seed import PATIENTS
 from healthcare_support.domain.routing import IntentClassification, SupportIntent
 from healthcare_support.voice.service import build_voice_service
 from healthcare_support.voice.stt import FakeSTT
@@ -37,12 +37,12 @@ def client() -> TestClient:
     extractor = ScriptedFakeExtractor(
         [
             ExtractionResult(
-                name=CUSTOMERS[0].name,
-                phone=CUSTOMERS[0].phone,
+                name=PATIENTS[0].name,
+                phone=PATIENTS[0].phone,
                 intent=ExtractionIntent.PROVIDE_IDENTIFICATION,
             ),
             ExtractionResult(
-                secret_answer=CUSTOMERS[0].secret_answer, intent=ExtractionIntent.ANSWER_SECRET
+                secret_answer=PATIENTS[0].secret_answer, intent=ExtractionIntent.ANSWER_SECRET
             ),
             ExtractionResult(intent=ExtractionIntent.CHITCHAT),
         ]
@@ -66,7 +66,7 @@ def client() -> TestClient:
     from healthcare_support.agents.graph import build_verification_graph
 
     app_state.verification_graph = build_verification_graph(
-        app_state.customer_repository,
+        app_state.patient_repository,
         extractor,
         default_phone_region=app_state.settings.default_phone_region,
         intent_classifier=classifier,
@@ -92,7 +92,7 @@ def client() -> TestClient:
 
 
 def test_mixed_text_and_voice_preserves_context(client: TestClient) -> None:
-    """A customer starts by text, continues by voice, and the assistant uses
+    """A patient starts by text, continues by voice, and the assistant uses
     the ongoing conversation context to interpret the follow-up.
     """
     start = client.post("/conversations")
@@ -102,12 +102,12 @@ def test_mixed_text_and_voice_preserves_context(client: TestClient) -> None:
     # Authenticate via text.
     client.post(
         f"/conversations/{conversation_id}/messages",
-        json={"text": f"I am {CUSTOMERS[0].name}, phone {CUSTOMERS[0].phone}"},
+        json={"text": f"I am {PATIENTS[0].name}, phone {PATIENTS[0].phone}"},
         headers=headers,
     )
     client.post(
         f"/conversations/{conversation_id}/messages",
-        json={"text": CUSTOMERS[0].secret_answer},
+        json={"text": PATIENTS[0].secret_answer},
         headers=headers,
     )
 
@@ -130,7 +130,7 @@ def test_mixed_text_and_voice_preserves_context(client: TestClient) -> None:
     assert body["authenticated"] is True
 
 
-def test_verified_customer_switching_to_voice_is_not_reasked(client: TestClient) -> None:
+def test_verified_patient_switching_to_voice_is_not_reasked(client: TestClient) -> None:
     """After authentication, switching to voice should not restart verification."""
     start = client.post("/conversations")
     conversation_id = start.json()["conversation_id"]
@@ -138,12 +138,12 @@ def test_verified_customer_switching_to_voice_is_not_reasked(client: TestClient)
 
     client.post(
         f"/conversations/{conversation_id}/messages",
-        json={"text": f"I am {CUSTOMERS[0].name}, phone {CUSTOMERS[0].phone}"},
+        json={"text": f"I am {PATIENTS[0].name}, phone {PATIENTS[0].phone}"},
         headers=headers,
     )
     client.post(
         f"/conversations/{conversation_id}/messages",
-        json={"text": CUSTOMERS[0].secret_answer},
+        json={"text": PATIENTS[0].secret_answer},
         headers=headers,
     )
 

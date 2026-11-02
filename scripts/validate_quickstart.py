@@ -12,12 +12,12 @@ from langchain_core.messages import HumanMessage
 from healthcare_support.agents.graph import build_verification_graph
 from healthcare_support.agents.llm import ExtractionIntent, ExtractionResult, ScriptedFakeExtractor
 from healthcare_support.agents.state import make_initial_state
-from healthcare_support.data.memory import InMemoryCustomerRepository
-from healthcare_support.data.seed import CUSTOMERS
+from healthcare_support.data.memory import InMemoryPatientRepository
+from healthcare_support.data.seed import PATIENTS
 
 
 def run(conversation_id: str, extractor: ScriptedFakeExtractor, turns: list[str]) -> None:
-    repository = InMemoryCustomerRepository(CUSTOMERS)
+    repository = InMemoryPatientRepository(PATIENTS)
     graph = build_verification_graph(repository, extractor, default_phone_region="DE")
     config = {"configurable": {"thread_id": conversation_id}}
     graph.update_state(config, make_initial_state(conversation_id))

@@ -1,6 +1,6 @@
 # AgentFlow AI — repository instructions
 
-AgentFlow AI is a secure multi-agent customer-support platform built with Python,
+AgentFlow AI is a secure multi-agent patient-support platform built with Python,
 FastAPI, LangGraph, React, and TypeScript. The repository currently ships a
 healthcare-support demo adapter (`src/healthcare_support`) that exercises
 identity verification, authorization, classification, and routing.

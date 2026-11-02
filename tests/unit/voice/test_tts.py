@@ -23,7 +23,7 @@ def test_fake_tts_can_fail() -> None:
     result = client.synthesize("hello", "audio/wav")
     assert result.failed is True
     assert result.audio is None
-    assert result.customer_message is not None
+    assert result.patient_message is not None
 
 
 def test_fake_tts_is_deterministic() -> None:
@@ -59,7 +59,7 @@ def test_openai_tts_returns_failure_on_api_error() -> None:
 
     assert result.failed is True
     assert result.audio is None
-    assert result.customer_message is not None
+    assert result.patient_message is not None
 
 
 @pytest.mark.live_speech
@@ -69,4 +69,4 @@ def test_openai_tts_handles_invalid_api_key() -> None:
     result = client.synthesize("hello", "audio/wav")
     assert result.failed is True
     assert result.audio is None
-    assert result.customer_message is not None
+    assert result.patient_message is not None

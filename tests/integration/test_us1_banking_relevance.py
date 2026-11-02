@@ -16,8 +16,8 @@ from healthcare_support.agents.llm import (
     SupportIntentClassifier,
 )
 from healthcare_support.agents.state import make_initial_state
-from healthcare_support.data.memory import InMemoryCustomerRepository
-from healthcare_support.data.seed import CUSTOMERS
+from healthcare_support.data.memory import InMemoryPatientRepository
+from healthcare_support.data.seed import PATIENTS
 
 
 class _PermissiveFakeExtractor(LLMExtractor):
@@ -70,12 +70,12 @@ def _fake_intent_classifier() -> SupportIntentClassifier:
 
 
 @pytest.fixture
-def repository() -> InMemoryCustomerRepository:
-    return InMemoryCustomerRepository(CUSTOMERS)
+def repository() -> InMemoryPatientRepository:
+    return InMemoryPatientRepository(PATIENTS)
 
 
 @pytest.fixture
-def graph(repository: InMemoryCustomerRepository):
+def graph(repository: InMemoryPatientRepository):
     return build_verification_graph(
         repository,
         _PermissiveFakeExtractor(),
@@ -120,8 +120,8 @@ class TestVerificationAndPremium:
     def test_premium_insurance_allowed(self, graph) -> None:
         state = make_initial_state("us1-premium")
         state["status"] = "authenticated"
-        state["matched_customer_id"] = "cust-1"
-        state["customer_classification"] = "premium"
+        state["matched_patient_id"] = "cust-1"
+        state["patient_classification"] = "premium"
         result = _run(
             graph, "us1-premium", "I need specialized yacht insurance", initial_state=state
         )
@@ -142,8 +142,8 @@ class TestClarification:
     def test_short_clarification_allowed(self, graph) -> None:
         state = make_initial_state("us1-clarify")
         state["status"] = "authenticated"
-        state["matched_customer_id"] = "cust-2"
-        state["customer_classification"] = "regular"
+        state["matched_patient_id"] = "cust-2"
+        state["patient_classification"] = "regular"
         state["support_intent"] = "ambiguous"
         result = _run(graph, "us1-clarify", "Yes, I meant my account", initial_state=state)
         decision = result.get("guardrail_decision") or {}

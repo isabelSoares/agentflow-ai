@@ -3,15 +3,15 @@
 from healthcare_support.agents.graph import build_verification_graph
 from healthcare_support.agents.llm import ExtractionResult, ScriptedFakeExtractor
 from healthcare_support.agents.state import make_initial_state
-from healthcare_support.data.memory import InMemoryCustomerRepository
-from healthcare_support.data.seed import CUSTOMERS
+from healthcare_support.data.memory import InMemoryPatientRepository
+from healthcare_support.data.seed import PATIENTS
 from healthcare_support.domain.conversation import ExtractionIntent
 
 
 def test_graph_checkpoint_excludes_raw_input_and_secret_answer() -> None:
     conversation_id = "checkpoint-private"
     graph = build_verification_graph(
-        InMemoryCustomerRepository(CUSTOMERS),
+        InMemoryPatientRepository(PATIENTS),
         ScriptedFakeExtractor(
             [
                 ExtractionResult(
