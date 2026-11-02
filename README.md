@@ -211,6 +211,14 @@ During development, Vite proxies `/api` to `http://127.0.0.1:8000`, so no browse
 - **Guardrails sit at both boundaries.** Input checks run before model calls; output checks run before a reply is returned or spoken.
 - **Voice is not authentication.** A recording or transcription never proves identity.
 
+## Live demo
+
+The frontend is deployed to GitHub Pages by the [`Pages` workflow](.github/workflows/pages.yml) on every push to `main`:
+
+**https://isabelsoares.github.io/agentflow-ai/**
+
+The page renders the full demo UI. The chat calls `/api` on its own origin by default, so to wire the live demo to a backend, rebuild with `VITE_API_BASE_URL=https://<your-backend-host>` and add the Pages origin to the backend's `CORS_ALLOWED_ORIGINS`.
+
 ## Quickstart
 
 ### Prerequisites
