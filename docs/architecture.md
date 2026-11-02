@@ -3,7 +3,7 @@
 ## Purpose
 
 This document explains the component boundaries, request lifecycle, security
-decisions, and maintenance workflow for AgentFlow AI. The banking support flow is
+decisions, and maintenance workflow for AgentFlow AI. The healthcare support flow is
 the reference demo adapter; the core workflow is domain-agnostic. The authoritative
 diagrams are the project-level System Architecture Diagram in
 [`docs/system-diagram.md`](system-diagram.md) and the architecture and workflow
@@ -38,7 +38,7 @@ workflow as transcribed text; they do not bypass identity checks or guardrails.
 | **Deterministic business logic** | Matching, secret verification, classification, routing, and proof verification. | Never delegated to the LLM. |
 | **Conversation history** | Stores redacted user and assistant messages with bounded context. | Session-scoped; stored in the checkpointed `messages` channel. |
 | **Session store** | Stores proof digests, active state, and termination state. | Owns access and session lifecycle. |
-| **Voice adapters** | Optional STT/TTS adapters that convert between audio and text. | Optional; no separate banking logic. |
+| **Voice adapters** | Optional STT/TTS adapters that convert between audio and text. | Optional; no separate healthcare logic. |
 | **LLM provider** | Performs natural-language extraction and advisory intent classification. | Untrusted for authentication and authorization. |
 | **Configuration** | Environment-driven settings for providers, voice, limits, and phone region. | Validated at startup where applicable. |
 

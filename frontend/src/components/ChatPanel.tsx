@@ -2,9 +2,9 @@ import { useEffect, useRef, useState, type FormEvent } from 'react'
 import type { ChatMessage } from '../types'
 
 const SUGGESTIONS = [
-  "Hi, I'm Lisa. My phone is +14155552671 and my IBAN is DE89370400440532013000.",
+  "Hi, I'm Lisa. My phone is +14155552671 and my date of birth is 1990-01-15.",
   "My dog's name is Yoda.",
-  'I need help with a card payment.',
+  'I need help with a medical bill.',
 ]
 
 interface ChatPanelProps {
@@ -98,7 +98,7 @@ export function ChatPanel({
 
       {!hasUserMessages && (
         <div className="suggestions">
-          <p className="suggestions-label">Banking demo scenario</p>
+          <p className="suggestions-label">Healthcare demo scenario</p>
           <div className="suggestion-list">
             {SUGGESTIONS.map((suggestion) => (
               <button

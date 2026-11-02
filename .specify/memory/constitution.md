@@ -1,16 +1,16 @@
-# Personal Banking Support Agent Constitution
+# Personal Healthcare Support Agent Constitution
 
 ## Core Principles
 
 ### I. Security First
 
-Sensitive patient data (name, phone number, IBAN, account details, secret answers) MUST
+Sensitive patient data (name, phone number, date of birth, medical details, secret answers) MUST
 NEVER be exposed to unauthenticated or unauthorized users. Pre-authentication responses MUST
 NOT confirm or deny whether any attribute value exists in patient records. A feature that
 handles patient data is complete only after demonstrating non-disclosure under adversarial
 probing.
 
-Rationale: this is a banking assistant; a single data leak is a regulatory and
+Rationale: this is a healthcare assistant; a single data leak is a regulatory and
 trust-destroying event, so confidentiality outranks convenience in every trade-off.
 
 ### II. Deterministic Verification
@@ -58,7 +58,7 @@ and failures MUST be logged with enough structured context to debug system behav
 MUST minimize personal data and MUST NEVER contain secret answers or full credentials in
 plain text.
 
-Rationale: a multi-agent banking workflow is opaque without transition logging, but logging
+Rationale: a multi-agent healthcare workflow is opaque without transition logging, but logging
 must not become a secondary channel for data exposure (Principle I).
 
 ### VII. Simplicity

@@ -21,7 +21,7 @@ describe('demo conversation turns', () => {
         return sessionResponse({ reply: 'Welcome to the demo.' })
       }
       if (url === '/api/conversations/conversation-1/messages' && init?.method === 'POST') {
-        return turnResponse({ reply: 'Here is help with your card.' }, 'proof-2')
+        return turnResponse({ reply: 'Here is help with your medical bill.' }, 'proof-2')
       }
       if (url === '/api/conversations/conversation-1/reset' && init?.method === 'POST') {
         return sessionResponse({ reply: 'Session reset.' }, 'proof-3')
@@ -33,12 +33,12 @@ describe('demo conversation turns', () => {
     await screen.findByText('Welcome to the demo.')
 
     fireEvent.change(screen.getByPlaceholderText('Ask a support question...'), {
-      target: { value: 'I need help with a card payment.' },
+      target: { value: 'I need help with a medical bill.' },
     })
     fireEvent.click(screen.getByRole('button', { name: 'Send' }))
 
-    await screen.findByText('Here is help with your card.')
-    expect(screen.getByText('I need help with a card payment.')).toBeInTheDocument()
+    await screen.findByText('Here is help with your medical bill.')
+    expect(screen.getByText('I need help with a medical bill.')).toBeInTheDocument()
     expect(proofHeader(fetchMock.mock.calls[1]?.[1])).toBe('proof-1')
 
     fireEvent.click(screen.getByRole('button', { name: 'Reset session' }))

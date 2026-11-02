@@ -1,6 +1,6 @@
 # System Architecture Diagram
 
-This page presents the project-level system view for AgentFlow AI. The banking support flow is the reference demo adapter; the service boundaries and deterministic controls are domain-agnostic.
+This page presents the project-level system view for AgentFlow AI. The healthcare support flow is the reference demo adapter; the service boundaries and deterministic controls are domain-agnostic.
 It shows how patients reach the service, where authorisation and deterministic security
 decisions happen, which responsibilities run inside the system, and which services remain
 external. It complements the detailed architecture overview and multi-agent workflow rather
@@ -132,7 +132,7 @@ flowchart TB
 | Routing | Routing requires authenticated status, trusted classification, and validated intent. | Suggest intent; it never selects a privileged destination. |
 | Guardrails | Input and output policy checks are deterministic and every patient-facing reply passes through the output guardrail. | Nothing. It never overrides a guardrail decision. |
 
-The language model must never perform authentication or authorisation, classify an account
+The language model must never perform authentication or authorisation, classify a patient
 authoritatively, or choose a privileged support destination. Deterministic code owns every
 security decision.
 
