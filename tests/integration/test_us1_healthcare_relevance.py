@@ -1,4 +1,4 @@
-"""Integration tests for User Story 1: banking relevance and redirection."""
+"""Integration tests for User Story 1: topic relevance and redirection."""
 
 from __future__ import annotations
 
