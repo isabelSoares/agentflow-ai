@@ -42,7 +42,7 @@ class ExtractionResult(BaseModel):
     intent: ExtractionIntent = Field(default=ExtractionIntent.CHITCHAT)
     name: str | None = None
     phone: str | None = None
-    iban: str | None = None
+    date_of_birth: str | None = None
     secret_answer: str | None = None
 
 
@@ -63,7 +63,7 @@ class OpenAIExtractor:
         "Extract structured information from the user's message. "
         "Return a JSON object matching this schema: "
         '{"intent": "chitchat | provide_identification | answer_secret | request_data", '
-        '"name": string or null, "phone": string or null, "iban": string or null, '
+        '"name": string or null, "phone": string or null, "date_of_birth": string or null, '
         '"secret_answer": string or null}. '
         "When the assistant has just asked a security question, a short answer such "
         'as "It is Yoda" must use intent "answer_secret" and set "secret_answer" to '

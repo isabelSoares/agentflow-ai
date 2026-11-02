@@ -87,11 +87,11 @@ class _TopicRelevanceClassifier:
     )
     _IDENTIFICATION_RESPONSE = re.compile(
         r"\b(my\s+name\s+is|i\s+am\s+[a-z]|answer\s+is|it\s+is\s+[a-z0-9]|\+\d[\d\s-]{7,20}|"
-        r"[A-Z]{2}\d{2}[A-Z0-9]{11,30})\b",
+        r"\d{4}[-/]\d{1,2}[-/]\d{1,2})\b",
         re.IGNORECASE,
     )
     _BANKING_SCOPE = re.compile(
-        r"\b(account|balance|loan|mortgage|insurance|card|credit|debit|transfer|payment|iban|"
+        r"\b(account|balance|loan|mortgage|insurance|card|credit|debit|transfer|payment|date\s+of\s+birth|dob|"
         r"phone|premium|yacht|fraud|suspicious|transaction|bank|banking|customer\s+support|"
         r"help|open\s+hours|opening\s+hours|branch|deposit|withdraw|savings|checking|"
         r"settings|update\s+my|online\s+banking|mobile\s+app)\b",
@@ -209,7 +209,7 @@ class _ResponseRelevanceValidator:
     _TOPIC_MARKERS: dict[str, list[str]] = {
         "yacht_insurance": ["yacht", "boat", "marine"],
         "insurance": ["insurance", "policy", "coverage", "claim"],
-        "account_assistance": ["account", "balance", "iban", "phone", "details"],
+        "account_assistance": ["account", "balance", "date_of_birth", "phone", "details"],
         "premium_banking": ["premium", "dedicated", "relationship manager"],
         "mortgage": ["mortgage", "mortgages", "rate", "rates", "interest rate"],
         "general_banking": ["bank", "banking", "help", "support"],

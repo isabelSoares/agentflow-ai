@@ -7,11 +7,11 @@ import logging
 import re
 from typing import Any
 
-# Very conservative patterns: redact IBAN-like tokens and phone-like tokens from
+# Very conservative patterns: redact date-of-birth-like tokens and phone-like tokens from
 # any logged string. The real protection is architectural (we do not put PII in
 # log messages); this is a defense-in-depth belt-and-suspenders filter.
 _REDACTION_PATTERNS: list[re.Pattern[str]] = [
-    re.compile(r"\b[A-Z]{2}\d{2}[A-Z0-9]{4}\d{7}(?:[A-Z0-9]?){0,16}\b"),
+    re.compile(r"\b\d{4}[-/]\d{1,2}[-/]\d{1,2}\b"),
     re.compile(r"\+\d[\d\s\-]{6,20}"),
     re.compile(r"\b(?:gsk_|sk-)[A-Za-z0-9_\-]{8,}\b"),
 ]
@@ -35,7 +35,7 @@ class _JsonFormatter(logging.Formatter):
 
 
 def redact(text: str) -> str:
-    """Return `text` with IBAN/phone-like tokens replaced."""
+    """Return `text` with date-of-birth/phone-like tokens replaced."""
     for pattern in _REDACTION_PATTERNS:
         text = pattern.sub("[REDACTED]", text)
     return text

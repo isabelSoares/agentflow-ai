@@ -126,7 +126,7 @@ flowchart TB
 | Boundary | What is deterministic | What the language model may do |
 |----------|-----------------------|-------------------------------|
 | Session ownership | The presented session proof is verified against the stored proof before graph or history state is touched. | Nothing. It never authorises session access. |
-| Identity | At least two of name, phone, and IBAN must match after normalisation. | Extract candidate attributes for the conversation. |
+| Identity | At least two of name, phone, and date of birth must match after normalisation. | Extract candidate attributes for the conversation. |
 | Secret answer | The normalised answer is verified against the registered answer with attempt limits. | Extract the answer text; it never decides whether the answer is correct. |
 | Classification | The customer is classified from the trusted repository record. | Provide advisory intent only. |
 | Routing | Routing requires authenticated status, trusted classification, and validated intent. | Suggest intent; it never selects a privileged destination. |

@@ -29,7 +29,7 @@ class SensitiveDataCategory(StrEnum):
 
     NAME = "name"
     PHONE_NUMBER = "phone_number"
-    IBAN = "iban"
+    DATE_OF_BIRTH = "date_of_birth"
     SECRET_ANSWER = "secret_answer"
     CREDENTIAL = "credential"
     INTERNAL_PROMPT = "internal_prompt"

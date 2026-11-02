@@ -22,13 +22,13 @@ class TestUniqueMatches:
         assert result.outcome == MatchOutcome.UNIQUE
         assert result.customers[0].name == "Lisa"
 
-    def test_name_and_iban(self, repository: InMemoryCustomerRepository) -> None:
-        attrs = ProvidedAttributes(name="Lisa", iban="DE89370400440532013000")
+    def test_name_and_date_of_birth(self, repository: InMemoryCustomerRepository) -> None:
+        attrs = ProvidedAttributes(name="Lisa", date_of_birth="1990-01-15")
         result = evaluate_match(attrs, repository, default_phone_region="DE")
         assert result.outcome == MatchOutcome.UNIQUE
 
-    def test_phone_and_iban(self, repository: InMemoryCustomerRepository) -> None:
-        attrs = ProvidedAttributes(phone="+14155552671", iban="DE89370400440532013000")
+    def test_phone_and_date_of_birth(self, repository: InMemoryCustomerRepository) -> None:
+        attrs = ProvidedAttributes(phone="+14155552671", date_of_birth="1990-01-15")
         result = evaluate_match(attrs, repository, default_phone_region="DE")
         assert result.outcome == MatchOutcome.UNIQUE
 
@@ -36,7 +36,7 @@ class TestUniqueMatches:
         attrs = ProvidedAttributes(
             name="Lisa",
             phone="+14155552671",
-            iban="DE89370400440532013000",
+            date_of_birth="1990-01-15",
         )
         result = evaluate_match(attrs, repository, default_phone_region="DE")
         assert result.outcome == MatchOutcome.UNIQUE
@@ -45,7 +45,7 @@ class TestUniqueMatches:
         attrs = ProvidedAttributes(
             name="lisa",
             phone="+1 415 555 2671",
-            iban="de89 3704 0044 0532 0130 00",
+            date_of_birth="1990-1-15",
         )
         result = evaluate_match(attrs, repository, default_phone_region="DE")
         assert result.outcome == MatchOutcome.UNIQUE
@@ -91,7 +91,7 @@ class TestReEvaluation:
         updated = ProvidedAttributes(
             name="Maria Silva",
             phone="+351912345678",
-            iban="PT50000201230000000001087",
+            date_of_birth="1985-07-22",
         )
         resolved = evaluate_match(updated, repository, default_phone_region="DE")
         assert resolved.outcome == MatchOutcome.UNIQUE

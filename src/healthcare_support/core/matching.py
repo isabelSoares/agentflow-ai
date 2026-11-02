@@ -8,7 +8,7 @@ from enum import StrEnum
 
 from healthcare_support.core.normalization import (
     name_parts_match,
-    normalize_iban,
+    normalize_date_of_birth,
     normalize_name,
     normalize_phone,
 )
@@ -48,9 +48,9 @@ def evaluate_match(
     """
     norm_name = normalize_name(attributes.name)
     norm_phone = normalize_phone(attributes.phone, default_phone_region)
-    norm_iban = normalize_iban(attributes.iban)
+    norm_date_of_birth = normalize_date_of_birth(attributes.date_of_birth)
 
-    evaluated = sum(1 for v in (norm_name, norm_phone, norm_iban) if v is not None)
+    evaluated = sum(1 for v in (norm_name, norm_phone, norm_date_of_birth) if v is not None)
     if evaluated < 2:
         return MatchResult(MatchOutcome.INSUFFICIENT_DATA, [], evaluated)
 
@@ -61,7 +61,10 @@ def evaluate_match(
             score += 1
         if norm_phone is not None and normalize_phone(customer.phone) == norm_phone:
             score += 1
-        if norm_iban is not None and normalize_iban(customer.iban) == norm_iban:
+        if (
+            norm_date_of_birth is not None
+            and normalize_date_of_birth(customer.date_of_birth) == norm_date_of_birth
+        ):
             score += 1
         if score >= 2:
             matches.append(customer)

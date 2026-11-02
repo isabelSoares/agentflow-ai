@@ -68,7 +68,7 @@ edge.
 | Boundary | Decision | Enforcement | LLM trusted? |
 |----------|----------|-------------|--------------|
 | Session ownership | A request may use a session only when its proof matches the stored proof. | Constant-time proof verification in `src/healthcare_support/data/session_access.py`, enforced in `src/healthcare_support/api/invoker.py` before graph invocation. | No |
-| Identity matching | At least two of name, phone, and IBAN must match exactly after normalization. | `src/healthcare_support/core/matching.py` | No |
+| Identity matching | At least two of name, phone, and date of birth must match exactly after normalization. | `src/healthcare_support/core/matching.py` | No |
 | Secret-question verification | The normalized answer must match the registered answer; attempts are limited. | `src/healthcare_support/core/verification.py` | No |
 | Customer classification | Classification uses the trusted repository record for the verified customer. | `src/healthcare_support/core/classification.py` | No |
 | Support routing | Routing requires authenticated status, a trusted classification, and a validated intent. | `src/healthcare_support/core/routing.py` | No; extracted intent is advisory |

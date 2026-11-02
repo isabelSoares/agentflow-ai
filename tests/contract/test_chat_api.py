@@ -157,7 +157,7 @@ class TestSendMessage:
         reply = response.json()["reply"]
         for customer in CUSTOMERS:
             assert customer.phone not in reply
-            assert customer.iban not in reply
+            assert customer.date_of_birth not in reply
             assert customer.secret_answer not in reply
             assert customer.name not in reply
 

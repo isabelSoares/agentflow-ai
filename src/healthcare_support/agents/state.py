@@ -44,7 +44,7 @@ class GraphState(TypedDict):
     # Collected identifying attributes (latest values).
     attr_name: str | None
     attr_phone: str | None
-    attr_iban: str | None
+    attr_date_of_birth: str | None
 
     # Workflow state.
     status: str  # ConversationStatus values
@@ -87,7 +87,7 @@ def make_initial_state(conversation_id: str) -> dict[str, Any]:
         "user_input": None,
         "attr_name": None,
         "attr_phone": None,
-        "attr_iban": None,
+        "attr_date_of_birth": None,
         "status": ConversationStatus.COLLECTING.value,
         "matched_customer_id": None,
         "identification_attempts": 0,

@@ -107,4 +107,4 @@ def test_voice_request_audit_does_not_include_raw_audio(
         if record.name == "healthcare_support.audit"
     )
     assert audio.hex() not in audit_messages
-    assert "my iban" not in audit_messages.lower()
+    assert "my date of birth" not in audit_messages.lower()

@@ -40,7 +40,7 @@ _UNINTERPRETABLE_MESSAGE = (
 
 _UNAUTHENTICATED_MESSAGE = (
     "I'll be happy to help once your identity is verified. "
-    "Please provide your name, phone number, or IBAN to get started."
+    "Please provide your name, phone number, or date of birth to get started."
 )
 
 _UNAVAILABLE_MESSAGE = (

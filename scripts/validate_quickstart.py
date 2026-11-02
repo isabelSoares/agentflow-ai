@@ -62,12 +62,12 @@ def main() -> None:
                 ExtractionResult(name="Lisa", intent=ExtractionIntent.PROVIDE_IDENTIFICATION),
                 ExtractionResult(intent=ExtractionIntent.CHITCHAT),
                 ExtractionResult(
-                    iban="DE89370400440532013000", intent=ExtractionIntent.PROVIDE_IDENTIFICATION
+                    date_of_birth="1990-01-15", intent=ExtractionIntent.PROVIDE_IDENTIFICATION
                 ),
                 ExtractionResult(secret_answer="Yoda", intent=ExtractionIntent.ANSWER_SECRET),
             ]
         ),
-        ["I am Lisa", "Nice weather", "My IBAN is DE89370400440532013000", "Yoda"],
+        ["I am Lisa", "Nice weather", "My date of birth is 1990-01-15", "Yoda"],
     )
 
     print("\nS3 Single attribute")

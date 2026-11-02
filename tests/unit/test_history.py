@@ -80,9 +80,9 @@ class TestRedactSensitiveValues:
 
 class TestRedactMessage:
     def test_redacts_known_values_and_patterns(self) -> None:
-        text = "IBAN DE89370400440532013000 and phone +14155552671"
+        text = "date of birth 1990-01-15 and phone +14155552671"
         result = redact_message(text, {"Lisa"})
-        assert "DE89370400440532013000" not in result
+        assert "1990-01-15" not in result
         assert "+14155552671" not in result
 
     def test_redacts_secret_answer(self) -> None:

@@ -32,7 +32,9 @@ def make_identity_nodes(dependencies: WorkflowDependencies) -> dict[str, Any]:
             return {"reply": DATA_REQUEST_REFUSAL}
 
         attrs = ProvidedAttributes(
-            name=state.get("attr_name"), phone=state.get("attr_phone"), iban=state.get("attr_iban")
+            name=state.get("attr_name"),
+            phone=state.get("attr_phone"),
+            date_of_birth=state.get("attr_date_of_birth"),
         )
         result = matching.evaluate_match(
             attrs, dependencies.repository, dependencies.default_phone_region

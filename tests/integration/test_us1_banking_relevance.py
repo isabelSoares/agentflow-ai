@@ -41,17 +41,17 @@ class _PermissiveFakeExtractor(LLMExtractor):
         if phone_match:
             phone = phone_match.group(1).replace(" ", "").replace("-", "")
 
-        iban = None
-        iban_match = _re.search(r"([A-Z]{2}\d{2}[A-Z0-9\s]{10,30})", user_text)
-        if iban_match:
-            iban = iban_match.group(1).replace(" ", "")
+        date_of_birth = None
+        date_of_birth_match = _re.search(r"(\d{4}[-/]\d{1,2}[-/]\d{1,2})", user_text)
+        if date_of_birth_match:
+            date_of_birth = date_of_birth_match.group(1)
 
-        if any([name, phone, iban]):
+        if any([name, phone, date_of_birth]):
             intent = ExtractionIntent.PROVIDE_IDENTIFICATION
         else:
             intent = ExtractionIntent.CHITCHAT
 
-        return ExtractionResult(intent=intent, name=name, phone=phone, iban=iban)
+        return ExtractionResult(intent=intent, name=name, phone=phone, date_of_birth=date_of_birth)
 
 
 def _fake_intent_classifier() -> SupportIntentClassifier:

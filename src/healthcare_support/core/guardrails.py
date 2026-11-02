@@ -61,7 +61,7 @@ class GuardrailEvaluator:
     ]
 
     _SENSITIVE_PATTERNS: dict[SensitiveDataCategory, re.Pattern[str]] = {
-        SensitiveDataCategory.IBAN: re.compile(r"[A-Z]{2}\d{2}[A-Z0-9]{11,30}"),
+        SensitiveDataCategory.DATE_OF_BIRTH: re.compile(r"\b\d{4}[-/]\d{1,2}[-/]\d{1,2}\b"),
         SensitiveDataCategory.PHONE_NUMBER: re.compile(r"(?:\+|00)\d[\d\s\-/]{7,20}"),
         SensitiveDataCategory.CREDENTIAL: re.compile(
             r"\b(sk-[a-zA-Z0-9]{20,}|api[_-]?key\s*[:=]\s*\S+)", re.IGNORECASE
@@ -212,11 +212,11 @@ class GuardrailEvaluator:
 
         lowered = input_.content.casefold()
         data_request_phrases = [
-            r"\b(what\s+is\s+my\s+(balance|iban|phone|number|details))\b",
-            r"\b(show\s+me\s+my\s+(balance|iban|phone|number|details))\b",
-            r"\b(tell\s+me\s+my\s+(balance|iban|phone|number|details))\b",
-            r"\b(reveal\s+my\s+(balance|iban|phone|number|details))\b",
-            r"\b(give\s+me\s+my\s+(balance|iban|phone|number|details))\b",
+            r"\b(what\s+is\s+my\s+(balance|date\s+of\s+birth|dob|phone|number|details))\b",
+            r"\b(show\s+me\s+my\s+(balance|date\s+of\s+birth|dob|phone|number|details))\b",
+            r"\b(tell\s+me\s+my\s+(balance|date\s+of\s+birth|dob|phone|number|details))\b",
+            r"\b(reveal\s+my\s+(balance|date\s+of\s+birth|dob|phone|number|details))\b",
+            r"\b(give\s+me\s+my\s+(balance|date\s+of\s+birth|dob|phone|number|details))\b",
         ]
         for phrase in data_request_phrases:
             if re.search(phrase, lowered):
@@ -367,9 +367,9 @@ class GuardrailEvaluator:
         for value in input_.sensitive_values:
             if value and value in input_.content:
                 leaked.append(value)
-        # Also flag IBANs and credentials that are not known values (defense in depth).
+        # Also flag dates of birth and credentials that are not known values (defense in depth).
         for category, pattern in self._SENSITIVE_PATTERNS.items():
-            if category in {SensitiveDataCategory.IBAN, SensitiveDataCategory.CREDENTIAL}:
+            if category in {SensitiveDataCategory.DATE_OF_BIRTH, SensitiveDataCategory.CREDENTIAL}:
                 for match in pattern.finditer(input_.content):
                     value = match.group(0)
                     if value not in input_.sensitive_values:
@@ -393,14 +393,14 @@ class GuardrailEvaluator:
 
     def _customer_requested_sensitive_data(self, input_: GuardrailInput) -> bool:
         # Heuristic: if the most recent customer message explicitly asks for
-        # account/IBAN/phone/balance, treat the output as an authorized disclosure.
+        # account/date of birth/phone/balance, treat the output as an authorized disclosure.
         for message in reversed(input_.messages):
             if message.type == "human":
                 text = str(message.content).casefold()
                 request_phrases = [
-                    "what is my iban",
-                    "tell me my iban",
-                    "show me my iban",
+                    "what is my date of birth",
+                    "tell me my date of birth",
+                    "show me my date of birth",
                     "what is my phone",
                     "tell me my phone",
                     "what is my balance",

@@ -64,7 +64,7 @@ def _sensitive_values_for_state(state: GraphState, app_state: AppState) -> set[s
                 for value in (
                     customer.name,
                     customer.phone,
-                    customer.iban,
+                    customer.date_of_birth,
                     customer.secret_answer,
                 )
                 if value

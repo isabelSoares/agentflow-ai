@@ -62,16 +62,16 @@ class TestOpenAIExtractorLive:
         assert "lisa" in result.name.lower()
         assert result.phone == "+14155552671"
 
-    def test_extracts_iban(self, settings: Settings) -> None:
+    def test_extracts_date_of_birth(self, settings: Settings) -> None:
         extractor = OpenAIExtractor(
             api_key=settings.llm_api_key,
             model=settings.llm_model,
             base_url=settings.llm_base_url,
             temperature=settings.llm_temperature,
         )
-        result = extractor.extract("My IBAN is DE89370400440532013000")
+        result = extractor.extract("My date of birth is 1990-01-15")
         assert isinstance(result, ExtractionResult)
-        assert result.iban == "DE89370400440532013000"
+        assert result.date_of_birth == "1990-01-15"
 
 
 class TestOpenAISupportIntentClassifierLive:

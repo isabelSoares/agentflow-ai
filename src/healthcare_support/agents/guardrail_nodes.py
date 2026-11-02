@@ -48,7 +48,12 @@ def make_guardrail_nodes(dependencies: WorkflowDependencies) -> dict[str, Any]:
         if customer is not None:
             sensitive_values.update(
                 value
-                for value in (customer.name, customer.phone, customer.iban, customer.secret_answer)
+                for value in (
+                    customer.name,
+                    customer.phone,
+                    customer.date_of_birth,
+                    customer.secret_answer,
+                )
                 if value
             )
         decision = evaluator.evaluate(

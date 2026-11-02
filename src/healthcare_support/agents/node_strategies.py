@@ -142,7 +142,7 @@ def build_guardrail_input(
         messages=guardrail_messages(state),
         sensitive_values=sensitive_values or frozenset(),
         has_collected_attributes=any(
-            state.get(key) for key in ("attr_name", "attr_phone", "attr_iban")
+            state.get(key) for key in ("attr_name", "attr_phone", "attr_date_of_birth")
         ),
     )
 

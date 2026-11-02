@@ -25,7 +25,8 @@ def test_graph_checkpoint_excludes_raw_input_and_secret_answer() -> None:
     config = {"configurable": {"thread_id": conversation_id}}
     graph.update_state(config, make_initial_state(conversation_id))
     graph.invoke(
-        {"user_input": "my raw IBAN and secret", "conversation_id": conversation_id}, config
+        {"user_input": "my raw date of birth and secret", "conversation_id": conversation_id},
+        config,
     )
 
     snapshot = graph.get_state(config)

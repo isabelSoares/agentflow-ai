@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-FIELDS = ("intent", "name", "phone", "iban", "secret_answer")
+FIELDS = ("intent", "name", "phone", "date_of_birth", "secret_answer")
 
 
 def evaluate_extraction(path: Path) -> dict[str, Any]:

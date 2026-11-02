@@ -23,8 +23,8 @@ def make_extraction_node(dependencies: WorkflowDependencies) -> Any:
             updates["attr_name"] = result.name
         if result.phone is not None:
             updates["attr_phone"] = result.phone
-        if result.iban is not None:
-            updates["attr_iban"] = result.iban
+        if result.date_of_birth is not None:
+            updates["attr_date_of_birth"] = result.date_of_birth
         return updates
 
     return extract_node
