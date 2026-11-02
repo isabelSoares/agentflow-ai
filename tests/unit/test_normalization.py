@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from banking_support.core.normalization import (
+from healthcare_support.core.normalization import (
     name_parts_match,
     normalize_answer,
     normalize_iban,

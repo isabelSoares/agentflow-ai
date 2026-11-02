@@ -61,7 +61,7 @@ specs/002-fix-demo-session-topbar/
 ### Source Code (repository root)
 
 ```text
-src/banking_support/            FastAPI service and workflow (no business-logic changes)
+src/healthcare_support/            FastAPI service and workflow (no business-logic changes)
 ├── api/
 │   ├── app.py                  CORS and application wiring
 │   ├── routes.py               Existing /conversations endpoints
@@ -87,7 +87,7 @@ tests/
 README.md                       Deployment routing and troubleshooting note
 ```
 
-**Structure Decision**: The repository is a two-part web application. Backend routes and workflow stay in `src/banking_support`; the defect is in `frontend/src/api.ts` and the visual work is in `frontend/src/styles.css`. Tests follow the existing `tests/contract` layout for cross-cutting configuration contracts, with component tests colocated under `frontend/src/__tests__`.
+**Structure Decision**: The repository is a two-part web application. Backend routes and workflow stay in `src/healthcare_support`; the defect is in `frontend/src/api.ts` and the visual work is in `frontend/src/styles.css`. Tests follow the existing `tests/contract` layout for cross-cutting configuration contracts, with component tests colocated under `frontend/src/__tests__`.
 
 ## Complexity Tracking
 

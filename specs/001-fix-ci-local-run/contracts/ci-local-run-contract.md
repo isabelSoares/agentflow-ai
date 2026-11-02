@@ -62,7 +62,7 @@ These are the documented developer-facing commands. Paths are relative to the re
 | Scenario | Command | Expected outcome |
 |----------|---------|------------------|
 | Install backend | `uv sync --locked` | Success without a stale-lock error |
-| Start backend | `uv run uvicorn banking_support.api.app:create_app --factory --port 8000` | Service starts with an empty `GROQ_API_KEY` |
+| Start backend | `uv run uvicorn healthcare_support.api.app:create_app --factory --port 8000` | Service starts with an empty `GROQ_API_KEY` |
 | Health | `curl -fsS http://localhost:8000/health` | Healthy response |
 | Offline tests | `uv run pytest -m "not live_llm and not live_speech"` | All offline tests pass |
 | Lint and types | `uv run ruff check src tests`, `uv run ruff format --check src tests`, `uv run mypy src` | All pass |

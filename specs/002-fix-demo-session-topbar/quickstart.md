@@ -25,7 +25,7 @@ cd ..
 
 ```bash
 cp .env.example .env
-uv run uvicorn banking_support.api.app:create_app --factory --port 8000
+uv run uvicorn healthcare_support.api.app:create_app --factory --port 8000
 ```
 
 Confirm liveness in a second terminal:
@@ -107,7 +107,7 @@ uv run pytest tests/contract/test_frontend_demo_contract.py -q
 cd frontend && npm test
 cd .. && npm --prefix frontend run build
 uv run pytest -m "not live_llm and not live_speech" \
-  --cov=src/banking_support --cov-branch --cov-report=term-missing --cov-fail-under=80
+  --cov=src/healthcare_support --cov-branch --cov-report=term-missing --cov-fail-under=80
 uv run mypy src
 uv run ruff check src tests
 uv run ruff format --check src tests

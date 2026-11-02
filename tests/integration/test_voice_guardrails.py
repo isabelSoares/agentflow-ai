@@ -8,15 +8,15 @@ import wave
 import pytest
 from fastapi.testclient import TestClient
 
-from banking_support.agents.llm import (
+from healthcare_support.agents.llm import (
     ExtractionIntent,
     ExtractionResult,
     ScriptedFakeExtractor,
 )
-from banking_support.api.app import AppState, create_app
-from banking_support.voice.service import build_voice_service
-from banking_support.voice.stt import FakeSTT
-from banking_support.voice.tts import FakeTTS
+from healthcare_support.api.app import AppState, create_app
+from healthcare_support.voice.service import build_voice_service
+from healthcare_support.voice.stt import FakeSTT
+from healthcare_support.voice.tts import FakeTTS
 
 
 def _make_wav() -> bytes:
@@ -34,7 +34,7 @@ def client() -> TestClient:
     extractor = ScriptedFakeExtractor([ExtractionResult(intent=ExtractionIntent.REQUEST_DATA)])
     app_state = AppState()
     app_state.extractor = extractor
-    from banking_support.agents.graph import build_verification_graph
+    from healthcare_support.agents.graph import build_verification_graph
 
     app_state.verification_graph = build_verification_graph(
         app_state.customer_repository,
@@ -166,7 +166,7 @@ def test_low_confidence_transcription_returns_clarification(client: TestClient) 
 
     class _UnreliableSTT:
         def transcribe(self, audio: bytes, content_type: str) -> object:
-            from banking_support.voice.schemas import TranscriptionResult
+            from healthcare_support.voice.schemas import TranscriptionResult
 
             return TranscriptionResult(
                 text="",

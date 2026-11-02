@@ -4,13 +4,13 @@ from __future__ import annotations
 
 import pytest
 
-from banking_support.core.classification import (
+from healthcare_support.core.classification import (
     ClassificationError,
     UnverifiedError,
     classify_customer,
 )
-from banking_support.domain.conversation import CustomerClassification
-from banking_support.domain.customer import Customer
+from healthcare_support.domain.conversation import CustomerClassification
+from healthcare_support.domain.customer import Customer
 
 
 @pytest.fixture

@@ -1,11 +1,11 @@
 """Integration coverage for the actual LangGraph checkpointer boundary."""
 
-from banking_support.agents.graph import build_verification_graph
-from banking_support.agents.llm import ExtractionResult, ScriptedFakeExtractor
-from banking_support.agents.state import make_initial_state
-from banking_support.data.memory import InMemoryCustomerRepository
-from banking_support.data.seed import CUSTOMERS
-from banking_support.domain.conversation import ExtractionIntent
+from healthcare_support.agents.graph import build_verification_graph
+from healthcare_support.agents.llm import ExtractionResult, ScriptedFakeExtractor
+from healthcare_support.agents.state import make_initial_state
+from healthcare_support.data.memory import InMemoryCustomerRepository
+from healthcare_support.data.seed import CUSTOMERS
+from healthcare_support.domain.conversation import ExtractionIntent
 
 
 def test_graph_checkpoint_excludes_raw_input_and_secret_answer() -> None:

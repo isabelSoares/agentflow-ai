@@ -16,7 +16,7 @@
 
 ## Path Conventions
 
-- Backend: `src/banking_support/`
+- Backend: `src/healthcare_support/`
 - Frontend: `frontend/src/`
 - Frontend tests: `frontend/src/__tests__/`
 - Python contract tests: `tests/contract/`
@@ -119,8 +119,8 @@
 
 **Purpose**: Full quality gates and end-to-end validation across the feature.
 
-- [x] T025 [P] Run `uv run pytest -m "not live_llm and not live_speech" --cov=src/banking_support --cov-branch --cov-report=term-missing --cov-fail-under=80` against `tests/`
-- [x] T026 [P] Run `uv run mypy src`, `uv run ruff check src tests`, and `uv run ruff format --check src tests` against `src/banking_support/` and `tests/`
+- [x] T025 [P] Run `uv run pytest -m "not live_llm and not live_speech" --cov=src/healthcare_support --cov-branch --cov-report=term-missing --cov-fail-under=80` against `tests/`
+- [x] T026 [P] Run `uv run mypy src`, `uv run ruff check src tests`, and `uv run ruff format --check src tests` against `src/healthcare_support/` and `tests/`
 - [x] T027 [P] Run `cd frontend && npm test` for `frontend/src/__tests__/` and `cd frontend && npm run build` for `frontend/`
 - [x] T028 Execute every scenario in `specs/002-fix-demo-session-topbar/quickstart.md`, including backend-down retry and responsive topbar checks
 - [x] T029 [P] Review `README.md`, `frontend/.env.example`, and `specs/002-fix-demo-session-topbar/contracts/session-api.md` for consistent `/api` guidance and remove stale 404 instructions

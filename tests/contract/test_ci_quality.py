@@ -11,7 +11,7 @@ def test_quality_workflow_enforces_offline_coverage_and_existing_gates() -> None
     workflow = (ROOT / ".github/workflows/ci.yml").read_text()
 
     assert "not live_llm and not live_speech" in workflow
-    assert "--cov=src/banking_support" in workflow
+    assert "--cov=src/healthcare_support" in workflow
     assert "--cov-branch" in workflow
     assert "--cov-fail-under=80" in workflow
     assert "uv run ruff check src tests" in workflow

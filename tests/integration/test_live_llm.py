@@ -9,13 +9,13 @@ from __future__ import annotations
 
 import pytest
 
-from banking_support.agents.llm import (
+from healthcare_support.agents.llm import (
     ExtractionResult,
     IntentClassification,
     OpenAIExtractor,
     OpenAISupportIntentClassifier,
 )
-from banking_support.config import Settings
+from healthcare_support.config import Settings
 
 pytestmark = pytest.mark.live_llm
 
@@ -115,7 +115,7 @@ class TestLiveAuthenticationJourney:
     def test_identity_and_authentication_journey(self, settings: Settings) -> None:
         from fastapi.testclient import TestClient
 
-        from banking_support.api.app import AppState, create_app
+        from healthcare_support.api.app import AppState, create_app
 
         state = AppState()
         assert isinstance(state.extractor, OpenAIExtractor)

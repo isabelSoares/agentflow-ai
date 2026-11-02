@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import pytest
 
-from banking_support.core.matching import MatchOutcome, evaluate_match
-from banking_support.data.memory import InMemoryCustomerRepository
-from banking_support.data.seed import CUSTOMERS
-from banking_support.domain.conversation import ProvidedAttributes
+from healthcare_support.core.matching import MatchOutcome, evaluate_match
+from healthcare_support.data.memory import InMemoryCustomerRepository
+from healthcare_support.data.seed import CUSTOMERS
+from healthcare_support.domain.conversation import ProvidedAttributes
 
 
 @pytest.fixture

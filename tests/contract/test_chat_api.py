@@ -5,17 +5,17 @@ from __future__ import annotations
 import pytest
 from fastapi.testclient import TestClient
 
-from banking_support.agents.llm import (
+from conftest import proof_headers, start_session
+from healthcare_support.agents.llm import (
     ExtractionIntent,
     ExtractionResult,
     ScriptedFakeExtractor,
     ScriptedFakeSupportIntentClassifier,
 )
-from banking_support.api.app import AppState, create_app
-from banking_support.api.schemas import ConversationTurnResponse
-from banking_support.data.seed import CUSTOMERS
-from banking_support.domain.routing import IntentClassification, SupportIntent
-from conftest import proof_headers, start_session
+from healthcare_support.api.app import AppState, create_app
+from healthcare_support.api.schemas import ConversationTurnResponse
+from healthcare_support.data.seed import CUSTOMERS
+from healthcare_support.domain.routing import IntentClassification, SupportIntent
 
 
 @pytest.fixture
@@ -31,7 +31,7 @@ def client() -> TestClient:
     app_state = AppState()
     app_state.extractor = extractor
     # Rebuild graph with the scripted extractor.
-    from banking_support.agents.graph import build_verification_graph
+    from healthcare_support.agents.graph import build_verification_graph
 
     app_state.verification_graph = build_verification_graph(
         app_state.customer_repository,
@@ -63,7 +63,7 @@ def routed_client() -> TestClient:
     app_state = AppState()
     app_state.extractor = extractor
     app_state.intent_classifier = classifier
-    from banking_support.agents.graph import build_verification_graph
+    from healthcare_support.agents.graph import build_verification_graph
 
     app_state.verification_graph = build_verification_graph(
         app_state.customer_repository,
@@ -266,7 +266,7 @@ def contextual_client() -> TestClient:
     app_state = AppState()
     app_state.extractor = extractor
     app_state.intent_classifier = classifier
-    from banking_support.agents.graph import build_verification_graph
+    from healthcare_support.agents.graph import build_verification_graph
 
     app_state.verification_graph = build_verification_graph(
         app_state.customer_repository,
@@ -323,7 +323,7 @@ class TestVerificationAcrossMessages:
         )
         app_state = AppState()
         app_state.extractor = extractor
-        from banking_support.agents.graph import build_verification_graph
+        from healthcare_support.agents.graph import build_verification_graph
 
         app_state.verification_graph = build_verification_graph(
             app_state.customer_repository,
@@ -464,7 +464,7 @@ class TestHistoryUnavailability:
         # Inject a failing history store to simulate storage unavailability.
         app_state = AppState()
         app_state.history_store = FailingHistoryStore(app_state.history_store)
-        from banking_support.agents.graph import build_verification_graph
+        from healthcare_support.agents.graph import build_verification_graph
 
         app_state.verification_graph = build_verification_graph(
             app_state.customer_repository,

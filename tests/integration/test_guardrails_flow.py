@@ -10,12 +10,12 @@ from __future__ import annotations
 import pytest
 from langchain_core.messages import HumanMessage
 
-from banking_support.agents.graph import build_verification_graph
-from banking_support.agents.llm import ExtractionIntent, ExtractionResult, LLMExtractor
-from banking_support.agents.nodes import make_nodes
-from banking_support.agents.state import make_initial_state
-from banking_support.data.memory import InMemoryCustomerRepository
-from banking_support.data.seed import CUSTOMERS
+from healthcare_support.agents.graph import build_verification_graph
+from healthcare_support.agents.llm import ExtractionIntent, ExtractionResult, LLMExtractor
+from healthcare_support.agents.nodes import make_nodes
+from healthcare_support.agents.state import make_initial_state
+from healthcare_support.data.memory import InMemoryCustomerRepository
+from healthcare_support.data.seed import CUSTOMERS
 
 
 class PermissiveFakeExtractor(LLMExtractor):

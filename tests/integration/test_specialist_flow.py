@@ -5,18 +5,18 @@ from __future__ import annotations
 import pytest
 from langchain_core.messages import HumanMessage
 
-from banking_support.agents.graph import build_verification_graph
-from banking_support.agents.llm import (
+from healthcare_support.agents.graph import build_verification_graph
+from healthcare_support.agents.llm import (
     ExtractionIntent,
     ExtractionResult,
     ScriptedFakeExtractor,
     ScriptedFakeSupportIntentClassifier,
 )
-from banking_support.agents.state import make_initial_state
-from banking_support.data.memory import InMemoryCustomerRepository
-from banking_support.data.seed import CUSTOMERS
-from banking_support.domain.conversation import ConversationStatus
-from banking_support.domain.routing import (
+from healthcare_support.agents.state import make_initial_state
+from healthcare_support.data.memory import InMemoryCustomerRepository
+from healthcare_support.data.seed import CUSTOMERS
+from healthcare_support.domain.conversation import ConversationStatus
+from healthcare_support.domain.routing import (
     IntentClassification,
     SupportDepartment,
     SupportIntent,
@@ -118,8 +118,8 @@ class TestPremiumSpecialistRouting:
     def test_unavailable_specialist_returns_fallback(
         self, repository: InMemoryCustomerRepository
     ) -> None:
-        from banking_support.data.support_directory import default_support_directory
-        from banking_support.domain.routing import SupportDirectory
+        from healthcare_support.data.support_directory import default_support_directory
+        from healthcare_support.domain.routing import SupportDirectory
 
         base = default_support_directory()
         directory = SupportDirectory(

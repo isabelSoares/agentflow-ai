@@ -23,7 +23,7 @@ The project emphasizes responsible AI engineering, workflow orchestration, autom
 
 The repository ships with a **banking support demo adapter**. It provides a small seed dataset and a concrete identity, authorization, classification, and routing scenario so the workflow can be exercised end to end.
 
-The platform framing is domain-agnostic: the banking adapter is the current reference implementation, not a limit on the architecture. The Python package remains named `banking_support` because it contains that demo domain.
+The platform framing is domain-agnostic: the banking adapter is the current reference implementation, not a limit on the architecture. The Python package remains named `healthcare_support` because it contains that demo domain.
 
 ## Architecture
 
@@ -196,11 +196,11 @@ During development, Vite proxies `/api` to `http://127.0.0.1:8000`, so no browse
 
 | Stage | Responsibility | Implemented in |
 |-------|----------------|----------------|
-| **Greeter** | Starts the conversation, collects identifying details, and verifies the caller's identity. | `src/banking_support/core/matching.py`, `src/banking_support/core/verification.py`, `src/banking_support/agents/nodes.py` |
-| **Bouncer** | Classifies an authenticated caller for the banking demo. | `src/banking_support/core/classification.py` |
-| **Specialist** | Routes authenticated requests to the appropriate support destination. | `src/banking_support/core/routing.py` |
-| **Guardrails** | Blocks prompt injection, pre-authentication data requests, unsupported commitments, and privacy violations. | `src/banking_support/services/guardrails_service.py`, input/output guardrail nodes |
-| **Voice interface** | Optional STT/TTS adapters that reuse the text workflow and security controls. | `src/banking_support/voice/` |
+| **Greeter** | Starts the conversation, collects identifying details, and verifies the caller's identity. | `src/healthcare_support/core/matching.py`, `src/healthcare_support/core/verification.py`, `src/healthcare_support/agents/nodes.py` |
+| **Bouncer** | Classifies an authenticated caller for the banking demo. | `src/healthcare_support/core/classification.py` |
+| **Specialist** | Routes authenticated requests to the appropriate support destination. | `src/healthcare_support/core/routing.py` |
+| **Guardrails** | Blocks prompt injection, pre-authentication data requests, unsupported commitments, and privacy violations. | `src/healthcare_support/services/guardrails_service.py`, input/output guardrail nodes |
+| **Voice interface** | Optional STT/TTS adapters that reuse the text workflow and security controls. | `src/healthcare_support/voice/` |
 
 ## Security model
 
@@ -225,7 +225,7 @@ During development, Vite proxies `/api` to `http://127.0.0.1:8000`, so no browse
 ```bash
 uv sync --locked
 cp .env.example .env                 # leave GROQ_API_KEY empty for offline runs
-uv run uvicorn banking_support.api.app:create_app --factory --port 8000
+uv run uvicorn healthcare_support.api.app:create_app --factory --port 8000
 ```
 
 - Interactive API docs: http://localhost:8000/docs
@@ -276,7 +276,7 @@ The offline suite uses scripted fake LLM and speech adapters. No API key and no 
 ```bash
 uv run pytest
 uv run pytest -m "not live_llm and not live_speech" \
-  --cov=src/banking_support --cov-branch --cov-report=term-missing --cov-fail-under=80
+  --cov=src/healthcare_support --cov-branch --cov-report=term-missing --cov-fail-under=80
 uv run pytest -m live_llm                  # requires GROQ_API_KEY
 uv run pytest -m live_speech               # requires GROQ_API_KEY
 uv run mypy src
@@ -286,7 +286,7 @@ cd frontend && npm test
 cd frontend && npm run build
 ```
 
-The offline CI quality gate requires at least 80% line coverage for `src/banking_support`.
+The offline CI quality gate requires at least 80% line coverage for `src/healthcare_support`.
 
 ### 5. Dependency updates and lockfile troubleshooting
 
@@ -338,7 +338,7 @@ curl -s -D /tmp/reset.headers -X POST localhost:8000/conversations/$CID/reset \
 ## Project structure
 
 ```text
-src/banking_support/   FastAPI service, LangGraph workflow, banking demo adapter
+src/healthcare_support/   FastAPI service, LangGraph workflow, banking demo adapter
 frontend/              React + TypeScript client (Vite)
 tests/                 Contract, integration, and unit tests
 docs/                  Architecture, system diagram, and maintenance notes

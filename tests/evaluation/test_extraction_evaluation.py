@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from banking_support.evaluation import evaluate_extraction
+from healthcare_support.evaluation import evaluate_extraction
 
 
 def test_golden_dataset_is_versioned_and_meets_baseline() -> None:

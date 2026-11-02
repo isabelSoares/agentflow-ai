@@ -26,7 +26,7 @@ uv sync --locked
 
 ```bash
 uv run pytest -m "not live_llm and not live_speech" \
-  --cov=src/banking_support \
+  --cov=src/healthcare_support \
   --cov-branch \
   --cov-report=term-missing \
   --cov-fail-under=80
@@ -57,7 +57,7 @@ uv run pip-audit --strict -r /tmp/agentflow-ai-requirements.txt
 
 ```bash
 cp .env.example .env
-uv run uvicorn banking_support.api.app:create_app --factory --port 8000
+uv run uvicorn healthcare_support.api.app:create_app --factory --port 8000
 ```
 
 In a second terminal:

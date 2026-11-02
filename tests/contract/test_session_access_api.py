@@ -9,19 +9,19 @@ from uuid import uuid4
 import pytest
 from fastapi.testclient import TestClient
 
-from banking_support.agents.llm import (
+from conftest import proof_headers, start_session
+from healthcare_support.agents.llm import (
     ExtractionIntent,
     ExtractionResult,
     ScriptedFakeExtractor,
     ScriptedFakeSupportIntentClassifier,
 )
-from banking_support.api.app import AppState, create_app
-from banking_support.data.seed import CUSTOMERS
-from banking_support.domain.routing import IntentClassification, SupportIntent
-from banking_support.voice.service import build_voice_service
-from banking_support.voice.stt import FakeSTT
-from banking_support.voice.tts import FakeTTS
-from conftest import proof_headers, start_session
+from healthcare_support.api.app import AppState, create_app
+from healthcare_support.data.seed import CUSTOMERS
+from healthcare_support.domain.routing import IntentClassification, SupportIntent
+from healthcare_support.voice.service import build_voice_service
+from healthcare_support.voice.stt import FakeSTT
+from healthcare_support.voice.tts import FakeTTS
 
 DENIED = {"detail": "Session access denied."}
 
@@ -56,7 +56,7 @@ def app_state() -> AppState:
     state = AppState()
     state.extractor = extractor
     state.intent_classifier = classifier
-    from banking_support.agents.graph import build_verification_graph
+    from healthcare_support.agents.graph import build_verification_graph
 
     state.verification_graph = build_verification_graph(
         state.customer_repository,
@@ -212,7 +212,7 @@ class TestRotationAndTermination:
                 ExtractionResult(secret_answer="C", intent=ExtractionIntent.ANSWER_SECRET),
             ]
         )
-        from banking_support.agents.graph import build_verification_graph
+        from healthcare_support.agents.graph import build_verification_graph
 
         app_state.extractor = extractor
         app_state.verification_graph = build_verification_graph(

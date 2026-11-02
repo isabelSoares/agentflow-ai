@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from fastapi.testclient import TestClient
 
-from banking_support.api.app import create_app
+from healthcare_support.api.app import create_app
 
 
 def test_health_returns_ok_without_session_proof() -> None:

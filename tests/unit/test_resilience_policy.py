@@ -2,7 +2,7 @@
 
 from time import monotonic, sleep
 
-from banking_support.resilience.policy import ExternalCallPolicy, call_with_policy
+from healthcare_support.resilience.policy import ExternalCallPolicy, call_with_policy
 
 
 def test_timeout_returns_fallback_within_bound() -> None:

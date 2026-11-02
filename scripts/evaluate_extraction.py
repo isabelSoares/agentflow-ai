@@ -6,7 +6,7 @@ import argparse
 import json
 from pathlib import Path
 
-from banking_support.evaluation import evaluate_extraction
+from healthcare_support.evaluation import evaluate_extraction
 
 
 def main() -> int:

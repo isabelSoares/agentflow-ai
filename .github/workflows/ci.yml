@@ -37,7 +37,7 @@ jobs:
       - name: Offline test suite
         run: >-
           uv run pytest -m "not live_llm and not live_speech"
-          --cov=src/banking_support
+          --cov=src/healthcare_support
           --cov-branch
           --cov-report=term-missing
           --cov-report=xml

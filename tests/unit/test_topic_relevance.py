@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import pytest
 
-from banking_support.core.advanced_guardrails import AdvancedGuardrailEvaluator
-from banking_support.domain.conversation import ConversationStatus, CustomerClassification
-from banking_support.domain.guardrails import GuardrailInput
-from banking_support.domain.routing import SupportIntent
+from healthcare_support.core.advanced_guardrails import AdvancedGuardrailEvaluator
+from healthcare_support.domain.conversation import ConversationStatus, CustomerClassification
+from healthcare_support.domain.guardrails import GuardrailInput
+from healthcare_support.domain.routing import SupportIntent
 
 
 @pytest.fixture

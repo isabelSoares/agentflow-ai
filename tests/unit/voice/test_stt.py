@@ -7,7 +7,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from banking_support.voice.stt import FakeSTT, OpenAISpeechToText
+from healthcare_support.voice.stt import FakeSTT, OpenAISpeechToText
 
 
 def test_fake_stt_returns_default_transcription() -> None:
