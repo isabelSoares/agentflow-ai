@@ -39,9 +39,9 @@ class TestRelevantResponsesAllowed:
     def test_response_matching_request_allowed(self, evaluator: AdvancedGuardrailEvaluator) -> None:
         result = evaluator.check_output(
             _output(
-                "Yacht insurance is available through our marine specialists.",
-                "Can you tell me about yacht insurance?",
-                intent=SupportIntent.YACHT_INSURANCE,
+                "Insurance coverage is available through our insurance and billing specialists.",
+                "Can you tell me about insurance coverage?",
+                intent=SupportIntent.SPECIALIST_REFERRAL,
             )
         )
         assert result is None or getattr(result, "reason_category", None) != "relevance_failure"
@@ -50,22 +50,22 @@ class TestRelevantResponsesAllowed:
         result = evaluator.check_output(
             _output(
                 "I'll connect you with the appropriate department.",
-                "I need help with my account",
-                intent=SupportIntent.ACCOUNT_ASSISTANCE,
+                "I need help scheduling an appointment",
+                intent=SupportIntent.APPOINTMENT_ASSISTANCE,
             )
         )
         assert result is None or getattr(result, "reason_category", None) != "relevance_failure"
 
 
 class TestIrrelevantResponsesBlocked:
-    def test_mortgage_response_to_yacht_question_blocked(
+    def test_billing_response_to_insurance_question_blocked(
         self, evaluator: AdvancedGuardrailEvaluator
     ) -> None:
         result = evaluator.check_output(
             _output(
-                "Our mortgage rates start at 3.5%.",
-                "Can you tell me about yacht insurance?",
-                intent=SupportIntent.YACHT_INSURANCE,
+                "Our invoice processing costs start at 3.5%.",
+                "Can you tell me about insurance coverage?",
+                intent=SupportIntent.SPECIALIST_REFERRAL,
             )
         )
         assert result is not None
@@ -86,7 +86,7 @@ class TestWorkflowMessagesPreserved:
     def test_routing_explanation_preserved(self, evaluator: AdvancedGuardrailEvaluator) -> None:
         result = evaluator.check_output(
             _output(
-                "I'll route you to the insurance specialist department.",
+                "I'll route you to the Insurance and Billing Department.",
                 "I need insurance help",
                 intent=SupportIntent.INSURANCE,
             )

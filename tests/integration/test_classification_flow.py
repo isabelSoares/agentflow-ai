@@ -48,7 +48,7 @@ class TestPremiumClassification:
         assert state["status"] == ConversationStatus.AUTHENTICATED.value
         assert state["patient_classification"] == "premium"
         assert "+1999888999" in state["reply"]
-        assert "premium client" in state["reply"].lower()
+        assert "premium patient" in state["reply"].lower()
 
 
 class TestRegularClassification:
@@ -88,7 +88,7 @@ class TestNonPatientClassification:
         graph = build_verification_graph(repository, extractor)
         cid = "conv-unverified-1"
         graph.update_state({"configurable": {"thread_id": cid}}, make_initial_state(cid))
-        state = run_turn(graph, cid, "what is my account status?")
+        state = run_turn(graph, cid, "what is my appointment status?")
         assert state["status"] == ConversationStatus.COLLECTING.value
         assert state["patient_classification"] is None
         assert "identity is verified" in state["reply"].lower()

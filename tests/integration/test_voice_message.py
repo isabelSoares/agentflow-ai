@@ -32,7 +32,7 @@ def _make_wav() -> bytes:
     return buffer.getvalue()
 
 
-def _build_app_state(default_text: str = "I need help with my bank account") -> AppState:
+def _build_app_state(default_text: str = "I need help with an appointment") -> AppState:
     extractor = ScriptedFakeExtractor(
         [
             ExtractionResult(
@@ -46,7 +46,7 @@ def _build_app_state(default_text: str = "I need help with my bank account") -> 
         ]
     )
     classifier = ScriptedFakeSupportIntentClassifier(
-        [IntentClassification(intent=SupportIntent.GENERAL_BANKING)]
+        [IntentClassification(intent=SupportIntent.GENERAL_HEALTHCARE)]
     )
     app_state = AppState()
     app_state.extractor = extractor
@@ -84,7 +84,7 @@ def client() -> TestClient:
         yield test_client
 
 
-def test_spoken_banking_request_returns_text_and_audio(client: TestClient) -> None:
+def test_spoken_healthcare_request_returns_text_and_audio(client: TestClient) -> None:
     start = client.post("/conversations")
     conversation_id = start.json()["conversation_id"]
     headers = {"X-Session-Proof": start.headers["X-Session-Proof"]}
@@ -109,10 +109,10 @@ def test_spoken_request_matches_text_endpoint_response() -> None:
     # position for both the voice and text requests.
     with (
         TestClient(
-            create_app(_build_app_state(default_text="I need help with my bank account"))
+            create_app(_build_app_state(default_text="I need help with an appointment"))
         ) as voice_client,
         TestClient(
-            create_app(_build_app_state(default_text="I need help with my bank account"))
+            create_app(_build_app_state(default_text="I need help with an appointment"))
         ) as text_client,
     ):
         voice_start = voice_client.post("/conversations")
@@ -130,7 +130,7 @@ def test_spoken_request_matches_text_endpoint_response() -> None:
         text_headers = {"X-Session-Proof": text_start.headers["X-Session-Proof"]}
         text_response = text_client.post(
             f"/conversations/{text_id}/messages",
-            json={"text": "I need help with my bank account"},
+            json={"text": "I need help with an appointment"},
             headers=text_headers,
         )
 

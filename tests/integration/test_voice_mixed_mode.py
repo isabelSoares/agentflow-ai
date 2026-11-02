@@ -55,7 +55,7 @@ def client() -> TestClient:
                 clarification_prompt="What type of insurance?",
             ),
             IntentClassification(
-                intent=SupportIntent.YACHT_INSURANCE,
+                intent=SupportIntent.SPECIALIST_REFERRAL,
                 needs_clarification=False,
             ),
         ]
@@ -79,7 +79,7 @@ def client() -> TestClient:
     app_state.voice_config = app_state.voice_config.model_copy(
         update={"enabled": True, "stt_enabled": True, "tts_enabled": False}
     )
-    app_state.stt_client = FakeSTT(default="For a private yacht")
+    app_state.stt_client = FakeSTT(default="For a specialist referral")
     app_state.tts_client = FakeTTS()
     app_state.voice_service = build_voice_service(
         config=app_state.voice_config,
@@ -126,7 +126,7 @@ def test_mixed_text_and_voice_preserves_context(client: TestClient) -> None:
         headers=headers,
     )
     body = r2.json()
-    assert body["routing_intent"] == SupportIntent.YACHT_INSURANCE.value
+    assert body["routing_intent"] == SupportIntent.SPECIALIST_REFERRAL.value
     assert body["authenticated"] is True
 
 

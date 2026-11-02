@@ -7,7 +7,7 @@ pre-authentication replies cannot leak PII by construction.
 from __future__ import annotations
 
 GREETING = (
-    "Hello! I'm your banking support assistant. "
+    "Hello! I'm your healthcare support assistant. "
     "To get started, could you please tell me your name, phone number, or date of birth?"
 )
 
@@ -30,18 +30,18 @@ WRONG_SECRET_ANSWER = "That answer doesn't match our records. Please try again."
 
 TERMINATION_GENERIC = (
     "I'm sorry, I wasn't able to complete the verification. "
-    "Please contact your bank for assistance."
+    "Please contact your healthcare provider for assistance."
 )
 
 TERMINATION_NON_CLIENT = (
     "Thank you for reaching out. It seems that you are not currently a client. "
-    "I recommend that you contact your bank's support department directly for assistance."
+    "I recommend that you contact our patient support department directly for assistance."
 )
 
 DATA_REQUEST_REFUSAL = "I'm not able to share that information until your identity is verified."
 
 MANIPULATION_RE_PROMPT = (
-    "I'm here to help with banking support. "
+    "I'm here to help with healthcare support. "
     "Please provide your name, phone number, or date of birth so I can verify you."
 )
 
@@ -55,13 +55,13 @@ CLOSED_CONVERSATION = (
 AUTHENTICATED_CONFIRMATION = "Thank you, your identity has been verified. How can I help you today?"
 
 PREMIUM_ROUTING = (
-    "Thank you for reaching out regarding your account issue. As a premium client, "
+    "Thank you for reaching out regarding your healthcare request. As a premium patient, "
     "we value your experience and are here to assist you. For immediate support, "
     "please contact our dedicated support department at +1999888999."
 )
 
 REGULAR_ROUTING = (
-    "I'm sorry to hear that you're having trouble with your account. Since you're a "
+    "I'm sorry to hear that you're having trouble with your healthcare request. Since you're a "
     "regular client, I recommend that you call our support department at +1112112112 "
     "for assistance."
 )
@@ -69,7 +69,7 @@ REGULAR_ROUTING = (
 NON_PATIENT_RESPONSE = (
     "Thank you for reaching out. Dedicated patient support is only available to "
     "existing patients. If you'd like to learn more about becoming a "
-    "patient, please visit our website or your nearest branch."
+    "patient, please visit our website or contact our patient services team."
 )
 
 PREMIUM_RESTRICTION_MESSAGE = (
@@ -84,15 +84,15 @@ PROHIBITED_ACTION_MESSAGE = (
 
 INTERNAL_DISCLOSURE_REFUSAL = (
     "I'm not able to share internal details or configuration information. "
-    "How can I help you with your banking needs today?"
+    "How can I help you with your healthcare needs today?"
 )
 
 PRIVACY_VIOLATION_MESSAGE = (
     "I'm not able to share that information. "
-    "If you need help with your account, please let me know what you're looking for."
+    "If you need help with a healthcare request, please let me know what you're looking for."
 )
 
 UNAVAILABLE_GUARDIAL_MESSAGE = (
     "I'm not able to complete that request right now. "
-    "Please try again later or contact your bank directly for assistance."
+    "Please try again later or contact your healthcare provider for assistance."
 )

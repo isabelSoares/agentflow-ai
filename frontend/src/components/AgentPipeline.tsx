@@ -43,7 +43,7 @@ function buildStages(telemetry: Telemetry, busy: boolean): Stage[] {
     },
     {
       name: 'Classification',
-      detail: 'Customer relationship resolution',
+      detail: 'Patient classification and resolution',
       state: telemetry.classification
         ? 'complete'
         : busy && telemetry.authenticated

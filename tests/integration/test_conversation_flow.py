@@ -117,7 +117,7 @@ class TestUS2Authentication:
         state = run_turn(graph, cid, "Yoda")
         assert state["status"] == ConversationStatus.AUTHENTICATED.value
         assert state["patient_classification"] == "premium"
-        assert "premium client" in state["reply"].lower()
+        assert "premium patient" in state["reply"].lower()
 
     def test_wrong_answer_then_retry(self, repository: InMemoryPatientRepository) -> None:
         extractor = ScriptedFakeExtractor(
@@ -198,7 +198,7 @@ class TestUS1DeterministicPrecedence:
         cid = "conv-e2-2"
         graph.update_state({"configurable": {"thread_id": cid}}, make_initial_state(cid))
         run_turn(graph, cid, "identify me")
-        state = run_turn(graph, cid, "what is my balance?")
+        state = run_turn(graph, cid, "what is my appointment?")
         assert state["status"] == ConversationStatus.IDENTIFIED.value
         assert "not able to share" in state["reply"].lower()
 

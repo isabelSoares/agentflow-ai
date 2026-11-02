@@ -47,7 +47,7 @@ def _build_app_state() -> AppState:
         ]
     )
     classifier = ScriptedFakeSupportIntentClassifier(
-        [IntentClassification(intent=SupportIntent.GENERAL_BANKING)]
+        [IntentClassification(intent=SupportIntent.GENERAL_HEALTHCARE)]
     )
     app_state = AppState()
     app_state.extractor = extractor
@@ -68,7 +68,7 @@ def _build_app_state() -> AppState:
     app_state.voice_config = app_state.voice_config.model_copy(
         update={"enabled": True, "stt_enabled": True, "tts_enabled": True}
     )
-    app_state.stt_client = FakeSTT(default="I need help with my bank account")
+    app_state.stt_client = FakeSTT(default="I need help with an appointment")
     app_state.tts_client = FakeTTS(audio=b"AUDIO")
     app_state.voice_service = build_voice_service(
         config=app_state.voice_config,

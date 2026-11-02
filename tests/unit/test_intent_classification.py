@@ -16,8 +16,8 @@ from healthcare_support.domain.routing import IntentClassification, SupportInten
 
 class TestIntentClassificationModel:
     def test_valid_supported_intent(self) -> None:
-        result = IntentClassification(intent=SupportIntent.YACHT_INSURANCE)
-        assert result.intent == SupportIntent.YACHT_INSURANCE
+        result = IntentClassification(intent=SupportIntent.SPECIALIST_REFERRAL)
+        assert result.intent == SupportIntent.SPECIALIST_REFERRAL
         assert result.needs_clarification is False
 
     def test_ambiguous_requires_clarification_flag(self) -> None:
@@ -42,21 +42,21 @@ class TestIntentClassificationModel:
     def test_specialization_is_optional(self) -> None:
         result = IntentClassification(
             intent=SupportIntent.OTHER_SPECIALIZED,
-            specialization="yacht_insurance",
+            specialization="specialist_referral",
         )
-        assert result.specialization == "yacht_insurance"
+        assert result.specialization == "specialist_referral"
 
 
 class TestScriptedFakeClassifier:
     def test_returns_scripted_results_in_order(self) -> None:
         classifier = ScriptedFakeSupportIntentClassifier(
             [
-                IntentClassification(intent=SupportIntent.YACHT_INSURANCE),
-                IntentClassification(intent=SupportIntent.ACCOUNT_ASSISTANCE),
+                IntentClassification(intent=SupportIntent.SPECIALIST_REFERRAL),
+                IntentClassification(intent=SupportIntent.APPOINTMENT_ASSISTANCE),
             ]
         )
-        assert classifier.classify("first").intent == SupportIntent.YACHT_INSURANCE
-        assert classifier.classify("second").intent == SupportIntent.ACCOUNT_ASSISTANCE
+        assert classifier.classify("first").intent == SupportIntent.SPECIALIST_REFERRAL
+        assert classifier.classify("second").intent == SupportIntent.APPOINTMENT_ASSISTANCE
 
     def test_falls_back_to_uninterpretable(self) -> None:
         classifier = ScriptedFakeSupportIntentClassifier(
@@ -75,5 +75,5 @@ class TestScriptedFakeClassifier:
 class TestAgentImports:
     def test_agent_intent_classification_alias(self) -> None:
         # The agent module re-exports the domain model for convenience.
-        result = AgentIntentClassification(intent=SupportIntent.GENERAL_BANKING)
-        assert result.intent == SupportIntent.GENERAL_BANKING
+        result = AgentIntentClassification(intent=SupportIntent.GENERAL_HEALTHCARE)
+        assert result.intent == SupportIntent.GENERAL_HEALTHCARE

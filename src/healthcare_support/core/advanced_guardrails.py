@@ -1,4 +1,4 @@
-"""Advanced heuristic guardrail checks for the banking assistant.
+"""Advanced heuristic guardrail checks for the healthcare assistant.
 
 The checks are rule-based so they run deterministically without a live LLM or
 external service. They are wired into the existing ``GuardrailEvaluator`` via
@@ -16,7 +16,7 @@ from langchain_core.messages import HumanMessage
 from healthcare_support.config.context_whitelist import WORKFLOW_MESSAGE_PATTERNS
 from healthcare_support.config.safe_replies import DEFAULT_ADVANCED_SAFE_REPLIES
 from healthcare_support.config.sensitive_topics import SENSITIVE_TOPIC_PATTERNS
-from healthcare_support.config.trusted_banking_info import get_catalog
+from healthcare_support.config.trusted_healthcare_info import get_catalog
 from healthcare_support.domain.advanced_guardrails import (
     AdvancedGuardrailDecision,
     AdvancedGuardrailInput,
@@ -24,7 +24,7 @@ from healthcare_support.domain.advanced_guardrails import (
     CheckVerdict,
     ConversationContext,
     RedirectionState,
-    TrustedBankingCatalog,
+    TrustedHealthcareCatalog,
 )
 from healthcare_support.domain.conversation import ConversationStatus, PatientClassification
 from healthcare_support.domain.guardrails import (
@@ -90,11 +90,12 @@ class _TopicRelevanceClassifier:
         r"\d{4}[-/]\d{1,2}[-/]\d{1,2})\b",
         re.IGNORECASE,
     )
-    _BANKING_SCOPE = re.compile(
-        r"\b(account|balance|loan|mortgage|insurance|card|credit|debit|transfer|payment|date\s+of\s+birth|dob|"
-        r"phone|premium|yacht|fraud|suspicious|transaction|bank|banking|patient\s+support|"
-        r"help|open\s+hours|opening\s+hours|branch|deposit|withdraw|savings|checking|"
-        r"settings|update\s+my|online\s+banking|mobile\s+app)\b",
+    _HEALTHCARE_SCOPE = re.compile(
+        r"\b(appointment|schedule|scheduling|booking|insurance|coverage|claim|billing|invoice|"
+        r"payment|prescription|medication|refill|pharmacy|doctor|physician|specialist|referral|"
+        r"medical\s+record|patient\s+support|healthcare|health|hospital|clinic|nurse|treatment|"
+        r"diagnosis|symptoms|lab|telehealth|premium|fraud|suspicious|date\s+of\s+birth|dob|phone|"
+        r"help|open\s+hours|opening\s+hours|settings|update\s+my|mobile\s+app)\b",
         re.IGNORECASE,
     )
     _OFF_TOPIC = re.compile(
@@ -103,8 +104,9 @@ class _TopicRelevanceClassifier:
         r"story|book|novel|travel|vacation|hotel|restaurant)\b",
         re.IGNORECASE,
     )
-    _OUT_OF_SCOPE_BANKING = re.compile(
-        r"\b(investment\s+advice|tax\s+(filing|advice|return)|file\s+my\s+taxes|stock\s+tip|"
+    _OUT_OF_SCOPE_HEALTHCARE = re.compile(
+        r"\b(medical\s+advice|diagnose\s+me|prescribe\s+me|emergency\s+(care|treatment|room)|"
+        r"legal\s+advice|file\s+my\s+taxes|investment\s+advice|stock\s+tip|"
         r"crypto|bitcoin|cryptocurrency|forex\s+trading|day\s+trading)\b",
         re.IGNORECASE,
     )
@@ -134,7 +136,7 @@ class _TopicRelevanceClassifier:
         # Clearly out-of-scope or off-topic content. During the Greeter collection
         # phase we allow casual side remarks once we have already started collecting
         # attributes, so the existing identification flow can consume them.
-        if self._OFF_TOPIC.search(lowered) or self._OUT_OF_SCOPE_BANKING.search(lowered):
+        if self._OFF_TOPIC.search(lowered) or self._OUT_OF_SCOPE_HEALTHCARE.search(lowered):
             if (
                 context.current_agent == "greeter"
                 and context.status == ConversationStatus.COLLECTING
@@ -143,8 +145,8 @@ class _TopicRelevanceClassifier:
                 return CheckVerdict.PASS, None
             return CheckVerdict.BLOCK, "off_topic"
 
-        # Banking-related content is allowed; unfamiliar terminology is not a block reason.
-        if self._BANKING_SCOPE.search(lowered):
+        # Healthcare-related content is allowed; unfamiliar terminology is not a block reason.
+        if self._HEALTHCARE_SCOPE.search(lowered):
             return CheckVerdict.PASS, None
 
         # Once the patient is identified or authenticated, let downstream agents
@@ -191,12 +193,12 @@ class _HarmfulContentClassifier:
         lowered = text.strip().casefold()
 
         # Harmful content and manipulation are evaluated BEFORE the sensitive-topic
-        # allowlist (E4/FR-...): a legitimate banking phrase such as "report fraud"
+        # allowlist (E4/FR-...): a legitimate healthcare phrase such as "report fraud"
         # must never suppress a harmful determination.
         if self._HARMFUL_PATTERNS.search(lowered) or self._MANIPULATION.search(lowered):
             return CheckVerdict.BLOCK, "harmful_content"
 
-        # Legitimate sensitive banking topics are allowed.
+        # Legitimate sensitive healthcare topics are allowed.
         if self._SENSITIVE_TOPICS.search(lowered):
             return CheckVerdict.PASS, None
 
@@ -207,12 +209,19 @@ class _ResponseRelevanceValidator:
     """Detect assistant responses that do not address the patient's request."""
 
     _TOPIC_MARKERS: dict[str, list[str]] = {
-        "yacht_insurance": ["yacht", "boat", "marine"],
+        "specialist_referral": ["specialist", "referral", "refer"],
         "insurance": ["insurance", "policy", "coverage", "claim"],
-        "account_assistance": ["account", "balance", "date_of_birth", "phone", "details"],
-        "premium_banking": ["premium", "dedicated", "relationship manager"],
-        "mortgage": ["mortgage", "mortgages", "rate", "rates", "interest rate"],
-        "general_banking": ["bank", "banking", "help", "support"],
+        "appointment_assistance": [
+            "appointment",
+            "schedule",
+            "booking",
+            "date_of_birth",
+            "phone",
+            "details",
+        ],
+        "premium_healthcare": ["premium", "dedicated", "patient support coordinator"],
+        "billing": ["billing", "invoice", "payment", "cost", "charge"],
+        "general_healthcare": ["healthcare", "health", "help", "support", "patient"],
     }
 
     _WORKFLOW_MESSAGES = re.compile(
@@ -264,9 +273,9 @@ class _ResponseRelevanceValidator:
 
 
 class _UnsupportedClaimDetector:
-    """Detect bank-specific claims that are not supported by the trusted catalog."""
+    """Detect healthcare-specific claims that are not supported by the trusted catalog."""
 
-    def __init__(self, catalog: TrustedBankingCatalog) -> None:
+    def __init__(self, catalog: TrustedHealthcareCatalog) -> None:
         self._catalog = catalog
 
     def detect(self, response_text: str) -> tuple[CheckVerdict, str | None]:
@@ -302,7 +311,7 @@ class AdvancedGuardrailEvaluator:
 
     def __init__(
         self,
-        catalog: TrustedBankingCatalog | None = None,
+        catalog: TrustedHealthcareCatalog | None = None,
         safe_replies: dict[str, str] | None = None,
         redirection_tracker: RedirectionStateTracker | None = None,
     ) -> None:
@@ -525,7 +534,7 @@ def _last_human_text(messages: Sequence[Any]) -> str:
 
 
 def make_advanced_guardrail_checkers(
-    catalog: TrustedBankingCatalog | None = None,
+    catalog: TrustedHealthcareCatalog | None = None,
     safe_replies: dict[str, str] | None = None,
     redirection_tracker: RedirectionStateTracker | None = None,
 ) -> tuple[

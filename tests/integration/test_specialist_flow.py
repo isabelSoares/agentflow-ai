@@ -54,7 +54,7 @@ def _authenticate_lisa(graph, cid: str, repository: InMemoryPatientRepository) -
 
 
 class TestPremiumSpecialistRouting:
-    def test_premium_yacht_insurance_routes_to_specialist(
+    def test_premium_specialist_referral_routes_to_specialist(
         self, repository: InMemoryPatientRepository
     ) -> None:
         extractor = ScriptedFakeExtractor(
@@ -68,7 +68,7 @@ class TestPremiumSpecialistRouting:
             ]
         )
         classifier = ScriptedFakeSupportIntentClassifier(
-            [IntentClassification(intent=SupportIntent.YACHT_INSURANCE)]
+            [IntentClassification(intent=SupportIntent.SPECIALIST_REFERRAL)]
         )
         graph = build_verification_graph(repository, extractor, intent_classifier=classifier)
         cid = "conv-specialist-premium-1"
@@ -80,15 +80,15 @@ class TestPremiumSpecialistRouting:
         assert auth_state["status"] == ConversationStatus.AUTHENTICATED.value
         assert auth_state["patient_classification"] == "premium"
 
-        state = _run_turn(graph, cid, "I need yacht insurance")
+        state = _run_turn(graph, cid, "I need a specialist referral")
         assert state["status"] == ConversationStatus.AUTHENTICATED.value
         assert state["routing_status"] == "routed"
-        assert state["support_intent"] == "yacht_insurance"
-        assert state["support_department"] == "Insurance Specialist Department"
+        assert state["support_intent"] == "specialist_referral"
+        assert state["support_department"] == "Insurance and Billing Department"
         assert state["routing_contact"] == "+18005551234"
-        assert "Insurance Specialist Department" in state["reply"]
+        assert "Insurance and Billing Department" in state["reply"]
 
-    def test_premium_account_assistance_routes_to_premium_support(
+    def test_premium_appointment_assistance_routes_to_premium_support(
         self, repository: InMemoryPatientRepository
     ) -> None:
         extractor = ScriptedFakeExtractor(
@@ -102,16 +102,16 @@ class TestPremiumSpecialistRouting:
             ]
         )
         classifier = ScriptedFakeSupportIntentClassifier(
-            [IntentClassification(intent=SupportIntent.ACCOUNT_ASSISTANCE)]
+            [IntentClassification(intent=SupportIntent.APPOINTMENT_ASSISTANCE)]
         )
         graph = build_verification_graph(repository, extractor, intent_classifier=classifier)
         cid = "conv-specialist-premium-2"
         graph.update_state({"configurable": {"thread_id": cid}}, make_initial_state(cid))
         _run_turn(graph, cid, "identify me")
         _run_turn(graph, cid, "Yoda")
-        state = _run_turn(graph, cid, "I need account help")
+        state = _run_turn(graph, cid, "I need help with an appointment")
         assert state["routing_status"] == "routed"
-        assert state["support_intent"] == "account_assistance"
+        assert state["support_intent"] == "appointment_assistance"
         assert state["support_department"] == "Premium Patient Support"
         assert state["routing_contact"] == "+1999888999"
 
@@ -132,7 +132,7 @@ class TestPremiumSpecialistRouting:
                         specializations=v.specializations,
                         available=False,
                     )
-                    if k == "insurance_specialist"
+                    if k == "insurance_billing"
                     else v
                 )
                 for k, v in base.departments.items()
@@ -149,7 +149,7 @@ class TestPremiumSpecialistRouting:
             ]
         )
         classifier = ScriptedFakeSupportIntentClassifier(
-            [IntentClassification(intent=SupportIntent.YACHT_INSURANCE)]
+            [IntentClassification(intent=SupportIntent.SPECIALIST_REFERRAL)]
         )
         graph = build_verification_graph(
             repository, extractor, intent_classifier=classifier, support_directory=directory
@@ -158,13 +158,13 @@ class TestPremiumSpecialistRouting:
         graph.update_state({"configurable": {"thread_id": cid}}, make_initial_state(cid))
         _run_turn(graph, cid, "identify me")
         _run_turn(graph, cid, "Yoda")
-        state = _run_turn(graph, cid, "I need yacht insurance")
+        state = _run_turn(graph, cid, "I need a specialist referral")
         assert state["routing_status"] == "fallback"
         assert state["support_department"] is None
 
 
 class TestRegularRouting:
-    def test_regular_account_assistance_routes_to_standard_support(
+    def test_regular_appointment_assistance_routes_to_standard_support(
         self, repository: InMemoryPatientRepository
     ) -> None:
         extractor = ScriptedFakeExtractor(
@@ -178,22 +178,22 @@ class TestRegularRouting:
             ]
         )
         classifier = ScriptedFakeSupportIntentClassifier(
-            [IntentClassification(intent=SupportIntent.ACCOUNT_ASSISTANCE)]
+            [IntentClassification(intent=SupportIntent.APPOINTMENT_ASSISTANCE)]
         )
         graph = build_verification_graph(repository, extractor, intent_classifier=classifier)
         cid = "conv-specialist-regular-1"
         graph.update_state({"configurable": {"thread_id": cid}}, make_initial_state(cid))
         _run_turn(graph, cid, "identify me")
         _run_turn(graph, cid, "Blue")
-        state = _run_turn(graph, cid, "I need account help")
+        state = _run_turn(graph, cid, "I need help with an appointment")
         assert state["status"] == ConversationStatus.AUTHENTICATED.value
         assert state["patient_classification"] == "regular"
         assert state["routing_status"] == "routed"
-        assert state["support_intent"] == "account_assistance"
+        assert state["support_intent"] == "appointment_assistance"
         assert state["support_department"] == "Standard Patient Support"
         assert state["routing_contact"] == "+1112112112"
 
-    def test_regular_yacht_insurance_routes_to_specialist(
+    def test_regular_specialist_referral_routes_to_specialist(
         self, repository: InMemoryPatientRepository
     ) -> None:
         extractor = ScriptedFakeExtractor(
@@ -207,17 +207,17 @@ class TestRegularRouting:
             ]
         )
         classifier = ScriptedFakeSupportIntentClassifier(
-            [IntentClassification(intent=SupportIntent.YACHT_INSURANCE)]
+            [IntentClassification(intent=SupportIntent.SPECIALIST_REFERRAL)]
         )
         graph = build_verification_graph(repository, extractor, intent_classifier=classifier)
         cid = "conv-specialist-regular-2"
         graph.update_state({"configurable": {"thread_id": cid}}, make_initial_state(cid))
         _run_turn(graph, cid, "identify me")
         _run_turn(graph, cid, "Blue")
-        state = _run_turn(graph, cid, "I need yacht insurance")
+        state = _run_turn(graph, cid, "I need a specialist referral")
         assert state["routing_status"] == "routed"
-        assert state["support_intent"] == "yacht_insurance"
-        assert state["support_department"] == "Insurance Specialist Department"
+        assert state["support_intent"] == "specialist_referral"
+        assert state["support_department"] == "Insurance and Billing Department"
 
 
 class TestClarificationAndFallback:
@@ -239,7 +239,7 @@ class TestClarificationAndFallback:
                 IntentClassification(
                     intent=SupportIntent.AMBIGUOUS,
                     needs_clarification=True,
-                    clarification_prompt="Do you need account help or insurance?",
+                    clarification_prompt="Do you need help with an appointment or insurance?",
                 )
             ]
         )
@@ -252,7 +252,7 @@ class TestClarificationAndFallback:
         assert state["routing_status"] == "clarification_required"
         assert state["support_intent"] == "ambiguous"
         assert state["support_department"] is None
-        assert "Do you need account help or insurance?" in state["reply"]
+        assert "Do you need help with an appointment or insurance?" in state["reply"]
 
     def test_unsupported_request_returns_fallback(
         self, repository: InMemoryPatientRepository
@@ -311,12 +311,12 @@ class TestAuthenticationBoundary:
     ) -> None:
         extractor = ScriptedFakeExtractor([ExtractionResult(intent=ExtractionIntent.CHITCHAT)])
         classifier = ScriptedFakeSupportIntentClassifier(
-            [IntentClassification(intent=SupportIntent.ACCOUNT_ASSISTANCE)]
+            [IntentClassification(intent=SupportIntent.APPOINTMENT_ASSISTANCE)]
         )
         graph = build_verification_graph(repository, extractor, intent_classifier=classifier)
         cid = "conv-specialist-unauth-1"
         graph.update_state({"configurable": {"thread_id": cid}}, make_initial_state(cid))
-        state = _run_turn(graph, cid, "I need help with my account")
+        state = _run_turn(graph, cid, "I need help scheduling an appointment")
         assert state["status"] == ConversationStatus.COLLECTING.value
         assert state["status"] != ConversationStatus.AUTHENTICATED.value
         assert state["routing_status"] is None
@@ -334,7 +334,7 @@ class TestAuthenticationBoundary:
             ]
         )
         classifier = ScriptedFakeSupportIntentClassifier(
-            [IntentClassification(intent=SupportIntent.ACCOUNT_ASSISTANCE)]
+            [IntentClassification(intent=SupportIntent.APPOINTMENT_ASSISTANCE)]
         )
         graph = build_verification_graph(repository, extractor, intent_classifier=classifier)
         cid = "conv-specialist-noclass-1"
@@ -344,7 +344,7 @@ class TestAuthenticationBoundary:
         # Tamper with the state to remove classification before the next turn.
         config = {"configurable": {"thread_id": cid}}
         graph.update_state(config, {"patient_classification": None})
-        state = _run_turn(graph, cid, "I need account help")
+        state = _run_turn(graph, cid, "I need help with an appointment")
         assert state["routing_status"] == "blocked"
         assert state["support_department"] is None
 
@@ -364,14 +364,14 @@ class TestNoPiiExposure:
             ]
         )
         classifier = ScriptedFakeSupportIntentClassifier(
-            [IntentClassification(intent=SupportIntent.ACCOUNT_ASSISTANCE)]
+            [IntentClassification(intent=SupportIntent.APPOINTMENT_ASSISTANCE)]
         )
         graph = build_verification_graph(repository, extractor, intent_classifier=classifier)
         cid = "conv-specialist-pii-1"
         graph.update_state({"configurable": {"thread_id": cid}}, make_initial_state(cid))
         _run_turn(graph, cid, "identify me")
         _run_turn(graph, cid, "Yoda")
-        state = _run_turn(graph, cid, "I need account help")
+        state = _run_turn(graph, cid, "I need help with an appointment")
         reply = state["reply"]
         for patient in PATIENTS:
             assert patient.phone not in reply

@@ -79,8 +79,8 @@ class GuardrailOutput(BaseModel):
     audit_metadata: dict[str, Any] = Field(default_factory=dict)
 
 
-class BankingPolicyRule(BaseModel):
-    """Trusted configuration rule defining permitted/prohibited banking actions."""
+class HealthcarePolicyRule(BaseModel):
+    """Trusted configuration rule defining permitted/prohibited healthcare actions."""
 
     model_config = ConfigDict(frozen=True)
 
@@ -101,7 +101,7 @@ class GuardrailEvaluation(BaseModel):
 
 
 __all__ = [
-    "BankingPolicyRule",
+    "HealthcarePolicyRule",
     "GuardrailDecisionOutcome",
     "GuardrailEvaluation",
     "GuardrailInput",

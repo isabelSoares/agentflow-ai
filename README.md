@@ -21,9 +21,9 @@ The project emphasizes responsible AI engineering, workflow orchestration, autom
 
 ## Reference scenario
 
-The repository ships with a **banking support demo adapter**. It provides a small seed dataset and a concrete identity, authorization, classification, and routing scenario so the workflow can be exercised end to end.
+The repository ships with a **healthcare support demo adapter**. It provides a small seed dataset and a concrete identity, authorization, classification, and routing scenario so the workflow can be exercised end to end.
 
-The platform framing is domain-agnostic: the banking adapter is the current reference implementation, not a limit on the architecture. The Python package remains named `healthcare_support` because it contains that demo domain.
+The platform framing is domain-agnostic: the healthcare adapter is the current reference implementation, not a limit on the architecture. The Python package remains named `healthcare_support` because it contains that demo domain.
 
 ## Architecture
 
@@ -197,7 +197,7 @@ During development, Vite proxies `/api` to `http://127.0.0.1:8000`, so no browse
 | Stage | Responsibility | Implemented in |
 |-------|----------------|----------------|
 | **Greeter** | Starts the conversation, collects identifying details, and verifies the caller's identity. | `src/healthcare_support/core/matching.py`, `src/healthcare_support/core/verification.py`, `src/healthcare_support/agents/nodes.py` |
-| **Bouncer** | Classifies an authenticated caller for the banking demo. | `src/healthcare_support/core/classification.py` |
+| **Bouncer** | Classifies an authenticated caller for the healthcare demo. | `src/healthcare_support/core/classification.py` |
 | **Specialist** | Routes authenticated requests to the appropriate support destination. | `src/healthcare_support/core/routing.py` |
 | **Guardrails** | Blocks prompt injection, pre-authentication data requests, unsupported commitments, and privacy violations. | `src/healthcare_support/services/guardrails_service.py`, input/output guardrail nodes |
 | **Voice interface** | Optional STT/TTS adapters that reuse the text workflow and security controls. | `src/healthcare_support/voice/` |
@@ -338,7 +338,7 @@ curl -s -D /tmp/reset.headers -X POST localhost:8000/conversations/$CID/reset \
 ## Project structure
 
 ```text
-src/healthcare_support/   FastAPI service, LangGraph workflow, banking demo adapter
+src/healthcare_support/   FastAPI service, LangGraph workflow, healthcare demo adapter
 frontend/              React + TypeScript client (Vite)
 tests/                 Contract, integration, and unit tests
 docs/                  Architecture, system diagram, and maintenance notes

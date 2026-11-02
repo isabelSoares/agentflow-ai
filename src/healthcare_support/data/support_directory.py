@@ -2,7 +2,7 @@
 
 Department names and contact details are configuration, not patient data. The
 defaults below preserve the existing approved support numbers and add the
-insurance specialist destination required by the Specialist Agent. Contact
+insurance and billing destination required by the Specialist Agent. Contact
 values should be overridden via application settings in production.
 """
 
@@ -29,11 +29,11 @@ def default_support_directory() -> SupportDirectory:
                 specializations=set(),
                 available=True,
             ),
-            "insurance_specialist": SupportDepartment(
-                key="insurance_specialist",
-                display_name="Insurance Specialist Department",
+            "insurance_billing": SupportDepartment(
+                key="insurance_billing",
+                display_name="Insurance and Billing Department",
                 contact="+18005551234",
-                specializations={"yacht_insurance"},
+                specializations={"specialist_referral", "insurance_billing"},
                 available=True,
             ),
         }

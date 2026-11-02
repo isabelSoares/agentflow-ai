@@ -19,11 +19,11 @@ class SupportIntent(StrEnum):
     determine membership, or select arbitrary departments.
     """
 
-    ACCOUNT_ASSISTANCE = "account_assistance"
-    GENERAL_BANKING = "general_banking"
+    APPOINTMENT_ASSISTANCE = "appointment_assistance"
+    GENERAL_HEALTHCARE = "general_healthcare"
     INSURANCE = "insurance"
-    PREMIUM_BANKING = "premium_banking"
-    YACHT_INSURANCE = "yacht_insurance"
+    PREMIUM_HEALTHCARE = "premium_healthcare"
+    SPECIALIST_REFERRAL = "specialist_referral"
     OTHER_SPECIALIZED = "other_specialized"
     AMBIGUOUS = "ambiguous"
     UNSUPPORTED = "unsupported"

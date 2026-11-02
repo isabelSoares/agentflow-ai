@@ -57,12 +57,12 @@ class TestUS1MultiTurnContext:
         classifier = ScriptedFakeSupportIntentClassifier(
             [
                 IntentClassification(
-                    intent=SupportIntent.YACHT_INSURANCE,
+                    intent=SupportIntent.SPECIALIST_REFERRAL,
                     needs_clarification=True,
-                    clarification_prompt="Is this for a private or commercial yacht?",
+                    clarification_prompt="Is this for a specialist referral or an insurance claim?",
                 ),
                 IntentClassification(
-                    intent=SupportIntent.YACHT_INSURANCE,
+                    intent=SupportIntent.SPECIALIST_REFERRAL,
                     needs_clarification=False,
                 ),
             ]
@@ -79,11 +79,11 @@ class TestUS1MultiTurnContext:
         auth_state = run_turn(graph, cid, "Yoda")
         assert auth_state["status"] == ConversationStatus.AUTHENTICATED.value
 
-        state1 = run_turn(graph, cid, "I need yacht insurance")
-        assert "private or commercial" in state1["reply"].lower()
+        state1 = run_turn(graph, cid, "I need a specialist referral")
+        assert "specialist referral or an insurance claim" in state1["reply"].lower()
 
-        state2 = run_turn(graph, cid, "For a private yacht")
-        assert state2["support_intent"] == SupportIntent.YACHT_INSURANCE.value
+        state2 = run_turn(graph, cid, "For a specialist referral")
+        assert state2["support_intent"] == SupportIntent.SPECIALIST_REFERRAL.value
 
 
 class TestUS2VerificationAcrossMessages:
@@ -198,7 +198,7 @@ class TestUS5ContextAwareGuardrails:
         state = run_turn(graph, cid, "I need insurance")
         assert "type of insurance" in state["reply"].lower()
 
-        state2 = run_turn(graph, cid, "For my yacht")
+        state2 = run_turn(graph, cid, "For my insurance claim")
         assert state2["support_intent"] == SupportIntent.INSURANCE.value
 
 

@@ -1,7 +1,7 @@
 """Voice interface adapters and services.
 
 This package provides speech-to-text (STT) and text-to-speech (TTS) adapters
-that keep speech-processing concerns separate from banking business logic.
+that keep speech-processing concerns separate from healthcare business logic.
 """
 
 from healthcare_support.voice.schemas import (

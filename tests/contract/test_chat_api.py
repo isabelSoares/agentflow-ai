@@ -58,7 +58,7 @@ def routed_client() -> TestClient:
         ]
     )
     classifier = ScriptedFakeSupportIntentClassifier(
-        [IntentClassification(intent=SupportIntent.YACHT_INSURANCE)]
+        [IntentClassification(intent=SupportIntent.SPECIALIST_REFERRAL)]
     )
     app_state = AppState()
     app_state.extractor = extractor
@@ -198,7 +198,7 @@ class TestSpecialistRouting:
         assert body["routing_intent"] is None
         assert body["support_department"] is None
 
-    def test_premium_yacht_insurance_routes_via_api(self, routed_client: TestClient) -> None:
+    def test_premium_specialist_referral_routes_via_api(self, routed_client: TestClient) -> None:
         cid, headers = start_session(routed_client)
         routed_client.post(
             f"/conversations/{cid}/messages",
@@ -214,13 +214,13 @@ class TestSpecialistRouting:
 
         route_response = routed_client.post(
             f"/conversations/{cid}/messages",
-            json={"text": "I need yacht insurance"},
+            json={"text": "I need a specialist referral"},
             headers=headers,
         )
         route_body = route_response.json()
         assert route_body["routing_status"] == "routed"
-        assert route_body["routing_intent"] == "yacht_insurance"
-        assert route_body["support_department"] == "Insurance Specialist Department"
+        assert route_body["routing_intent"] == "specialist_referral"
+        assert route_body["support_department"] == "Insurance and Billing Department"
         ConversationTurnResponse.model_validate(route_body)
 
     def test_unauthenticated_request_has_no_routing_metadata(
@@ -229,7 +229,7 @@ class TestSpecialistRouting:
         cid, headers = start_session(routed_client)
         response = routed_client.post(
             f"/conversations/{cid}/messages",
-            json={"text": "I need yacht insurance"},
+            json={"text": "I need a specialist referral"},
             headers=headers,
         )
         body = response.json()
@@ -258,7 +258,7 @@ def contextual_client() -> TestClient:
                 clarification_prompt="What type of insurance?",
             ),
             IntentClassification(
-                intent=SupportIntent.YACHT_INSURANCE,
+                intent=SupportIntent.SPECIALIST_REFERRAL,
                 needs_clarification=False,
             ),
         ]
@@ -297,18 +297,18 @@ class TestMultiTurnContext:
 
         r1 = contextual_client.post(
             f"/conversations/{cid}/messages",
-            json={"text": "I need yacht insurance"},
+            json={"text": "I need a specialist referral"},
             headers=headers,
         )
         assert "type of insurance" in r1.json()["reply"].lower()
 
         r2 = contextual_client.post(
             f"/conversations/{cid}/messages",
-            json={"text": "For a private yacht"},
+            json={"text": "For a specialist referral"},
             headers=headers,
         )
         body = r2.json()
-        assert body["routing_intent"] == "yacht_insurance"
+        assert body["routing_intent"] == "specialist_referral"
 
 
 class TestVerificationAcrossMessages:
@@ -438,9 +438,11 @@ class TestContextAwareGuardrails:
         assert "type of insurance" in r1.json()["reply"].lower()
 
         r2 = contextual_client.post(
-            f"/conversations/{cid}/messages", json={"text": "For my yacht"}, headers=headers
+            f"/conversations/{cid}/messages",
+            json={"text": "For my insurance claim"},
+            headers=headers,
         )
-        assert r2.json()["routing_intent"] == "yacht_insurance"
+        assert r2.json()["routing_intent"] == "specialist_referral"
 
 
 class FailingHistoryStore:

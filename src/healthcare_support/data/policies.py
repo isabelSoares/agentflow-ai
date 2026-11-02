@@ -1,4 +1,4 @@
-"""Trusted banking policy rules consumed by the Guardrails component.
+"""Trusted healthcare policy rules consumed by the Guardrails component.
 
 Guardrails enforces these rules but does not invent, modify, or persist them.
 """
@@ -6,61 +6,65 @@ Guardrails enforces these rules but does not invent, modify, or persist them.
 from __future__ import annotations
 
 from healthcare_support.domain.conversation import PatientClassification
-from healthcare_support.domain.guardrails import BankingPolicyRule
+from healthcare_support.domain.guardrails import HealthcarePolicyRule
+
+_ALL_PATIENTS = frozenset({PatientClassification.PREMIUM, PatientClassification.REGULAR})
 
 
-def default_banking_policy() -> dict[str, BankingPolicyRule]:
-    """Return the trusted banking policy configuration."""
+def default_healthcare_policy() -> dict[str, HealthcarePolicyRule]:
+    """Return the trusted healthcare policy configuration."""
     return {
-        "loan_request": BankingPolicyRule(
-            action_type="loan_request",
-            allowed_tiers=frozenset({PatientClassification.PREMIUM, PatientClassification.REGULAR}),
+        "appointment_request": HealthcarePolicyRule(
+            action_type="appointment_request",
+            allowed_tiers=_ALL_PATIENTS,
             requires_authentication=True,
             allow_routing_as_inquiry=True,
             prohibited_commitments=frozenset(
-                {"approval", "guaranteed_rate", "guaranteed_eligibility"}
+                {"approval", "guaranteed_availability", "confirmation"}
             ),
         ),
-        "credit_card_request": BankingPolicyRule(
-            action_type="credit_card_request",
-            allowed_tiers=frozenset({PatientClassification.PREMIUM, PatientClassification.REGULAR}),
-            requires_authentication=True,
-            allow_routing_as_inquiry=True,
-            prohibited_commitments=frozenset(
-                {"approval", "guaranteed_rate", "guaranteed_eligibility"}
-            ),
-        ),
-        "insurance_request": BankingPolicyRule(
+        "insurance_request": HealthcarePolicyRule(
             action_type="insurance_request",
-            allowed_tiers=frozenset({PatientClassification.PREMIUM, PatientClassification.REGULAR}),
+            allowed_tiers=_ALL_PATIENTS,
             requires_authentication=True,
             allow_routing_as_inquiry=True,
             prohibited_commitments=frozenset(
-                {"approval", "guaranteed_rate", "guaranteed_eligibility"}
+                {"approval", "guaranteed_coverage", "guaranteed_reimbursement"}
             ),
         ),
-        "fund_transfer": BankingPolicyRule(
-            action_type="fund_transfer",
-            allowed_tiers=frozenset({PatientClassification.PREMIUM, PatientClassification.REGULAR}),
+        "specialist_referral": HealthcarePolicyRule(
+            action_type="specialist_referral",
+            allowed_tiers=_ALL_PATIENTS,
+            requires_authentication=True,
+            allow_routing_as_inquiry=True,
+            prohibited_commitments=frozenset(
+                {"approval", "guaranteed_availability", "confirmation"}
+            ),
+        ),
+        "prescription_request": HealthcarePolicyRule(
+            action_type="prescription_request",
+            allowed_tiers=_ALL_PATIENTS,
+            requires_authentication=True,
+            allow_routing_as_inquiry=True,
+            prohibited_commitments=frozenset(
+                {"approval", "guaranteed_availability", "confirmation"}
+            ),
+        ),
+        "record_modification": HealthcarePolicyRule(
+            action_type="record_modification",
+            allowed_tiers=_ALL_PATIENTS,
             requires_authentication=True,
             allow_routing_as_inquiry=False,
             prohibited_commitments=frozenset({"completion", "approval"}),
         ),
-        "account_modification": BankingPolicyRule(
-            action_type="account_modification",
-            allowed_tiers=frozenset({PatientClassification.PREMIUM, PatientClassification.REGULAR}),
-            requires_authentication=True,
-            allow_routing_as_inquiry=False,
-            prohibited_commitments=frozenset({"completion", "approval"}),
-        ),
-        "balance_inquiry": BankingPolicyRule(
-            action_type="balance_inquiry",
-            allowed_tiers=frozenset({PatientClassification.PREMIUM, PatientClassification.REGULAR}),
+        "billing_inquiry": HealthcarePolicyRule(
+            action_type="billing_inquiry",
+            allowed_tiers=_ALL_PATIENTS,
             requires_authentication=True,
             allow_routing_as_inquiry=True,
             prohibited_commitments=frozenset(),
         ),
-        "general_inquiry": BankingPolicyRule(
+        "general_inquiry": HealthcarePolicyRule(
             action_type="general_inquiry",
             allowed_tiers=frozenset(
                 {
@@ -73,8 +77,8 @@ def default_banking_policy() -> dict[str, BankingPolicyRule]:
             allow_routing_as_inquiry=True,
             prohibited_commitments=frozenset(),
         ),
-        "premium_banking": BankingPolicyRule(
-            action_type="premium_banking",
+        "premium_healthcare": HealthcarePolicyRule(
+            action_type="premium_healthcare",
             allowed_tiers=frozenset({PatientClassification.PREMIUM}),
             requires_authentication=True,
             allow_routing_as_inquiry=True,
@@ -83,4 +87,4 @@ def default_banking_policy() -> dict[str, BankingPolicyRule]:
     }
 
 
-__all__ = ["default_banking_policy"]
+__all__ = ["default_healthcare_policy"]

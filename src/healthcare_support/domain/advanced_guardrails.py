@@ -19,7 +19,7 @@ from healthcare_support.domain.routing import SupportIntent
 
 
 class CoverageStatus(StrEnum):
-    """Coverage status of a trusted banking information entry."""
+    """Coverage status of a trusted healthcare information entry."""
 
     COMPLETE = "complete"
     PARTIAL = "partial"
@@ -75,8 +75,8 @@ class ConversationContext(BaseModel):
         return tuple(cast(Sequence[BaseMessage], value))
 
 
-class TrustedBankingEntry(BaseModel):
-    """A single topic in the trusted banking-information catalog."""
+class TrustedHealthcareEntry(BaseModel):
+    """A single topic in the trusted healthcare-information catalog."""
 
     model_config = ConfigDict(frozen=True)
 
@@ -85,14 +85,14 @@ class TrustedBankingEntry(BaseModel):
     coverage_status: CoverageStatus = Field(default=CoverageStatus.MISSING)
 
     @model_validator(mode="after")
-    def _consistent_coverage(self) -> TrustedBankingEntry:
+    def _consistent_coverage(self) -> TrustedHealthcareEntry:
         if not self.verified_statements:
             object.__setattr__(self, "coverage_status", CoverageStatus.MISSING)
         return self
 
 
 class RiskPattern(BaseModel):
-    """A pattern that flags a bank-specific claim as high-risk."""
+    """A pattern that flags a healthcare-specific claim as high-risk."""
 
     model_config = ConfigDict(frozen=True)
 
@@ -113,20 +113,20 @@ class CoverageResult(BaseModel):
     coverage_status: CoverageStatus = CoverageStatus.MISSING
 
 
-class TrustedBankingCatalog(BaseModel):
-    """Authoritative facts used to verify bank-specific claims."""
+class TrustedHealthcareCatalog(BaseModel):
+    """Authoritative facts used to verify healthcare-specific claims."""
 
     model_config = ConfigDict(frozen=True)
 
     catalog_id: str = Field(min_length=1)
-    entries: dict[str, TrustedBankingEntry] = Field(default_factory=dict)
+    entries: dict[str, TrustedHealthcareEntry] = Field(default_factory=dict)
     risk_patterns: Sequence[RiskPattern] = Field(default_factory=tuple)
 
-    def lookup(self, topic: str) -> TrustedBankingEntry:
+    def lookup(self, topic: str) -> TrustedHealthcareEntry:
         """Return the entry for a topic, or a missing entry if unknown."""
         return self.entries.get(
             topic,
-            TrustedBankingEntry(topic=topic, coverage_status=CoverageStatus.MISSING),
+            TrustedHealthcareEntry(topic=topic, coverage_status=CoverageStatus.MISSING),
         )
 
     def covers_claim(self, claim_text: str) -> CoverageResult:
@@ -232,6 +232,6 @@ __all__ = [
     "CoverageStatus",
     "RedirectionState",
     "RiskPattern",
-    "TrustedBankingCatalog",
-    "TrustedBankingEntry",
+    "TrustedHealthcareCatalog",
+    "TrustedHealthcareEntry",
 ]

@@ -32,7 +32,7 @@ const PRINCIPLES = [
   {
     index: '03',
     title: 'Observability',
-    body: 'Every turn exposes sanitized state, routing decisions, and agent progress without leaking customer data.',
+    body: 'Every turn exposes sanitized state, routing decisions, and agent progress without leaking patient data.',
   },
   {
     index: '04',
@@ -159,11 +159,11 @@ function App() {
         <section className="hero">
           <div className="hero-copy">
             <p className="eyebrow">Independent AI engineering project</p>
-            <h1>Secure multi-agent customer support, end to end.</h1>
+            <h1>Secure multi-agent patient support, end to end.</h1>
             <p className="hero-body">
               AgentFlow AI explores how specialized agents collaborate to deliver secure,
               context-aware support. Natural-language understanding meets deterministic identity
-              verification, authorization, customer classification, and intelligent routing.
+              verification, authorization, patient classification, and intelligent routing.
             </p>
             <div className="tech-pills" aria-label="Technology stack">
               <span>Python</span>
@@ -176,7 +176,7 @@ function App() {
           <div className="hero-aside">
             <div className="hero-card">
               <span className="hero-card-label">Reference scenario</span>
-              <strong>Banking support</strong>
+              <strong>Healthcare support</strong>
               <p>
                 The current demo adapter exercises identity, authorization, classification, and
                 department routing with a small seed dataset.

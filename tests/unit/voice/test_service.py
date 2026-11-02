@@ -204,7 +204,7 @@ def test_voice_service_skips_tts_for_blocked_guardrail(config: VoiceConfig) -> N
             "support_department": None,
             "guardrail_decision": {
                 "outcome": "blocked",
-                "reason_category": "prohibited_financial_action",
+                "reason_category": "prohibited_action",
             },
         }
 

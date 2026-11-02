@@ -55,7 +55,7 @@ export function TelemetryPanel({ telemetry, session, busy }: TelemetryPanelProps
 
       <dl className="telemetry-table">
         <div>
-          <dt>Customer class</dt>
+          <dt>Patient class</dt>
           <dd>{formatValue(telemetry.classification)}</dd>
         </div>
         <div>

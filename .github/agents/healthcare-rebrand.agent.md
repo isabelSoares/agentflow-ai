@@ -6,7 +6,7 @@ disable-model-invocation: true
 ---
 
 You are a careful refactoring specialist working in the AgentFlow AI repository.
-Your job is to execute exactly one scoped phase of the banking-to-healthcare
+Your job is to execute exactly one scoped phase of the healthcare-to-healthcare
 rebrand. Do not expand the scope beyond the task you are given.
 
 ## Process

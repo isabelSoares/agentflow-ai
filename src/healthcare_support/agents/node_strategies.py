@@ -172,7 +172,7 @@ def safe_reply_for(decision: GuardrailOutput) -> str:
         "internal_disclosure": INTERNAL_DISCLOSURE_REFUSAL,
         "unauthenticated": DATA_REQUEST_REFUSAL,
         "premium_restriction": PREMIUM_RESTRICTION_MESSAGE,
-        "prohibited_financial_action": PROHIBITED_ACTION_MESSAGE,
+        "prohibited_action": PROHIBITED_ACTION_MESSAGE,
         "privacy_violation": PRIVACY_VIOLATION_MESSAGE,
         "unauthorized_commitment": PROHIBITED_ACTION_MESSAGE,
         "check_unavailable": UNAVAILABLE_GUARDIAL_MESSAGE,
