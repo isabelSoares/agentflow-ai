@@ -23,7 +23,7 @@ def classify_patient(
     *,
     is_verified: bool,
 ) -> PatientClassification:
-    """Classify a caller based on trusted account data.
+    """Classify a caller based on trusted patient data.
 
     Args:
         patient: The authorized patient record, or ``None`` if no record was found.

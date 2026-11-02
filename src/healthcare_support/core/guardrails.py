@@ -1,7 +1,7 @@
-"""Deterministic guardrail business logic for the banking assistant.
+"""Deterministic guardrail business logic for the healthcare assistant.
 
 The ``GuardrailEvaluator`` is a pure, stateless service that enforces
-authentication, authorization, banking policy, input safety, output safety,
+authentication, authorization, healthcare policy, input safety, output safety,
 and privacy rules. It performs no I/O and uses the LLM only through an
 optional heuristic wrapper that cannot override deterministic decisions.
 """
@@ -17,10 +17,10 @@ from healthcare_support.domain.conversation import (
     PatientClassification,
 )
 from healthcare_support.domain.guardrails import (
-    BankingPolicyRule,
     GuardrailDecisionOutcome,
     GuardrailInput,
     GuardrailOutput,
+    HealthcarePolicyRule,
     SensitiveDataCategory,
 )
 
@@ -54,10 +54,16 @@ class GuardrailEvaluator:
     _PROHIBITED_COMMITMENT_PATTERNS: list[re.Pattern[str]] = [
         re.compile(r"\b(approved?|guaranteed|confirmed|completed|executed)\b", re.IGNORECASE),
         re.compile(
-            r"\b(your\s+(loan|insurance|credit\s+card)\s+(is\s+)?approved)\b", re.IGNORECASE
+            r"\b(your\s+(appointment|claim|referral|prescription)\s+(is\s+)?approved)\b",
+            re.IGNORECASE,
         ),
-        re.compile(r"\b(guaranteed\s+(rate|return|approval|eligibility))\b", re.IGNORECASE),
-        re.compile(r"\b(transfer\s+(completed|sent|executed))\b", re.IGNORECASE),
+        re.compile(
+            r"\b(guaranteed\s+(coverage|approval|eligibility|reimbursement))\b", re.IGNORECASE
+        ),
+        re.compile(
+            r"\b(claim|referral|appointment)\s+(completed|sent|executed|scheduled|approved)\b",
+            re.IGNORECASE,
+        ),
     ]
 
     _SENSITIVE_PATTERNS: dict[SensitiveDataCategory, re.Pattern[str]] = {
@@ -70,7 +76,7 @@ class GuardrailEvaluator:
 
     def __init__(
         self,
-        policy_rules: dict[str, BankingPolicyRule] | None = None,
+        policy_rules: dict[str, HealthcarePolicyRule] | None = None,
         heuristic_input_checker: Callable[[GuardrailInput], bool | str | GuardrailOutput | None]
         | None = None,
         heuristic_output_checker: Callable[[GuardrailInput], bool | str | GuardrailOutput | None]
@@ -107,7 +113,7 @@ class GuardrailEvaluator:
         if result is not None:
             return result
 
-        # 2. Authentication and authorization (US2) + banking policy (US3).
+        # 2. Authentication and authorization (US2) + healthcare policy (US3).
         # When support_intent is available we can enforce full auth/authz/policy.
         # Otherwise we only block obvious pre-authentication data requests.
         if input_.support_intent is not None:
@@ -119,7 +125,7 @@ class GuardrailEvaluator:
             if result is not None:
                 return result
 
-            result = self._check_banking_policy(input_)
+            result = self._check_healthcare_policy(input_)
             if result is not None:
                 return result
         else:
@@ -212,11 +218,11 @@ class GuardrailEvaluator:
 
         lowered = input_.content.casefold()
         data_request_phrases = [
-            r"\b(what\s+is\s+my\s+(balance|date\s+of\s+birth|dob|phone|number|details))\b",
-            r"\b(show\s+me\s+my\s+(balance|date\s+of\s+birth|dob|phone|number|details))\b",
-            r"\b(tell\s+me\s+my\s+(balance|date\s+of\s+birth|dob|phone|number|details))\b",
-            r"\b(reveal\s+my\s+(balance|date\s+of\s+birth|dob|phone|number|details))\b",
-            r"\b(give\s+me\s+my\s+(balance|date\s+of\s+birth|dob|phone|number|details))\b",
+            r"\b(what\s+is\s+my\s+(appointment|prescription|medical\s+record|insurance|billing|coverage|date\s+of\s+birth|dob|phone|number|details))\b",
+            r"\b(show\s+me\s+my\s+(appointment|prescription|medical\s+record|insurance|billing|coverage|date\s+of\s+birth|dob|phone|number|details))\b",
+            r"\b(tell\s+me\s+my\s+(appointment|prescription|medical\s+record|insurance|billing|coverage|date\s+of\s+birth|dob|phone|number|details))\b",
+            r"\b(reveal\s+my\s+(appointment|prescription|medical\s+record|insurance|billing|coverage|date\s+of\s+birth|dob|phone|number|details))\b",
+            r"\b(give\s+me\s+my\s+(appointment|prescription|medical\s+record|insurance|billing|coverage|date\s+of\s+birth|dob|phone|number|details))\b",
         ]
         for phrase in data_request_phrases:
             if re.search(phrase, lowered):
@@ -268,7 +274,7 @@ class GuardrailEvaluator:
 
         return None
 
-    def _check_banking_policy(self, input_: GuardrailInput) -> GuardrailOutput | None:
+    def _check_healthcare_policy(self, input_: GuardrailInput) -> GuardrailOutput | None:
         action_type = self._action_type_from_intent(input_.support_intent)
         if action_type is None:
             return None
@@ -281,7 +287,7 @@ class GuardrailEvaluator:
         if self._has_prohibited_commitment(content) or self._has_execution_language(content):
             return self._blocked(
                 input_,
-                reason="prohibited_financial_action",
+                reason="prohibited_action",
                 reply_key="prohibited_action",
             )
 
@@ -293,7 +299,7 @@ class GuardrailEvaluator:
     def _check_output_safety(self, input_: GuardrailInput) -> GuardrailOutput | None:
         content = input_.content
 
-        # Detect unauthorized financial commitments in output.
+        # Detect unauthorized healthcare commitments in output.
         if self._has_prohibited_commitment(content.casefold()):
             return self._blocked(
                 input_,
@@ -337,11 +343,11 @@ class GuardrailEvaluator:
             return "general_inquiry"
 
         mapping = {
-            SupportIntent.ACCOUNT_ASSISTANCE: "balance_inquiry",
-            SupportIntent.GENERAL_BANKING: "general_inquiry",
+            SupportIntent.APPOINTMENT_ASSISTANCE: "appointment_request",
+            SupportIntent.GENERAL_HEALTHCARE: "general_inquiry",
             SupportIntent.INSURANCE: "insurance_request",
-            SupportIntent.PREMIUM_BANKING: "premium_banking",
-            SupportIntent.YACHT_INSURANCE: "insurance_request",
+            SupportIntent.PREMIUM_HEALTHCARE: "premium_healthcare",
+            SupportIntent.SPECIALIST_REFERRAL: "specialist_referral",
             SupportIntent.OTHER_SPECIALIZED: "general_inquiry",
             SupportIntent.AMBIGUOUS: "general_inquiry",
             SupportIntent.UNSUPPORTED: "general_inquiry",
@@ -354,10 +360,10 @@ class GuardrailEvaluator:
 
     def _has_execution_language(self, content: str) -> bool:
         execution_terms = [
-            r"\b(execute|process|make|send|transfer|withdraw|deposit)\b.*\b(now|immediately|today)\b",
+            r"\b(schedule|book|process|approve|confirm)\b.*\b(now|immediately|today)\b",
             r"\b(approve\s+(my|the|this))\b",
-            r"\b(complete\s+.*?(transfer|modification|application))\b",
-            r"\b(process\s+.*?(transfer|application|modification|payment))\b",
+            r"\b(complete\s+.*?(appointment|referral|claim|record|prescription))\b",
+            r"\b(process\s+.*?(appointment|referral|claim|prescription|payment))\b",
         ]
         return any(re.search(term, content, re.IGNORECASE) for term in execution_terms)
 
@@ -393,7 +399,7 @@ class GuardrailEvaluator:
 
     def _patient_requested_sensitive_data(self, input_: GuardrailInput) -> bool:
         # Heuristic: if the most recent patient message explicitly asks for
-        # account/date of birth/phone/balance, treat the output as an authorized disclosure.
+        # appointment/date of birth/phone/insurance, treat the output as an authorized disclosure.
         for message in reversed(input_.messages):
             if message.type == "human":
                 text = str(message.content).casefold()
@@ -403,9 +409,10 @@ class GuardrailEvaluator:
                     "show me my date of birth",
                     "what is my phone",
                     "tell me my phone",
-                    "what is my balance",
-                    "show me my balance",
-                    "what is my account",
+                    "what is my appointment",
+                    "show me my appointment",
+                    "what is my insurance",
+                    "what is my billing",
                 ]
                 return any(phrase in text for phrase in request_phrases)
         return False

@@ -26,12 +26,12 @@ class RoutingError(Exception):
 # invented departments or contact details.
 _CLARIFICATION_MESSAGE = (
     "I'm not sure I understood your request correctly. Could you tell me whether "
-    "you need help with your account, insurance, or another banking service?"
+    "you need help with an appointment, insurance, billing, or another healthcare service?"
 )
 
 _UNSUPPORTED_MESSAGE = (
     "I'm not able to help with that request through this channel. "
-    "If you need assistance with a supported banking service, please let me know."
+    "If you need assistance with a supported healthcare service, please let me know."
 )
 
 _UNINTERPRETABLE_MESSAGE = (
@@ -46,13 +46,13 @@ _UNAUTHENTICATED_MESSAGE = (
 _UNAVAILABLE_MESSAGE = (
     "I'm not able to route your request right now because the appropriate "
     "support channel is currently unavailable. Please try again later or contact "
-    "your bank directly."
+    "your healthcare provider."
 )
 
 _NON_PATIENT_MESSAGE = (
     "Thank you for reaching out. Dedicated patient support is only available to "
     "existing patients. If you'd like to learn more about becoming a "
-    "patient, please visit our website or your nearest branch."
+    "patient, please visit our website or contact our patient services team."
 )
 
 
@@ -85,8 +85,10 @@ def authentication_gate(
 
 def specialist_key(intent_classification: IntentClassification) -> str | None:
     """Map supported specialist intents to approved directory lookup keys."""
-    if intent_classification.intent == SupportIntent.YACHT_INSURANCE:
-        return "yacht_insurance"
+    if intent_classification.intent == SupportIntent.SPECIALIST_REFERRAL:
+        return "specialist_referral"
+    if intent_classification.intent == SupportIntent.INSURANCE:
+        return "insurance_billing"
     if (
         intent_classification.intent == SupportIntent.OTHER_SPECIALIZED
         and intent_classification.specialization
@@ -177,7 +179,7 @@ def route_support_request(
             message=_UNINTERPRETABLE_MESSAGE,
         )
 
-    # 5. Premium / Regular tier routing for account and general banking requests.
+    # 5. Premium / Regular tier routing for appointment, general, and premium requests.
     assert patient_classification is not None
     tier = tier_key(patient_classification)
 
