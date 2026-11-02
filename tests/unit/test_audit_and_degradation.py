@@ -51,7 +51,7 @@ class TestDecisionRecording:
     def test_allowed_decision_records_content_type(
         self, evaluator: AdvancedGuardrailEvaluator
     ) -> None:
-        decision = evaluator.evaluate(_advanced_input("I need help with my account"))
+        decision = evaluator.evaluate(_advanced_input("I need help scheduling an appointment"))
         assert decision.outcome.value == "allowed"
         assert decision.audit_metadata.get("content_type") == "patient_input"
 
@@ -68,7 +68,7 @@ class TestSafeDegradation:
         try:
             result = evaluator.check_input(
                 GuardrailInput(
-                    content="I need help with my account",
+                    content="I need help scheduling an appointment",
                     content_type="patient_input",
                     conversation_id="us5-degrade",
                     status=ConversationStatus.AUTHENTICATED,

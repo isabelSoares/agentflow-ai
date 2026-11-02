@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from healthcare_support.core.guardrails import GuardrailEvaluator
-from healthcare_support.data.policies import default_banking_policy
+from healthcare_support.data.policies import default_healthcare_policy
 from healthcare_support.domain.conversation import ConversationStatus
 from healthcare_support.domain.guardrails import GuardrailInput
 
@@ -24,11 +24,11 @@ class TestDeterministicBlockDespiteUnavailableHeuristic:
             raise RuntimeError("LLM unavailable")
 
         evaluator = GuardrailEvaluator(
-            policy_rules=default_banking_policy(),
+            policy_rules=default_healthcare_policy(),
             heuristic_input_checker=failing_checker,
             safe_replies={"data_request_refusal": "Please verify your identity first."},
         )
-        result = evaluator.evaluate(_input("What is my balance?"))
+        result = evaluator.evaluate(_input("What is my appointment?"))
         assert result.outcome.value == "blocked"
         assert result.reason_category == "unauthenticated"
 

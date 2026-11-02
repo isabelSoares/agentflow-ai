@@ -30,7 +30,7 @@ class TestRedirectionLoopPrevention:
         assert result is not None
         assert hasattr(result, "safe_reply")
         reply = result.safe_reply.lower()
-        assert "banking" in reply
+        assert "healthcare" in reply
         assert "support" in reply
         assert "how can i help you today" in reply
 
@@ -39,14 +39,14 @@ class TestRedirectionLoopPrevention:
         result = evaluator.check_input(_input("Recommend a movie"))
         assert result is not None
         reply = result.safe_reply.lower()
-        assert "banking" in reply
+        assert "healthcare" in reply
         assert "support" in reply
         assert "how can i help you today" not in reply
 
     def test_allowed_message_resets_loop(self, evaluator: AdvancedGuardrailEvaluator) -> None:
         evaluator.check_input(_input("Recommend a movie"))
-        # A banking question resets the counter.
-        assert evaluator.check_input(_input("I need help with my account")) is None
+        # A healthcare question resets the counter.
+        assert evaluator.check_input(_input("I need help scheduling an appointment")) is None
         # Next off-topic is full again.
         result = evaluator.check_input(_input("Recommend a movie"))
         assert "how can i help you today" in result.safe_reply.lower()

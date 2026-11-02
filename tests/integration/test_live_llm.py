@@ -75,31 +75,31 @@ class TestOpenAIExtractorLive:
 
 
 class TestOpenAISupportIntentClassifierLive:
-    def test_classifies_account_assistance(self, settings: Settings) -> None:
+    def test_classifies_appointment_assistance(self, settings: Settings) -> None:
         classifier = OpenAISupportIntentClassifier(
             api_key=settings.llm_api_key,
             model=settings.llm_model,
             base_url=settings.llm_base_url,
             temperature=settings.llm_temperature,
         )
-        result = classifier.classify("I need help with my account")
+        result = classifier.classify("I need help scheduling an appointment")
         assert isinstance(result, IntentClassification)
         assert result.intent.value in {
-            "account_assistance",
-            "general_banking",
+            "appointment_assistance",
+            "general_healthcare",
         }
 
-    def test_classifies_yacht_insurance(self, settings: Settings) -> None:
+    def test_classifies_specialist_referral(self, settings: Settings) -> None:
         classifier = OpenAISupportIntentClassifier(
             api_key=settings.llm_api_key,
             model=settings.llm_model,
             base_url=settings.llm_base_url,
             temperature=settings.llm_temperature,
         )
-        result = classifier.classify("I want yacht insurance")
+        result = classifier.classify("I want a specialist referral")
         assert isinstance(result, IntentClassification)
         assert result.intent.value in {
-            "yacht_insurance",
+            "specialist_referral",
             "insurance",
             "other_specialized",
         }

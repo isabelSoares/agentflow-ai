@@ -53,21 +53,21 @@ class TestUnsupportedClaims:
         state = make_initial_state("us3-claim")
         state["status"] = "authenticated"
         state["patient_classification"] = "regular"
-        state["reply"] = "Our bank guarantees a 15% annual return."
+        state["reply"] = "Our healthcare provider guarantees a 15% faster recovery."
         result = _run(graph, "us3-claim", "Thanks", state)
         assert "15%" not in result["reply"]
         assert "guarantee" not in result["reply"].lower()
 
 
 class TestIrrelevantResponses:
-    def test_irrelevant_mortgage_response_replaced(self, graph) -> None:
+    def test_irrelevant_billing_response_replaced(self, graph) -> None:
         state = make_initial_state("us3-relevance")
         state["status"] = "authenticated"
         state["patient_classification"] = "regular"
-        state["support_intent"] = "yacht_insurance"
-        state["reply"] = "Our mortgage rates start at 3.5%."
-        result = _run(graph, "us3-relevance", "Can you tell me about yacht insurance?", state)
-        assert "mortgage" not in result["reply"].lower()
+        state["support_intent"] = "specialist_referral"
+        state["reply"] = "Our billing costs start at 3.5%."
+        result = _run(graph, "us3-relevance", "Can you tell me about insurance coverage?", state)
+        assert "billing" not in result["reply"].lower()
         assert "3.5%" not in result["reply"]
 
 
@@ -76,7 +76,7 @@ class TestUnknownProduct:
         state = make_initial_state("us3-unknown")
         state["status"] = "authenticated"
         state["patient_classification"] = "regular"
-        state["reply"] = "Our new orbital banking account offers 5% guaranteed returns."
-        result = _run(graph, "us3-unknown", "Tell me about orbital banking", state)
+        state["reply"] = "Our new orbital care program offers 5% guaranteed recovery."
+        result = _run(graph, "us3-unknown", "Tell me about orbital healthcare", state)
         assert "orbital" not in result["reply"].lower()
         assert "5%" not in result["reply"]

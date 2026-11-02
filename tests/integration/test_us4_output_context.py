@@ -63,7 +63,7 @@ class TestUnprofessionalLanguageReplaced:
         state["status"] = "authenticated"
         state["patient_classification"] = "regular"
         state["reply"] = "That is a stupid question."
-        result = _run(graph, "us4-prof", "What is my balance?", state)
+        result = _run(graph, "us4-prof", "What is my appointment?", state)
         assert "stupid" not in result["reply"].lower()
 
 

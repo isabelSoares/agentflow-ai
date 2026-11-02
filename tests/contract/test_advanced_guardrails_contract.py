@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from healthcare_support.config.trusted_banking_info import get_catalog
+from healthcare_support.config.trusted_healthcare_info import get_catalog
 from healthcare_support.core.advanced_guardrails import (
     AdvancedGuardrailEvaluator,
     RedirectionStateTracker,
@@ -12,8 +12,8 @@ from healthcare_support.core.advanced_guardrails import (
 )
 from healthcare_support.domain.advanced_guardrails import (
     CoverageStatus,
-    TrustedBankingCatalog,
-    TrustedBankingEntry,
+    TrustedHealthcareCatalog,
+    TrustedHealthcareEntry,
 )
 from healthcare_support.domain.conversation import ConversationStatus, PatientClassification
 from healthcare_support.domain.guardrails import GuardrailDecisionOutcome, GuardrailInput
@@ -59,7 +59,7 @@ class TestHeuristicCheckerContract:
     def test_input_checker_returns_none_for_allowed(
         self, evaluator: AdvancedGuardrailEvaluator
     ) -> None:
-        result = evaluator.check_input(_input("Hello, I need help with my account"))
+        result = evaluator.check_input(_input("Hello, I need help scheduling an appointment"))
         assert result is None or result is False
 
     def test_output_checker_returns_block_reason_for_unsupported_claim(
@@ -67,7 +67,7 @@ class TestHeuristicCheckerContract:
     ) -> None:
         result = evaluator.check_output(
             _input(
-                "Our bank guarantees a 15% annual return",
+                "Our healthcare provider guarantees a 15% faster recovery",
                 content_type="assistant_output",
                 status=ConversationStatus.AUTHENTICATED,
                 classification=PatientClassification.REGULAR,
@@ -82,7 +82,7 @@ class TestHeuristicCheckerContract:
         assert input_.model_dump() == original
 
 
-class TestTrustedBankingCatalogContract:
+class TestTrustedHealthcareCatalogContract:
     """Contract 3: trusted catalog lookup and claim coverage."""
 
     def test_lookup_returns_missing_entry_for_unknown_topic(self) -> None:
@@ -91,22 +91,22 @@ class TestTrustedBankingCatalogContract:
         assert entry.coverage_status == CoverageStatus.MISSING
 
     def test_covers_claim_returns_supported_for_verified_statement(self) -> None:
-        catalog = TrustedBankingCatalog(
+        catalog = TrustedHealthcareCatalog(
             catalog_id="test",
             entries={
-                "savings": TrustedBankingEntry(
-                    topic="savings",
-                    verified_statements=["Our savings account has no monthly fee."],
+                "copay": TrustedHealthcareEntry(
+                    topic="copay",
+                    verified_statements=["Our copay for a specialist visit is $40."],
                     coverage_status=CoverageStatus.COMPLETE,
                 ),
             },
         )
-        result = catalog.covers_claim("Our savings account has no monthly fee.")
+        result = catalog.covers_claim("Our copay for a specialist visit is $40.")
         assert result.is_supported is True
 
     def test_covers_claim_returns_unsupported_for_high_risk_claim(self) -> None:
         catalog = get_catalog("default")
-        result = catalog.covers_claim("We guarantee a 15% annual return")
+        result = catalog.covers_claim("We guarantee a 15% faster recovery")
         assert result.is_high_risk is True
         assert result.is_supported is False
 

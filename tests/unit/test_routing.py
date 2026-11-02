@@ -26,17 +26,17 @@ def directory() -> SupportDirectory:
 
 
 class TestPremiumRouting:
-    def test_premium_account_assistance_routes_to_premium_support(
+    def test_premium_appointment_assistance_routes_to_premium_support(
         self, directory: SupportDirectory
     ) -> None:
         decision = route_support_request(
             is_authenticated=True,
             patient_classification=PatientClassification.PREMIUM,
-            intent_classification=IntentClassification(intent=SupportIntent.ACCOUNT_ASSISTANCE),
+            intent_classification=IntentClassification(intent=SupportIntent.APPOINTMENT_ASSISTANCE),
             support_directory=directory,
         )
         assert decision.status == RoutingStatus.ROUTED
-        assert decision.intent == SupportIntent.ACCOUNT_ASSISTANCE
+        assert decision.intent == SupportIntent.APPOINTMENT_ASSISTANCE
         assert decision.department_key == "premium_support"
         assert decision.contact == "+1999888999"
         assert "Premium Patient Support" in decision.message
@@ -49,63 +49,63 @@ class TestPremiumRouting:
         decision = authentication_gate(
             is_authenticated=False,
             patient_classification=PatientClassification.PREMIUM,
-            intent=SupportIntent.ACCOUNT_ASSISTANCE,
+            intent=SupportIntent.APPOINTMENT_ASSISTANCE,
         )
         assert decision is not None
         assert decision.status == RoutingStatus.BLOCKED
 
-    def test_premium_general_banking_routes_to_premium_support(
+    def test_premium_general_healthcare_routes_to_premium_support(
         self, directory: SupportDirectory
     ) -> None:
         decision = route_support_request(
             is_authenticated=True,
             patient_classification=PatientClassification.PREMIUM,
-            intent_classification=IntentClassification(intent=SupportIntent.GENERAL_BANKING),
+            intent_classification=IntentClassification(intent=SupportIntent.GENERAL_HEALTHCARE),
             support_directory=directory,
         )
         assert decision.status == RoutingStatus.ROUTED
         assert decision.department_key == "premium_support"
 
-    def test_premium_yacht_insurance_routes_to_insurance_specialist(
+    def test_premium_specialist_referral_routes_to_insurance_billing(
         self, directory: SupportDirectory
     ) -> None:
         decision = route_support_request(
             is_authenticated=True,
             patient_classification=PatientClassification.PREMIUM,
-            intent_classification=IntentClassification(intent=SupportIntent.YACHT_INSURANCE),
+            intent_classification=IntentClassification(intent=SupportIntent.SPECIALIST_REFERRAL),
             support_directory=directory,
         )
         assert decision.status == RoutingStatus.ROUTED
-        assert decision.intent == SupportIntent.YACHT_INSURANCE
-        assert decision.department_key == "insurance_specialist"
+        assert decision.intent == SupportIntent.SPECIALIST_REFERRAL
+        assert decision.department_key == "insurance_billing"
         assert decision.contact == "+18005551234"
 
 
 class TestRegularRouting:
-    def test_regular_account_assistance_routes_to_standard_support(
+    def test_regular_appointment_assistance_routes_to_standard_support(
         self, directory: SupportDirectory
     ) -> None:
         decision = route_support_request(
             is_authenticated=True,
             patient_classification=PatientClassification.REGULAR,
-            intent_classification=IntentClassification(intent=SupportIntent.ACCOUNT_ASSISTANCE),
+            intent_classification=IntentClassification(intent=SupportIntent.APPOINTMENT_ASSISTANCE),
             support_directory=directory,
         )
         assert decision.status == RoutingStatus.ROUTED
         assert decision.department_key == "standard_support"
         assert decision.contact == "+1112112112"
 
-    def test_regular_yacht_insurance_routes_to_insurance_specialist(
+    def test_regular_specialist_referral_routes_to_insurance_billing(
         self, directory: SupportDirectory
     ) -> None:
         decision = route_support_request(
             is_authenticated=True,
             patient_classification=PatientClassification.REGULAR,
-            intent_classification=IntentClassification(intent=SupportIntent.YACHT_INSURANCE),
+            intent_classification=IntentClassification(intent=SupportIntent.SPECIALIST_REFERRAL),
             support_directory=directory,
         )
         assert decision.status == RoutingStatus.ROUTED
-        assert decision.department_key == "insurance_specialist"
+        assert decision.department_key == "insurance_billing"
 
 
 class TestSpecialistPrecedence:
@@ -117,12 +117,12 @@ class TestSpecialistPrecedence:
             patient_classification=PatientClassification.PREMIUM,
             intent_classification=IntentClassification(
                 intent=SupportIntent.OTHER_SPECIALIZED,
-                specialization="yacht_insurance",
+                specialization="specialist_referral",
             ),
             support_directory=directory,
         )
         assert decision.status == RoutingStatus.ROUTED
-        assert decision.department_key == "insurance_specialist"
+        assert decision.department_key == "insurance_billing"
 
 
 class TestClarificationAndFallback:
@@ -167,7 +167,7 @@ class TestAuthorizationAndClassificationBoundaries:
         decision = route_support_request(
             is_authenticated=False,
             patient_classification=PatientClassification.PREMIUM,
-            intent_classification=IntentClassification(intent=SupportIntent.ACCOUNT_ASSISTANCE),
+            intent_classification=IntentClassification(intent=SupportIntent.APPOINTMENT_ASSISTANCE),
             support_directory=directory,
         )
         assert decision.status == RoutingStatus.BLOCKED
@@ -177,7 +177,7 @@ class TestAuthorizationAndClassificationBoundaries:
         decision = route_support_request(
             is_authenticated=True,
             patient_classification=None,
-            intent_classification=IntentClassification(intent=SupportIntent.ACCOUNT_ASSISTANCE),
+            intent_classification=IntentClassification(intent=SupportIntent.APPOINTMENT_ASSISTANCE),
             support_directory=directory,
         )
         assert decision.status == RoutingStatus.BLOCKED
@@ -186,7 +186,7 @@ class TestAuthorizationAndClassificationBoundaries:
         decision = route_support_request(
             is_authenticated=True,
             patient_classification=PatientClassification.NON_PATIENT,
-            intent_classification=IntentClassification(intent=SupportIntent.ACCOUNT_ASSISTANCE),
+            intent_classification=IntentClassification(intent=SupportIntent.APPOINTMENT_ASSISTANCE),
             support_directory=directory,
         )
         assert decision.status == RoutingStatus.FALLBACK
@@ -202,10 +202,10 @@ class TestDepartmentAvailability:
                     display_name="Standard Patient Support",
                     available=True,
                 ),
-                "insurance_specialist": SupportDepartment(
-                    key="insurance_specialist",
-                    display_name="Insurance Specialist",
-                    specializations={"yacht_insurance"},
+                "insurance_billing": SupportDepartment(
+                    key="insurance_billing",
+                    display_name="Insurance and Billing",
+                    specializations={"specialist_referral"},
                     available=False,
                 ),
             }
@@ -213,7 +213,7 @@ class TestDepartmentAvailability:
         decision = route_support_request(
             is_authenticated=True,
             patient_classification=PatientClassification.PREMIUM,
-            intent_classification=IntentClassification(intent=SupportIntent.YACHT_INSURANCE),
+            intent_classification=IntentClassification(intent=SupportIntent.SPECIALIST_REFERRAL),
             support_directory=directory,
         )
         assert decision.status == RoutingStatus.FALLBACK
@@ -226,7 +226,7 @@ class TestDepartmentAvailability:
         decision = route_support_request(
             is_authenticated=True,
             patient_classification=PatientClassification.REGULAR,
-            intent_classification=IntentClassification(intent=SupportIntent.ACCOUNT_ASSISTANCE),
+            intent_classification=IntentClassification(intent=SupportIntent.APPOINTMENT_ASSISTANCE),
             support_directory=directory_without_standard,
         )
         assert decision.status == RoutingStatus.FALLBACK

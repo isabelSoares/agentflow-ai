@@ -92,7 +92,7 @@ class TestWorkflowMessagesAllowed:
         [
             "What is your phone number?",
             "What is your secret question?",
-            "I'll route you to the insurance specialist department.",
+            "I'll route you to the Insurance and Billing Department.",
         ],
     )
     def test_workflow_messages_allowed(

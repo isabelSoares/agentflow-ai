@@ -29,12 +29,12 @@ class TestUnsupportedClaimsBlocked:
     @pytest.mark.parametrize(
         "response",
         [
-            "Our bank guarantees a 15% annual return",
-            "Your loan is guaranteed approval",
-            "The interest rate is fixed at 2%",
-            "The annual fee is €500",
-            "You are eligible for a €100000 loan",
-            "Your transfer has been completed",
+            "Our healthcare provider guarantees a 15% faster recovery",
+            "Your insurance claim is guaranteed approval",
+            "The reimbursement rate is fixed at 2%",
+            "The billing fee is €500",
+            "You are eligible for a €100000 coverage amount",
+            "Your referral has been completed",
         ],
     )
     def test_unsupported_claims_blocked(
@@ -50,7 +50,9 @@ class TestVerifiedAndGeneralClaimsAllowed:
         self, evaluator: AdvancedGuardrailEvaluator
     ) -> None:
         result = evaluator.check_output(
-            _output("Yacht insurance is available through our marine insurance specialists.")
+            _output(
+                "Insurance coverage is available through our insurance and billing specialists."
+            )
         )
         assert result is None or getattr(result, "reason_category", None) != "unsupported_claim"
 
@@ -58,13 +60,13 @@ class TestVerifiedAndGeneralClaimsAllowed:
         self, evaluator: AdvancedGuardrailEvaluator
     ) -> None:
         result = evaluator.check_output(
-            _output("Loans usually require an application and a credit check.")
+            _output("Specialist referrals usually require a clinical assessment.")
         )
         assert result is None or getattr(result, "reason_category", None) != "unsupported_claim"
 
     def test_missing_coverage_fallback(self, evaluator: AdvancedGuardrailEvaluator) -> None:
         result = evaluator.check_output(
-            _output("We guarantee approval for our new platinum savings account.")
+            _output("We guarantee approval for our new premium care plan.")
         )
         assert result is not None
         assert getattr(result, "reason_category", result) == "unsupported_claim"

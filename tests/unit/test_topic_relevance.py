@@ -33,20 +33,20 @@ def _input(
     )
 
 
-class TestLegitimateBankingAllowed:
+class TestLegitimateHealthcareAllowed:
     @pytest.mark.parametrize(
         "text",
         [
-            "I need help with my account",
-            "Can you explain mortgage rates?",
+            "I need help scheduling an appointment",
+            "Can you explain insurance coverage?",
             "What are your opening hours?",
             "How do I update my API settings?",
-            "I want to open a savings account",
-            "Can I get a credit card?",
-            "I need to transfer money",
+            "I want to request a prescription refill",
+            "Can I get a specialist referral?",
+            "I need help with a billing question",
         ],
     )
-    def test_legitimate_banking_requests_allowed(
+    def test_legitimate_healthcare_requests_allowed(
         self, evaluator: AdvancedGuardrailEvaluator, text: str
     ) -> None:
         result = evaluator.check_input(_input(text, status=ConversationStatus.AUTHENTICATED))
@@ -54,7 +54,7 @@ class TestLegitimateBankingAllowed:
 
     def test_unfamiliar_terminology_allowed(self, evaluator: AdvancedGuardrailEvaluator) -> None:
         result = evaluator.check_input(
-            _input("What is a fiduciary deposit account?", status=ConversationStatus.AUTHENTICATED)
+            _input("What is a deductible?", status=ConversationStatus.AUTHENTICATED)
         )
         assert result is None
 
@@ -98,13 +98,13 @@ class TestGreetingsAndConversationalAllowed:
         assert result is None or getattr(result, "outcome", None) != "blocked"
 
 
-class TestOutOfScopeBankingRedirected:
+class TestOutOfScopeHealthcareRedirected:
     @pytest.mark.parametrize(
         "text",
         [
-            "Give me investment advice",
-            "Help me file my taxes",
-            "What is the best cryptocurrency to buy?",
+            "Give me medical advice",
+            "Prescribe me a medication",
+            "Should I go to the emergency room?",
         ],
     )
     def test_out_of_scope_redirected(
@@ -129,10 +129,10 @@ class TestVerificationAndPremiumAllowed:
     def test_premium_insurance_allowed(self, evaluator: AdvancedGuardrailEvaluator) -> None:
         result = evaluator.check_input(
             _input(
-                "I need specialized yacht insurance",
+                "I need help with my insurance coverage",
                 status=ConversationStatus.AUTHENTICATED,
                 classification=PatientClassification.PREMIUM,
-                intent=SupportIntent.YACHT_INSURANCE,
+                intent=SupportIntent.SPECIALIST_REFERRAL,
             )
         )
         assert result is None
@@ -140,7 +140,7 @@ class TestVerificationAndPremiumAllowed:
     def test_clarification_answer_allowed(self, evaluator: AdvancedGuardrailEvaluator) -> None:
         result = evaluator.check_input(
             _input(
-                "Yes, I meant my savings account",
+                "Yes, I meant an appointment",
                 status=ConversationStatus.AUTHENTICATED,
                 classification=PatientClassification.REGULAR,
                 intent=SupportIntent.AMBIGUOUS,

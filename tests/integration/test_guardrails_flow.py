@@ -55,7 +55,8 @@ class PermissiveFakeExtractor(LLMExtractor):
         elif secret:
             intent = ExtractionIntent.ANSWER_SECRET
         elif any(
-            k in lowered for k in ("what is my", "tell me my", "show me", "reveal", "my balance")
+            k in lowered
+            for k in ("what is my", "tell me my", "show me", "reveal", "my appointment")
         ):
             intent = ExtractionIntent.REQUEST_DATA
         else:
@@ -116,12 +117,12 @@ class TestAuthenticationAndAuthorization:
         assert "verified" in result["reply"].lower() or "identity" in result["reply"].lower()
         assert result.get("status") != "authenticated"
 
-    def test_non_patient_cannot_access_account_data(self, graph) -> None:
+    def test_non_patient_cannot_access_patient_data(self, graph) -> None:
         # Start with a state that looks authenticated but classified as non-patient.
         state = make_initial_state("probe-non-patient")
         state["status"] = "authenticated"
         state["patient_classification"] = "non_patient"
-        result = _run(graph, "probe-non-patient", "What is my balance?", initial_state=state)
+        result = _run(graph, "probe-non-patient", "What is my appointment?", initial_state=state)
         assert result.get("status") != "authenticated" or "non_patient" in (
             result.get("patient_classification") or ""
         )
@@ -173,7 +174,7 @@ class TestOutputGuardrail:
         state = make_initial_state("probe-commitment")
         state["status"] = "authenticated"
         state["patient_classification"] = "regular"
-        state["reply"] = "Your loan has been approved."
+        state["reply"] = "Your insurance claim has been approved."
         result = _run(graph, "probe-commitment", "Thanks", initial_state=state)
         assert "approved" not in result["reply"].lower()
 
@@ -199,7 +200,7 @@ class TestMultiAgentConsistency:
 
         result = graph.invoke(
             {
-                "messages": [HumanMessage(content="I need help with my account")],
+                "messages": [HumanMessage(content="I need help scheduling an appointment")],
                 "conversation_id": cid,
             },
             config,

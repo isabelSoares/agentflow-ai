@@ -43,7 +43,7 @@ def test_classifier_fails_safe_for_invalid_structured_output(mock_chat: MagicMoc
 
 def test_models_remain_advisory_contracts() -> None:
     result = ExtractionResult(intent=ExtractionIntent.PROVIDE_IDENTIFICATION, name="Ada")
-    classification = IntentClassification(intent=SupportIntent.GENERAL_BANKING)
+    classification = IntentClassification(intent=SupportIntent.GENERAL_HEALTHCARE)
 
     assert result.name == "Ada"
-    assert classification.intent == SupportIntent.GENERAL_BANKING
+    assert classification.intent == SupportIntent.GENERAL_HEALTHCARE

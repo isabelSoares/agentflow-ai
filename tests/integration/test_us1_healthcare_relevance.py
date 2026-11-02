@@ -58,11 +58,11 @@ def _fake_intent_classifier() -> SupportIntentClassifier:
     return ScriptedFakeSupportIntentClassifier(
         script=[
             IntentClassification(
-                intent=SupportIntent.YACHT_INSURANCE,
+                intent=SupportIntent.SPECIALIST_REFERRAL,
                 specialization="marine",
             ),
             IntentClassification(
-                intent=SupportIntent.ACCOUNT_ASSISTANCE,
+                intent=SupportIntent.APPOINTMENT_ASSISTANCE,
                 specialization=None,
             ),
         ]
@@ -100,7 +100,7 @@ class TestOffTopicAndGreeting:
         decision = result.get("guardrail_decision") or {}
         assert decision.get("outcome") == "blocked"
         assert decision.get("reason_category") == "off_topic"
-        assert "banking" in result["reply"].lower()
+        assert "healthcare" in result["reply"].lower()
 
     def test_greeting_is_not_blocked(self, graph) -> None:
         result = _run(graph, "us1-greeting", "Hello, how are you?")
@@ -123,7 +123,7 @@ class TestVerificationAndPremium:
         state["matched_patient_id"] = "cust-1"
         state["patient_classification"] = "premium"
         result = _run(
-            graph, "us1-premium", "I need specialized yacht insurance", initial_state=state
+            graph, "us1-premium", "I need help with my insurance coverage", initial_state=state
         )
         decision = result.get("guardrail_decision") or {}
         assert decision.get("outcome") == "allowed"
@@ -145,6 +145,6 @@ class TestClarification:
         state["matched_patient_id"] = "cust-2"
         state["patient_classification"] = "regular"
         state["support_intent"] = "ambiguous"
-        result = _run(graph, "us1-clarify", "Yes, I meant my account", initial_state=state)
+        result = _run(graph, "us1-clarify", "Yes, I meant my appointment", initial_state=state)
         decision = result.get("guardrail_decision") or {}
         assert decision.get("outcome") == "allowed"

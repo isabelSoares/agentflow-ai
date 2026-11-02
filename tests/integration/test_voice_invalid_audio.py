@@ -93,7 +93,7 @@ def test_oversized_audio_returns_422(client: TestClient) -> None:
 
 def test_silent_audio_returns_clarification(client: TestClient) -> None:
     """Audio that cannot be transcribed reliably results in a clarification
-    response without invoking the banking workflow.
+    response without invoking the healthcare workflow.
     """
     start = client.post("/conversations")
     conversation_id = start.json()["conversation_id"]
