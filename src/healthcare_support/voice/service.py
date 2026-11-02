@@ -22,7 +22,7 @@ CLARIFICATION_MESSAGE = "I'm sorry, I didn't catch that. Could you please repeat
 
 
 class VoiceService:
-    """Orchestrate a single voice turn without duplicating banking logic.
+    """Orchestrate a single voice turn without duplicating healthcare logic.
 
     The voice layer treats audio and its transcription as untrusted patient
     input. It never makes authentication or authorization decisions; those

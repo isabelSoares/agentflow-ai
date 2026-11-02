@@ -14,5 +14,6 @@ WORKFLOW_MESSAGE_PATTERNS: tuple[str, ...] = (
     r"\b(thank\s+you|please\s+provide|please\s+try\s+again|doesn't\s+match\s+our\s+records|"
     r"not\s+able\s+to|wasn't\s+able\s+to|didn't\s+catch|identity|session\s+has\s+ended)\b",
     r"\b(premium|regular|non[-\s]?patient|existing\s+patients|"
-    r"branch|contact\s+your\s+bank|support\s+department)\b",
+    r"healthcare\s+provider|patient\s+services\s+team|support\s+department|"
+    r"appointment|insurance|billing|coverage|claim)\b",
 )

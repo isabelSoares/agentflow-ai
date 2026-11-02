@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from healthcare_support.config.safe_replies import DEFAULT_ADVANCED_SAFE_REPLIES
-from healthcare_support.config.trusted_banking_info import get_catalog
+from healthcare_support.config.trusted_healthcare_info import get_catalog
 from healthcare_support.core.advanced_guardrails import (
     RedirectionStateTracker,
     make_advanced_guardrail_checkers,
@@ -19,8 +19,8 @@ from healthcare_support.core.responses import (
     PROHIBITED_ACTION_MESSAGE,
     UNAVAILABLE_GUARDIAL_MESSAGE,
 )
-from healthcare_support.data.policies import default_banking_policy
-from healthcare_support.domain.advanced_guardrails import TrustedBankingCatalog
+from healthcare_support.data.policies import default_healthcare_policy
+from healthcare_support.domain.advanced_guardrails import TrustedHealthcareCatalog
 
 _DEFAULT_SAFE_REPLIES: dict[str, str] = {
     "manipulation": MANIPULATION_RE_PROMPT,
@@ -35,7 +35,7 @@ _DEFAULT_SAFE_REPLIES: dict[str, str] = {
 
 
 def build_guardrail_evaluator(
-    catalog: TrustedBankingCatalog | None = None,
+    catalog: TrustedHealthcareCatalog | None = None,
     safe_replies: dict[str, str] | None = None,
     redirection_tracker: RedirectionStateTracker | None = None,
 ) -> GuardrailEvaluator:
@@ -57,7 +57,7 @@ def build_guardrail_evaluator(
     )
 
     return GuardrailEvaluator(
-        policy_rules=default_banking_policy(),
+        policy_rules=default_healthcare_policy(),
         heuristic_input_checker=input_checker,
         heuristic_output_checker=output_checker,
         safe_replies=resolved_safe_replies,

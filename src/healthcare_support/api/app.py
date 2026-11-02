@@ -149,7 +149,7 @@ def create_app(app_state: AppState | None = None) -> FastAPI:
     app = FastAPI(
         title="AgentFlow AI — Secure Multi-Agent Patient Support",
         description=(
-            "Secure, context-aware multi-agent patient support. The banking flow is the "
+            "Secure, context-aware multi-agent patient support. The healthcare flow is the "
             "reference demo adapter; deterministic nodes own every security decision."
         ),
         version="0.1.0",

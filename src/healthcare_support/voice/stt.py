@@ -77,7 +77,7 @@ class FakeSTT:
     def __init__(
         self,
         transcriptions: dict[bytes, str] | None = None,
-        default: str = "I need help with my bank account",
+        default: str = "I need help with an appointment",
     ) -> None:
         self._transcriptions = transcriptions or {}
         self._default = default
