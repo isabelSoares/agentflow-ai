@@ -7,8 +7,8 @@ import wave
 
 import pytest
 
-from banking_support.voice.schemas import VoiceConfig
-from banking_support.voice.validation import AudioValidator
+from healthcare_support.voice.schemas import VoiceConfig
+from healthcare_support.voice.validation import AudioValidator
 
 
 def _make_wav(duration_seconds: float) -> bytes:

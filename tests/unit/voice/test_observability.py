@@ -8,15 +8,15 @@ import wave
 import pytest
 from fastapi.testclient import TestClient
 
-from banking_support.agents.llm import (
+from healthcare_support.agents.llm import (
     ExtractionIntent,
     ExtractionResult,
     ScriptedFakeExtractor,
 )
-from banking_support.api.app import AppState, create_app
-from banking_support.voice.service import build_voice_service
-from banking_support.voice.stt import FakeSTT
-from banking_support.voice.tts import FakeTTS
+from healthcare_support.api.app import AppState, create_app
+from healthcare_support.voice.service import build_voice_service
+from healthcare_support.voice.stt import FakeSTT
+from healthcare_support.voice.tts import FakeTTS
 
 
 def _make_wav() -> bytes:
@@ -34,7 +34,7 @@ def client() -> TestClient:
     extractor = ScriptedFakeExtractor([ExtractionResult(intent=ExtractionIntent.CHITCHAT)])
     app_state = AppState()
     app_state.extractor = extractor
-    from banking_support.agents.graph import build_verification_graph
+    from healthcare_support.agents.graph import build_verification_graph
 
     app_state.verification_graph = build_verification_graph(
         app_state.customer_repository,
@@ -64,7 +64,7 @@ def client() -> TestClient:
 def test_voice_request_emits_session_and_guardrail_events(
     client: TestClient, caplog: pytest.LogCaptureFixture
 ) -> None:
-    caplog.set_level("INFO", logger="banking_support.audit")
+    caplog.set_level("INFO", logger="healthcare_support.audit")
 
     start = client.post("/conversations")
     conversation_id = start.json()["conversation_id"]
@@ -77,7 +77,9 @@ def test_voice_request_emits_session_and_guardrail_events(
     )
 
     audit_messages = " ".join(
-        record.getMessage() for record in caplog.records if record.name == "banking_support.audit"
+        record.getMessage()
+        for record in caplog.records
+        if record.name == "healthcare_support.audit"
     )
     assert "session_access_granted" in audit_messages
     assert "guardrail_allowed" in audit_messages
@@ -86,7 +88,7 @@ def test_voice_request_emits_session_and_guardrail_events(
 def test_voice_request_audit_does_not_include_raw_audio(
     client: TestClient, caplog: pytest.LogCaptureFixture
 ) -> None:
-    caplog.set_level("INFO", logger="banking_support.audit")
+    caplog.set_level("INFO", logger="healthcare_support.audit")
 
     start = client.post("/conversations")
     conversation_id = start.json()["conversation_id"]
@@ -100,7 +102,9 @@ def test_voice_request_audit_does_not_include_raw_audio(
     )
 
     audit_messages = " ".join(
-        record.getMessage() for record in caplog.records if record.name == "banking_support.audit"
+        record.getMessage()
+        for record in caplog.records
+        if record.name == "healthcare_support.audit"
     )
     assert audio.hex() not in audit_messages
     assert "my iban" not in audit_messages.lower()

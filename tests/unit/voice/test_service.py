@@ -8,12 +8,12 @@ from typing import Any
 
 import pytest
 
-from banking_support.domain.conversation import ConversationStatus
-from banking_support.voice.schemas import VoiceConfig, VoiceRequest
-from banking_support.voice.service import VoiceService
-from banking_support.voice.stt import FakeSTT
-from banking_support.voice.tts import FakeTTS
-from banking_support.voice.validation import AudioValidator
+from healthcare_support.domain.conversation import ConversationStatus
+from healthcare_support.voice.schemas import VoiceConfig, VoiceRequest
+from healthcare_support.voice.service import VoiceService
+from healthcare_support.voice.stt import FakeSTT
+from healthcare_support.voice.tts import FakeTTS
+from healthcare_support.voice.validation import AudioValidator
 
 
 def _make_invoker(
@@ -230,7 +230,7 @@ def test_voice_service_skips_tts_for_blocked_guardrail(config: VoiceConfig) -> N
 def test_voice_service_low_confidence_returns_clarification(config: VoiceConfig) -> None:
     class _UnreliableSTT:
         def transcribe(self, audio: bytes, content_type: str) -> Any:
-            from banking_support.voice.schemas import TranscriptionResult
+            from healthcare_support.voice.schemas import TranscriptionResult
 
             return TranscriptionResult(
                 text="",

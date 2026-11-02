@@ -4,14 +4,14 @@ from __future__ import annotations
 
 import pytest
 
-from banking_support.core.routing import (
+from healthcare_support.core.routing import (
     authentication_gate,
     route_support_request,
     tier_key,
 )
-from banking_support.data.support_directory import default_support_directory
-from banking_support.domain.conversation import CustomerClassification
-from banking_support.domain.routing import (
+from healthcare_support.data.support_directory import default_support_directory
+from healthcare_support.domain.conversation import CustomerClassification
+from healthcare_support.domain.routing import (
     IntentClassification,
     RoutingStatus,
     SupportDepartment,

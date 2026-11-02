@@ -4,24 +4,24 @@ from __future__ import annotations
 
 import pytest
 
-from banking_support.agents.llm import ScriptedFakeExtractor
-from banking_support.agents.nodes import make_nodes
-from banking_support.agents.state import make_initial_state
-from banking_support.core.responses import DATA_REQUEST_REFUSAL
-from banking_support.core.verification import (
+from healthcare_support.agents.llm import ScriptedFakeExtractor
+from healthcare_support.agents.nodes import make_nodes
+from healthcare_support.agents.state import make_initial_state
+from healthcare_support.core.responses import DATA_REQUEST_REFUSAL
+from healthcare_support.core.verification import (
     MAX_ATTEMPTS,
     check_secret_answer,
     process_identification_failure,
     process_secret_attempt,
 )
-from banking_support.data.memory import InMemoryCustomerRepository
-from banking_support.data.seed import CUSTOMERS
-from banking_support.domain.conversation import (
+from healthcare_support.data.memory import InMemoryCustomerRepository
+from healthcare_support.data.seed import CUSTOMERS
+from healthcare_support.domain.conversation import (
     ConversationStatus,
     ExtractionIntent,
     TerminationReason,
 )
-from banking_support.domain.customer import Customer
+from healthcare_support.domain.customer import Customer
 
 
 @pytest.fixture

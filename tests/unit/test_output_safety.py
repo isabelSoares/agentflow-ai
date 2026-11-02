@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import pytest
 
-from banking_support.core.advanced_guardrails import AdvancedGuardrailEvaluator
-from banking_support.domain.conversation import ConversationStatus, CustomerClassification
-from banking_support.domain.guardrails import GuardrailInput
+from healthcare_support.core.advanced_guardrails import AdvancedGuardrailEvaluator
+from healthcare_support.domain.conversation import ConversationStatus, CustomerClassification
+from healthcare_support.domain.guardrails import GuardrailInput
 
 
 @pytest.fixture
@@ -64,7 +64,7 @@ class TestStaticRepliesAndSafeReplacement:
     def test_static_greeting_passes_output_guardrail(
         self, evaluator: AdvancedGuardrailEvaluator
     ) -> None:
-        from banking_support.core.responses import GREETING
+        from healthcare_support.core.responses import GREETING
 
         result = evaluator.check_output(_output(GREETING))
         assert result is None or result.outcome.value == "allowed"
@@ -72,7 +72,7 @@ class TestStaticRepliesAndSafeReplacement:
     def test_identification_reply_passes_output_guardrail(
         self, evaluator: AdvancedGuardrailEvaluator
     ) -> None:
-        from banking_support.core.responses import SECRET_QUESTION_PREFIX
+        from healthcare_support.core.responses import SECRET_QUESTION_PREFIX
 
         result = evaluator.check_output(
             _output(f"{SECRET_QUESTION_PREFIX}What is the name of your pet?")

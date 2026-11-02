@@ -5,13 +5,13 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from banking_support.agents.llm import (
+from healthcare_support.agents.llm import (
     ScriptedFakeExtractor,
     ScriptedFakeSupportIntentClassifier,
 )
-from banking_support.agents.nodes import make_nodes
-from banking_support.data.memory import InMemoryCustomerRepository
-from banking_support.data.support_directory import default_support_directory
+from healthcare_support.agents.nodes import make_nodes
+from healthcare_support.data.memory import InMemoryCustomerRepository
+from healthcare_support.data.support_directory import default_support_directory
 
 ROOT = Path(__file__).resolve().parents[2]
 README = ROOT / "README.md"

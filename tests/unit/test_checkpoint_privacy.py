@@ -2,7 +2,7 @@
 
 from langchain_core.messages import HumanMessage
 
-from banking_support.agents.state import checkpoint_safe_state
+from healthcare_support.agents.state import checkpoint_safe_state
 
 
 def test_checkpoint_projection_removes_transient_values_and_human_messages() -> None:

@@ -8,11 +8,11 @@ from __future__ import annotations
 import pytest
 from langchain_core.messages import HumanMessage
 
-from banking_support.core.guardrails import GuardrailEvaluator
-from banking_support.data.policies import default_banking_policy
-from banking_support.domain.conversation import ConversationStatus, CustomerClassification
-from banking_support.domain.guardrails import GuardrailDecisionOutcome, GuardrailInput
-from banking_support.domain.routing import SupportIntent
+from healthcare_support.core.guardrails import GuardrailEvaluator
+from healthcare_support.data.policies import default_banking_policy
+from healthcare_support.domain.conversation import ConversationStatus, CustomerClassification
+from healthcare_support.domain.guardrails import GuardrailDecisionOutcome, GuardrailInput
+from healthcare_support.domain.routing import SupportIntent
 
 
 @pytest.fixture
@@ -361,7 +361,7 @@ class TestMandatoryInputHarmFailsClosed:
     """E4 regression: the input_harm check is mandatory and fails closed."""
 
     def test_input_harm_unavailable_blocks(self) -> None:
-        from banking_support.core.advanced_guardrails import AdvancedGuardrailEvaluator
+        from healthcare_support.core.advanced_guardrails import AdvancedGuardrailEvaluator
 
         advanced = AdvancedGuardrailEvaluator()
 

@@ -5,13 +5,13 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 
-from banking_support.agents.llm import (
+from healthcare_support.agents.llm import (
     IntentClassification as AgentIntentClassification,
 )
-from banking_support.agents.llm import (
+from healthcare_support.agents.llm import (
     ScriptedFakeSupportIntentClassifier,
 )
-from banking_support.domain.routing import IntentClassification, SupportIntent
+from healthcare_support.domain.routing import IntentClassification, SupportIntent
 
 
 class TestIntentClassificationModel:

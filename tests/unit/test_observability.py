@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import logging
 
-from banking_support.data.seed import CUSTOMERS
-from banking_support.observability.audit import AuditEvent, build_audit_event
-from banking_support.observability.logging import _JsonFormatter, redact
+from healthcare_support.data.seed import CUSTOMERS
+from healthcare_support.observability.audit import AuditEvent, build_audit_event
+from healthcare_support.observability.logging import _JsonFormatter, redact
 
 
 class TestRedaction:
@@ -29,7 +29,7 @@ class TestRedaction:
 class TestJsonFormatterRedaction:
     def test_formatter_redacts_message_values(self) -> None:
         record = logging.LogRecord(
-            name="banking_support.test",
+            name="healthcare_support.test",
             level=logging.WARNING,
             pathname=__file__,
             lineno=1,

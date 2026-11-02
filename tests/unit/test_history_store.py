@@ -8,7 +8,7 @@ import pytest
 from langchain_core.messages import RemoveMessage
 from langgraph.graph.message import REMOVE_ALL_MESSAGES
 
-from banking_support.data.history_store import HistoryStore
+from healthcare_support.data.history_store import HistoryStore
 
 
 class FakeGraph:

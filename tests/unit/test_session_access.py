@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from banking_support.data import session_access
-from banking_support.data.session_access import AccessDecision, SessionAccessStore
+from healthcare_support.data import session_access
+from healthcare_support.data.session_access import AccessDecision, SessionAccessStore
 
 
 @pytest.fixture

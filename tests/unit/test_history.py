@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
-from banking_support.core.history import (
+from healthcare_support.core.history import (
     redact_message,
     redact_sensitive_values,
     sanitize_history,

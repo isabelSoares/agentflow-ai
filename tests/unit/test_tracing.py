@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from contextlib import suppress
 
-from banking_support.observability.tracing import ListTraceRecorder, record_operation
+from healthcare_support.observability.tracing import ListTraceRecorder, record_operation
 
 
 def test_trace_records_safe_operation_metadata() -> None:

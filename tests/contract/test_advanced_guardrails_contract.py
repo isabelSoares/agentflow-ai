@@ -4,20 +4,20 @@ from __future__ import annotations
 
 import pytest
 
-from banking_support.config.trusted_banking_info import get_catalog
-from banking_support.core.advanced_guardrails import (
+from healthcare_support.config.trusted_banking_info import get_catalog
+from healthcare_support.core.advanced_guardrails import (
     AdvancedGuardrailEvaluator,
     RedirectionStateTracker,
     make_advanced_guardrail_checkers,
 )
-from banking_support.domain.advanced_guardrails import (
+from healthcare_support.domain.advanced_guardrails import (
     CoverageStatus,
     TrustedBankingCatalog,
     TrustedBankingEntry,
 )
-from banking_support.domain.conversation import ConversationStatus, CustomerClassification
-from banking_support.domain.guardrails import GuardrailDecisionOutcome, GuardrailInput
-from banking_support.domain.routing import SupportIntent
+from healthcare_support.domain.conversation import ConversationStatus, CustomerClassification
+from healthcare_support.domain.guardrails import GuardrailDecisionOutcome, GuardrailInput
+from healthcare_support.domain.routing import SupportIntent
 
 
 @pytest.fixture

@@ -21,7 +21,7 @@ description: "Task list for fixing dependency update pipeline and local run"
 
 ## Path Conventions
 
-- Backend source: `src/banking_support/`
+- Backend source: `src/healthcare_support/`
 - Backend tests: `tests/`
 - Frontend: `frontend/`
 - Workflows: `.github/workflows/`
@@ -63,7 +63,7 @@ description: "Task list for fixing dependency update pipeline and local run"
 
 ### Validation for User Story 1
 
-- [X] T006 [US1] Run the quality gate locally: `uv run pytest -m "not live_llm and not live_speech" --cov=src/banking_support --cov-branch --cov-report=term-missing --cov-fail-under=80`, `uv run ruff check src tests`, `uv run ruff format --check src tests`, and `uv run mypy src`; expect 510 passed, coverage >=80%, and all static checks clean
+- [X] T006 [US1] Run the quality gate locally: `uv run pytest -m "not live_llm and not live_speech" --cov=src/healthcare_support --cov-branch --cov-report=term-missing --cov-fail-under=80`, `uv run ruff check src tests`, `uv run ruff format --check src tests`, and `uv run mypy src`; expect 510 passed, coverage >=80%, and all static checks clean
 - [X] T007 [US1] Run the strict dependency audit from `uv.lock`: `uv export --locked --format requirements.txt --no-editable --no-emit-project --output-file /tmp/agentflow-ai-requirements.txt` followed by `uv run pip-audit --strict -r /tmp/agentflow-ai-requirements.txt`; expect no known vulnerabilities
 - [X] T008 [P] [US1] Validate the frontend job inputs from `frontend/package-lock.json` with `npm ci` and `npm run build` in `frontend/`; expect a successful type-checked production build
 - [X] T009 [P] [US1] Validate the container job locally if Docker is available using `Dockerfile`: build the image, confirm `id -u` returns `10001`, start it, and poll `http://127.0.0.1:8000/health` for up to 30 seconds; if Docker is unavailable, record that the remote Container workflow is the authoritative check
@@ -82,7 +82,7 @@ description: "Task list for fixing dependency update pipeline and local run"
 ### Implementation for User Story 2
 
 - [X] T011 [US2] Add a short troubleshooting note to `README.md` in the Quickstart or dependency section stating that `uv sync --locked` fails when `pyproject.toml` and `uv.lock` drift, and that the recovery is `uv lock` followed by `uv sync --locked` with `uv.lock` committed alongside the manifest change
-- [X] T012 [US2] Verify backend startup from `README.md` and `src/banking_support/api/app.py` with an empty `GROQ_API_KEY`: copy `.env.example` to `.env`, run `uv run uvicorn banking_support.api.app:create_app --factory --port 8000`, and confirm `curl -fsS http://localhost:8000/health` succeeds without a live model provider; if comma-separated env values fail to parse, mark `cors_allowed_origins` and `voice_supported_input_types` with `NoDecode` in `src/banking_support/config/__init__.py` and add a temporary-`.env` regression test in `tests/unit/test_llm_configuration.py`
+- [X] T012 [US2] Verify backend startup from `README.md` and `src/healthcare_support/api/app.py` with an empty `GROQ_API_KEY`: copy `.env.example` to `.env`, run `uv run uvicorn healthcare_support.api.app:create_app --factory --port 8000`, and confirm `curl -fsS http://localhost:8000/health` succeeds without a live model provider; if comma-separated env values fail to parse, mark `cors_allowed_origins` and `voice_supported_input_types` with `NoDecode` in `src/healthcare_support/config/__init__.py` and add a temporary-`.env` regression test in `tests/unit/test_llm_configuration.py`
 - [X] T013 [US2] Execute `specs/001-fix-ci-local-run/quickstart.md` sections 1-5 in a fresh clone or clean worktree, including `uv sync --locked`, the offline test suite, `ruff`, `mypy`, the strict audit, backend health, and `npm ci` plus `npm run build` in `frontend/`; record any command that deviates from the guide
 
 **Checkpoint**: User Story 2 is complete when a clean checkout reaches a healthy local backend without workarounds.
@@ -110,7 +110,7 @@ description: "Task list for fixing dependency update pipeline and local run"
 **Purpose**: Final verification and cleanup across all stories
 
 - [X] T017 Run `specs/001-fix-ci-local-run/quickstart.md` end-to-end one final time on the completed branch and compare the results against SC-001 through SC-008 in `specs/001-fix-ci-local-run/spec.md`
-- [X] T018 Review `git diff main...HEAD` and confirm the change surface is limited to `pyproject.toml`, `uv.lock`, `src/banking_support/config/__init__.py`, `tests/unit/test_llm_configuration.py`, `README.md`, and `specs/001-fix-ci-local-run/`; confirm the only application-source change is the targeted `NoDecode` annotation and that no security logic, pipeline gate, container hardening, or existing contract test was weakened
+- [X] T018 Review `git diff main...HEAD` and confirm the change surface is limited to `pyproject.toml`, `uv.lock`, `src/healthcare_support/config/__init__.py`, `tests/unit/test_llm_configuration.py`, `README.md`, and `specs/001-fix-ci-local-run/`; confirm the only application-source change is the targeted `NoDecode` annotation and that no security logic, pipeline gate, container hardening, or existing contract test was weakened
 - [ ] T019 After the pull request merges, close PR #5 as superseded and reference the merged pull request and the regenerated `uv.lock` — **PENDING**: requires the pull request to be pushed, reviewed, and merged
 
 ---

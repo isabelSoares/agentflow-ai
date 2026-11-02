@@ -7,7 +7,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from banking_support.voice.tts import FakeTTS, OpenAITextToSpeech
+from healthcare_support.voice.tts import FakeTTS, OpenAITextToSpeech
 
 
 def test_fake_tts_returns_audio() -> None:

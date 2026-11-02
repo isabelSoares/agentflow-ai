@@ -7,14 +7,14 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from banking_support.agents.llm import (
+from healthcare_support.agents.llm import (
     OpenAIExtractor,
     OpenAISupportIntentClassifier,
     ScriptedFakeExtractor,
     ScriptedFakeSupportIntentClassifier,
 )
-from banking_support.api.app import AppState
-from banking_support.config import Settings
+from healthcare_support.api.app import AppState
+from healthcare_support.config import Settings
 
 
 class TestSettings:
@@ -132,7 +132,7 @@ class TestOpenAIExtractorConstruction:
         with pytest.raises(ValueError, match="api_key"):
             OpenAIExtractor(api_key="")
 
-    @patch("banking_support.agents.llm.ChatOpenAI")
+    @patch("healthcare_support.agents.llm.ChatOpenAI")
     def test_constructs_chat_openai_with_params(self, mock_chat: MagicMock) -> None:
         OpenAIExtractor(
             api_key="gsk_secret",
@@ -147,7 +147,7 @@ class TestOpenAIExtractorConstruction:
             temperature=0.0,
         )
 
-    @patch("banking_support.agents.llm.ChatOpenAI")
+    @patch("healthcare_support.agents.llm.ChatOpenAI")
     def test_invokes_chat_openai_for_extraction(self, mock_chat: MagicMock) -> None:
         extractor = OpenAIExtractor(api_key="gsk_secret")
         extractor.extract("hello")
@@ -160,7 +160,7 @@ class TestOpenAISupportIntentClassifierConstruction:
         with pytest.raises(ValueError, match="api_key"):
             OpenAISupportIntentClassifier(api_key="")
 
-    @patch("banking_support.agents.llm.ChatOpenAI")
+    @patch("healthcare_support.agents.llm.ChatOpenAI")
     def test_constructs_chat_openai_with_params(self, mock_chat: MagicMock) -> None:
         OpenAISupportIntentClassifier(
             api_key="gsk_secret",
@@ -175,7 +175,7 @@ class TestOpenAISupportIntentClassifierConstruction:
             temperature=0.0,
         )
 
-    @patch("banking_support.agents.llm.ChatOpenAI")
+    @patch("healthcare_support.agents.llm.ChatOpenAI")
     def test_invokes_chat_openai_for_classification(self, mock_chat: MagicMock) -> None:
         classifier = OpenAISupportIntentClassifier(api_key="gsk_secret")
         classifier.classify("hello")
@@ -184,14 +184,14 @@ class TestOpenAISupportIntentClassifierConstruction:
 
 
 class TestAdapterFallbackBehavior:
-    @patch("banking_support.agents.llm.ChatOpenAI")
+    @patch("healthcare_support.agents.llm.ChatOpenAI")
     def test_extractor_returns_chitchat_on_error(self, mock_chat: MagicMock) -> None:
         mock_chat.return_value.invoke.side_effect = RuntimeError("provider down")
         extractor = OpenAIExtractor(api_key="gsk_secret")
         result = extractor.extract("hello")
         assert result.intent.name == "CHITCHAT"
 
-    @patch("banking_support.agents.llm.ChatOpenAI")
+    @patch("healthcare_support.agents.llm.ChatOpenAI")
     def test_classifier_returns_uninterpretable_on_error(self, mock_chat: MagicMock) -> None:
         mock_chat.return_value.invoke.side_effect = RuntimeError("provider down")
         classifier = OpenAISupportIntentClassifier(api_key="gsk_secret")
@@ -200,7 +200,7 @@ class TestAdapterFallbackBehavior:
 
 
 class TestCredentialLeakagePrevention:
-    @patch("banking_support.agents.llm.ChatOpenAI")
+    @patch("healthcare_support.agents.llm.ChatOpenAI")
     def test_api_key_not_included_in_fallback_response(self, mock_chat: MagicMock) -> None:
         mock_chat.return_value.invoke.side_effect = RuntimeError(
             "Unauthorized: invalid key gsk_secret"

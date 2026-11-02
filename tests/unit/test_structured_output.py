@@ -4,16 +4,16 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
-from banking_support.agents.llm import (
+from healthcare_support.agents.llm import (
     ExtractionResult,
     OpenAIExtractor,
     OpenAISupportIntentClassifier,
 )
-from banking_support.domain.conversation import ExtractionIntent
-from banking_support.domain.routing import IntentClassification, SupportIntent
+from healthcare_support.domain.conversation import ExtractionIntent
+from healthcare_support.domain.routing import IntentClassification, SupportIntent
 
 
-@patch("banking_support.agents.llm.ChatOpenAI")
+@patch("healthcare_support.agents.llm.ChatOpenAI")
 def test_extractor_uses_native_structured_output(mock_chat: MagicMock) -> None:
     structured = mock_chat.return_value.with_structured_output.return_value
     structured.invoke.return_value = {
@@ -31,7 +31,7 @@ def test_extractor_uses_native_structured_output(mock_chat: MagicMock) -> None:
     )
 
 
-@patch("banking_support.agents.llm.ChatOpenAI")
+@patch("healthcare_support.agents.llm.ChatOpenAI")
 def test_classifier_fails_safe_for_invalid_structured_output(mock_chat: MagicMock) -> None:
     structured = mock_chat.return_value.with_structured_output.return_value
     structured.invoke.return_value = {"parsed": None, "raw": None, "parsing_error": "invalid"}

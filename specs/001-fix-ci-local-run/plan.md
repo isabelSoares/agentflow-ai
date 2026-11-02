@@ -26,7 +26,7 @@ PR #5 raises backend dependency minimums in `pyproject.toml` but does not update
 
 **Constraints**: Locked dependency installation everywhere, offline-capable tests, no live model key required locally, non-root container user UID 10001, Python 3.12+ and Node.js 22.12+ local support, no weakening of pipeline gates
 
-**Scale/Scope**: One backend service, one frontend client, 97 resolved packages, and 190 tracked repository files; expected change surface is `pyproject.toml`, `uv.lock`, `src/banking_support/config/__init__.py`, `tests/unit/test_llm_configuration.py`, and README guidance
+**Scale/Scope**: One backend service, one frontend client, 97 resolved packages, and 190 tracked repository files; expected change surface is `pyproject.toml`, `uv.lock`, `src/healthcare_support/config/__init__.py`, `tests/unit/test_llm_configuration.py`, and README guidance
 
 ## Constitution Check
 
@@ -65,7 +65,7 @@ specs/001-fix-ci-local-run/
 ### Source Code (repository root)
 
 ```text
-src/banking_support/
+src/healthcare_support/
 ├── api/                 # FastAPI application and contracts
 ├── agents/              # LangGraph orchestration and nodes
 ├── core/                # Deterministic security and routing logic
@@ -120,7 +120,7 @@ Design artifacts:
 
 1. Start from current `main` and apply only PR #5's `pyproject.toml` version changes; do not carry over unrelated historical commits.
 2. Regenerate the resolved dependency state with `uv lock` and commit the resulting `uv.lock`.
-3. Fix the discovered `.env` parsing regression in `src/banking_support/config/__init__.py` by marking the comma-separated set fields `NoDecode`, and add a regression test in `tests/unit/test_llm_configuration.py`.
+3. Fix the discovered `.env` parsing regression in `src/healthcare_support/config/__init__.py` by marking the comma-separated set fields `NoDecode`, and add a regression test in `tests/unit/test_llm_configuration.py`.
 4. Validate the locked environment locally: `uv sync --locked`, offline tests with coverage, lint, format check, mypy, strict audit, backend startup with the copied env file, and the frontend build.
 5. Add a concise README note explaining that dependency-version changes must be accompanied by a regenerated lock, including the exact recovery command when locked installation rejects a stale lock.
 6. Open a pull request to `main` and confirm all required jobs pass; the original PR #5 can then be closed as superseded.

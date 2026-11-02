@@ -67,14 +67,14 @@ edge.
 
 | Boundary | Decision | Enforcement | LLM trusted? |
 |----------|----------|-------------|--------------|
-| Session ownership | A request may use a session only when its proof matches the stored proof. | Constant-time proof verification in `src/banking_support/data/session_access.py`, enforced in `src/banking_support/api/invoker.py` before graph invocation. | No |
-| Identity matching | At least two of name, phone, and IBAN must match exactly after normalization. | `src/banking_support/core/matching.py` | No |
-| Secret-question verification | The normalized answer must match the registered answer; attempts are limited. | `src/banking_support/core/verification.py` | No |
-| Customer classification | Classification uses the trusted repository record for the verified customer. | `src/banking_support/core/classification.py` | No |
-| Support routing | Routing requires authenticated status, a trusted classification, and a validated intent. | `src/banking_support/core/routing.py` | No; extracted intent is advisory |
-| Input guardrails | Unsafe, manipulative, empty, or pre-authentication data requests are refused. | `src/banking_support/services/guardrails_service.py` and the guardrail node. | No |
-| Output guardrails | Privacy and policy violations are replaced before the reply is returned. | `src/banking_support/services/guardrails_service.py` and the output guardrail node. | No |
-| Natural-language extraction | The LLM extracts attributes and intent from text. | `src/banking_support/agents/llm.py` | Yes, for extraction only |
+| Session ownership | A request may use a session only when its proof matches the stored proof. | Constant-time proof verification in `src/healthcare_support/data/session_access.py`, enforced in `src/healthcare_support/api/invoker.py` before graph invocation. | No |
+| Identity matching | At least two of name, phone, and IBAN must match exactly after normalization. | `src/healthcare_support/core/matching.py` | No |
+| Secret-question verification | The normalized answer must match the registered answer; attempts are limited. | `src/healthcare_support/core/verification.py` | No |
+| Customer classification | Classification uses the trusted repository record for the verified customer. | `src/healthcare_support/core/classification.py` | No |
+| Support routing | Routing requires authenticated status, a trusted classification, and a validated intent. | `src/healthcare_support/core/routing.py` | No; extracted intent is advisory |
+| Input guardrails | Unsafe, manipulative, empty, or pre-authentication data requests are refused. | `src/healthcare_support/services/guardrails_service.py` and the guardrail node. | No |
+| Output guardrails | Privacy and policy violations are replaced before the reply is returned. | `src/healthcare_support/services/guardrails_service.py` and the output guardrail node. | No |
+| Natural-language extraction | The LLM extracts attributes and intent from text. | `src/healthcare_support/agents/llm.py` | Yes, for extraction only |
 
 The LLM never authenticates a customer, grants authorization, or directly selects
 a privileged support destination. Deterministic code validates every security
@@ -82,7 +82,7 @@ decision.
 
 ## Workflow Consistency
 
-The diagram uses the same node IDs as `src/banking_support/agents/graph.py` so
+The diagram uses the same node IDs as `src/healthcare_support/agents/graph.py` so
 that documentation tests can compare the graph registry with the diagram. The
 `terminated` node is listed separately because it is declared in the graph but is
 not reached through normal execution.
@@ -144,12 +144,12 @@ Do not add a second Mermaid copy to this document. When the workflow changes:
    ```
 
 The focused test parses the Mermaid blocks and compares their node IDs with the
-graph registry from `src/banking_support/agents/nodes.py` (the same registry used
-by `src/banking_support/agents/graph.py`). It also checks that every customer
+graph registry from `src/healthcare_support/agents/nodes.py` (the same registry used
+by `src/healthcare_support/agents/graph.py`). It also checks that every customer
 response passes through the Output Guardrail, that unreachable paths are not drawn
 as normal transitions, and that the consistency table covers every registered
 node. Session-gate behavior is verified against
-`src/banking_support/api/invoker.py`.
+`src/healthcare_support/api/invoker.py`.
 
 The test is offline and uses scripted fakes. No API key, network access, or image
 generation step is required. If a new node is added to the graph, add it to the

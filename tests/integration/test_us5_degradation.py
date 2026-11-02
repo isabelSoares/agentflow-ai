@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from banking_support.core.guardrails import GuardrailEvaluator
-from banking_support.data.policies import default_banking_policy
-from banking_support.domain.conversation import ConversationStatus
-from banking_support.domain.guardrails import GuardrailInput
+from healthcare_support.core.guardrails import GuardrailEvaluator
+from healthcare_support.data.policies import default_banking_policy
+from healthcare_support.domain.conversation import ConversationStatus
+from healthcare_support.domain.guardrails import GuardrailInput
 
 
 def _input(content: str) -> GuardrailInput:
@@ -35,7 +35,7 @@ class TestDeterministicBlockDespiteUnavailableHeuristic:
 
 class TestAuditMetadata:
     def test_advanced_block_records_distinguishable_reason(self) -> None:
-        from banking_support.services.guardrails_service import build_guardrail_evaluator
+        from healthcare_support.services.guardrails_service import build_guardrail_evaluator
 
         evaluator = build_guardrail_evaluator()
         result = evaluator.evaluate(_input("Recommend a movie"))
