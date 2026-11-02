@@ -11,7 +11,7 @@ from healthcare_support.domain.guardrails import GuardrailInput
 def _input(content: str) -> GuardrailInput:
     return GuardrailInput(
         content=content,
-        content_type="customer_input",
+        content_type="patient_input",
         conversation_id="us5-conv",
         status=ConversationStatus.COLLECTING,
         messages=[],

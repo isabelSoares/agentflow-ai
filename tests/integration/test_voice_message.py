@@ -15,7 +15,7 @@ from healthcare_support.agents.llm import (
     ScriptedFakeSupportIntentClassifier,
 )
 from healthcare_support.api.app import AppState, create_app
-from healthcare_support.data.seed import CUSTOMERS
+from healthcare_support.data.seed import PATIENTS
 from healthcare_support.domain.routing import IntentClassification, SupportIntent
 from healthcare_support.voice.service import build_voice_service
 from healthcare_support.voice.stt import FakeSTT
@@ -36,12 +36,12 @@ def _build_app_state(default_text: str = "I need help with my bank account") -> 
     extractor = ScriptedFakeExtractor(
         [
             ExtractionResult(
-                name=CUSTOMERS[0].name,
-                phone=CUSTOMERS[0].phone,
+                name=PATIENTS[0].name,
+                phone=PATIENTS[0].phone,
                 intent=ExtractionIntent.PROVIDE_IDENTIFICATION,
             ),
             ExtractionResult(
-                secret_answer=CUSTOMERS[0].secret_answer, intent=ExtractionIntent.ANSWER_SECRET
+                secret_answer=PATIENTS[0].secret_answer, intent=ExtractionIntent.ANSWER_SECRET
             ),
         ]
     )
@@ -54,7 +54,7 @@ def _build_app_state(default_text: str = "I need help with my bank account") -> 
     from healthcare_support.agents.graph import build_verification_graph
 
     app_state.verification_graph = build_verification_graph(
-        app_state.customer_repository,
+        app_state.patient_repository,
         extractor,
         default_phone_region=app_state.settings.default_phone_region,
         intent_classifier=classifier,

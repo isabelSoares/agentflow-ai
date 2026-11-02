@@ -12,8 +12,8 @@ from healthcare_support.agents.llm import (
     LLMExtractor,
 )
 from healthcare_support.agents.state import make_initial_state
-from healthcare_support.data.memory import InMemoryCustomerRepository
-from healthcare_support.data.seed import CUSTOMERS
+from healthcare_support.data.memory import InMemoryPatientRepository
+from healthcare_support.data.seed import PATIENTS
 
 
 class _PermissiveFakeExtractor(LLMExtractor):
@@ -26,12 +26,12 @@ class _PermissiveFakeExtractor(LLMExtractor):
 
 
 @pytest.fixture
-def repository() -> InMemoryCustomerRepository:
-    return InMemoryCustomerRepository(CUSTOMERS)
+def repository() -> InMemoryPatientRepository:
+    return InMemoryPatientRepository(PATIENTS)
 
 
 @pytest.fixture
-def graph(repository: InMemoryCustomerRepository):
+def graph(repository: InMemoryPatientRepository):
     return build_verification_graph(
         repository,
         _PermissiveFakeExtractor(),
@@ -61,7 +61,7 @@ class TestUnprofessionalLanguageReplaced:
     def test_offensive_response_replaced(self, graph) -> None:
         state = make_initial_state("us4-prof")
         state["status"] = "authenticated"
-        state["customer_classification"] = "regular"
+        state["patient_classification"] = "regular"
         state["reply"] = "That is a stupid question."
         result = _run(graph, "us4-prof", "What is my balance?", state)
         assert "stupid" not in result["reply"].lower()

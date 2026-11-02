@@ -1,4 +1,4 @@
-"""Deterministic customer identification by 2-of-3 attribute matching."""
+"""Deterministic patient identification by 2-of-3 attribute matching."""
 
 from __future__ import annotations
 
@@ -8,13 +8,13 @@ from enum import StrEnum
 
 from healthcare_support.core.normalization import (
     name_parts_match,
-    normalize_iban,
+    normalize_date_of_birth,
     normalize_name,
     normalize_phone,
 )
-from healthcare_support.data.repository import CustomerRepository
+from healthcare_support.data.repository import PatientRepository
 from healthcare_support.domain.conversation import ProvidedAttributes
-from healthcare_support.domain.customer import Customer
+from healthcare_support.domain.patient import Patient
 
 
 class MatchOutcome(StrEnum):
@@ -27,16 +27,16 @@ class MatchOutcome(StrEnum):
 @dataclass(frozen=True)
 class MatchResult:
     outcome: MatchOutcome
-    customers: Sequence[Customer]
+    patients: Sequence[Patient]
     evaluated_attributes: int
 
 
 def evaluate_match(
     attributes: ProvidedAttributes,
-    repository: CustomerRepository,
+    repository: PatientRepository,
     default_phone_region: str = "DE",
 ) -> MatchResult:
-    """Evaluate provided attributes against the customer repository.
+    """Evaluate provided attributes against the patient repository.
 
     - If fewer than 2 attributes are present: INSUFFICIENT_DATA.
     - If exactly one record matches at least 2 of the provided attributes: UNIQUE.
@@ -48,23 +48,26 @@ def evaluate_match(
     """
     norm_name = normalize_name(attributes.name)
     norm_phone = normalize_phone(attributes.phone, default_phone_region)
-    norm_iban = normalize_iban(attributes.iban)
+    norm_date_of_birth = normalize_date_of_birth(attributes.date_of_birth)
 
-    evaluated = sum(1 for v in (norm_name, norm_phone, norm_iban) if v is not None)
+    evaluated = sum(1 for v in (norm_name, norm_phone, norm_date_of_birth) if v is not None)
     if evaluated < 2:
         return MatchResult(MatchOutcome.INSUFFICIENT_DATA, [], evaluated)
 
-    matches: list[Customer] = []
-    for customer in repository.list_all():
+    matches: list[Patient] = []
+    for patient in repository.list_all():
         score = 0
-        if norm_name is not None and name_parts_match(norm_name, customer.name):
+        if norm_name is not None and name_parts_match(norm_name, patient.name):
             score += 1
-        if norm_phone is not None and normalize_phone(customer.phone) == norm_phone:
+        if norm_phone is not None and normalize_phone(patient.phone) == norm_phone:
             score += 1
-        if norm_iban is not None and normalize_iban(customer.iban) == norm_iban:
+        if (
+            norm_date_of_birth is not None
+            and normalize_date_of_birth(patient.date_of_birth) == norm_date_of_birth
+        ):
             score += 1
         if score >= 2:
-            matches.append(customer)
+            matches.append(patient)
 
     if len(matches) == 1:
         return MatchResult(MatchOutcome.UNIQUE, matches, evaluated)

@@ -1,7 +1,7 @@
 # System Architecture Diagram
 
 This page presents the project-level system view for AgentFlow AI. The banking support flow is the reference demo adapter; the service boundaries and deterministic controls are domain-agnostic.
-It shows how customers reach the service, where authorisation and deterministic security
+It shows how patients reach the service, where authorisation and deterministic security
 decisions happen, which responsibilities run inside the system, and which services remain
 external. It complements the detailed architecture overview and multi-agent workflow rather
 than replacing them: per-turn transitions and detailed component behaviour remain in the
@@ -12,8 +12,8 @@ than replacing them: per-turn transitions and detailed component behaviour remai
 
 ```mermaid
 flowchart TB
-    subgraph Channels["Customer channels"]
-        customer["Customer"]
+    subgraph Channels["Patient channels"]
+        patient["Patient"]
         text_channel["Text chat channel"]
         voice_channel["Voice channel (optional STT/TTS)"]
     end
@@ -31,7 +31,7 @@ flowchart TB
     subgraph Orchestration["LangGraph orchestration and agent responsibilities"]
         workflow["Per-turn workflow (status-driven agent selection)"]
         greeter["Greeter: collect identity"]
-        bouncer["Bouncer: classify customer"]
+        bouncer["Bouncer: classify patient"]
         specialist["Specialist: route request"]
     end
 
@@ -42,7 +42,7 @@ flowchart TB
     subgraph Deterministic["Deterministic business logic"]
         matching["2-of-3 identity matching"]
         secret["Secret-answer verification"]
-        classification["Customer classification"]
+        classification["Patient classification"]
         routing["Support routing"]
         proof["Session-proof verification"]
     end
@@ -58,10 +58,10 @@ flowchart TB
         config["Environment configuration"]
     end
 
-    response["Customer response"]
+    response["Patient response"]
 
-    customer --> text_channel
-    customer -.-> voice_channel
+    patient --> text_channel
+    patient -.-> voice_channel
     text_channel --> request_handler
     voice_channel -.-> request_handler
     request_handler --> session_gate
@@ -78,7 +78,7 @@ flowchart TB
     voice_channel -.-> speech
     output_guard --> response
     deny --> response
-    response --> customer
+    response --> patient
 
     classDef channel fill:#E7F0FF,stroke:#1F4E8C,color:#1F2937
     classDef service fill:#E8F5E9,stroke:#1A7F37,color:#1F2937
@@ -90,7 +90,7 @@ flowchart TB
     classDef blocked fill:#FFE2E0,stroke:#B42318,color:#1F2937
     classDef success fill:#DDF4E4,stroke:#1A7F37,color:#1F2937
 
-    class customer,text_channel,voice_channel channel
+    class patient,text_channel,voice_channel channel
     class request_handler,session_gate service
     class input_guard,output_guard guard
     class workflow,greeter,bouncer,specialist orchestration
@@ -105,7 +105,7 @@ flowchart TB
 
 - **Solid arrows** show primary request and response paths. **Dashed arrows** show optional
   voice handling, external calls, shared state, or supporting verification.
-- **Channels** are the customer-facing ways into the system. Voice is optional and uses the
+- **Channels** are the patient-facing ways into the system. Voice is optional and uses the
   same authorisation and security controls as text; it is not a separate business path.
 - **Service boundary** is the first trust boundary. Every request passes through request
   handling and the session-authorisation gate before orchestration starts. A denied request
@@ -113,7 +113,7 @@ flowchart TB
 - **Orchestration** selects the responsible agent for the current turn based on persisted
   conversation status. Not every agent runs on every request.
 - **Deterministic business logic and guardrails** contains the decisions that must be
-  reproducible: identity matching, secret-answer verification, customer classification,
+  reproducible: identity matching, secret-answer verification, patient classification,
   support routing, session-proof verification, and input/output guardrails.
 - **State** is system-managed. Conversation history and session ownership are not agent
   responsibilities.
@@ -126,11 +126,11 @@ flowchart TB
 | Boundary | What is deterministic | What the language model may do |
 |----------|-----------------------|-------------------------------|
 | Session ownership | The presented session proof is verified against the stored proof before graph or history state is touched. | Nothing. It never authorises session access. |
-| Identity | At least two of name, phone, and IBAN must match after normalisation. | Extract candidate attributes for the conversation. |
+| Identity | At least two of name, phone, and date of birth must match after normalisation. | Extract candidate attributes for the conversation. |
 | Secret answer | The normalised answer is verified against the registered answer with attempt limits. | Extract the answer text; it never decides whether the answer is correct. |
-| Classification | The customer is classified from the trusted repository record. | Provide advisory intent only. |
+| Classification | The patient is classified from the trusted repository record. | Provide advisory intent only. |
 | Routing | Routing requires authenticated status, trusted classification, and validated intent. | Suggest intent; it never selects a privileged destination. |
-| Guardrails | Input and output policy checks are deterministic and every customer-facing reply passes through the output guardrail. | Nothing. It never overrides a guardrail decision. |
+| Guardrails | Input and output policy checks are deterministic and every patient-facing reply passes through the output guardrail. | Nothing. It never overrides a guardrail decision. |
 
 The language model must never perform authentication or authorisation, classify an account
 authoritatively, or choose a privileged support destination. Deterministic code owns every

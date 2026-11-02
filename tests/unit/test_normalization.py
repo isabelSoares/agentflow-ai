@@ -5,7 +5,7 @@ from __future__ import annotations
 from healthcare_support.core.normalization import (
     name_parts_match,
     normalize_answer,
-    normalize_iban,
+    normalize_date_of_birth,
     normalize_name,
     normalize_phone,
 )
@@ -51,15 +51,15 @@ class TestPhoneNormalization:
         assert normalize_phone("+14155552671", default_region="DE") == "+14155552671"
 
 
-class TestIbanNormalization:
+class TestDateOfBirthNormalization:
     def test_spaces_removed(self) -> None:
-        assert normalize_iban("DE89 3704 0044 0532 0130 00") == "DE89370400440532013000"
+        assert normalize_date_of_birth("1990-1-15") == "1990-01-15"
 
-    def test_lowercased(self) -> None:
-        assert normalize_iban("de89370400440532013000") == "DE89370400440532013000"
+    def test_slash_separator_and_unpadded(self) -> None:
+        assert normalize_date_of_birth("1990/1/15") == "1990-01-15"
 
     def test_invalid_returns_none(self) -> None:
-        assert normalize_iban("DE00XXXX") is None
+        assert normalize_date_of_birth("1990-13-40") is None
 
 
 class TestAnswerNormalization:

@@ -19,12 +19,12 @@ class TerminationReason(StrEnum):
     SECRET_EXHAUSTED = "secret_exhausted"
 
 
-class CustomerClassification(StrEnum):
+class PatientClassification(StrEnum):
     """Deterministic classification produced by the Bouncer Agent."""
 
     PREMIUM = "premium"
     REGULAR = "regular"
-    NON_CUSTOMER = "non_customer"
+    NON_PATIENT = "non_patient"
 
 
 class ExtractionIntent(StrEnum):
@@ -46,18 +46,20 @@ class ProvidedAttributes(BaseModel):
 
     name: str | None = None
     phone: str | None = None
-    iban: str | None = None
+    date_of_birth: str | None = None
 
     def update(self, other: ProvidedAttributes) -> ProvidedAttributes:
         """Return a new instance with the latest non-None values."""
         return ProvidedAttributes(
             name=other.name if other.name is not None else self.name,
             phone=other.phone if other.phone is not None else self.phone,
-            iban=other.iban if other.iban is not None else self.iban,
+            date_of_birth=other.date_of_birth
+            if other.date_of_birth is not None
+            else self.date_of_birth,
         )
 
     def is_empty(self) -> bool:
-        return self.name is None and self.phone is None and self.iban is None
+        return self.name is None and self.phone is None and self.date_of_birth is None
 
     def provided_count(self) -> int:
-        return sum(1 for v in (self.name, self.phone, self.iban) if v is not None)
+        return sum(1 for v in (self.name, self.phone, self.date_of_birth) if v is not None)

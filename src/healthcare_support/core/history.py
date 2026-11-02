@@ -66,7 +66,7 @@ def redact_sensitive_values(text: str, sensitive_values: set[str]) -> str:
 
     The function does not attempt to infer sensitivity from context; it only
     redacts exact matches for the supplied values. Pattern-based redaction for
-    IBANs and phone numbers is handled separately.
+    dates of birth and phone numbers is handled separately.
     """
     pattern = _compile_redaction_pattern(sensitive_values)
     if pattern is None:
@@ -75,19 +75,16 @@ def redact_sensitive_values(text: str, sensitive_values: set[str]) -> str:
 
 
 def _redact_patterns(text: str) -> str:
-    """Redact IBAN-like and phone-number-like substrings."""
-    # IBAN: two letters followed by up to 30 alphanumeric characters, allowing
-    # optional spaces every four characters.
-    iban_pattern = re.compile(
-        r"[A-Z]{2}\d{2}(?:\s?[A-Z0-9]){11,30}",
-        re.IGNORECASE,
-    )
+    """Redact date-of-birth-like and phone-number-like substrings."""
+    # ISO-ish date of birth: YYYY-MM-DD or YYYY/MM/DD, with optional single-digit
+    # month and day components.
+    date_of_birth_pattern = re.compile(r"\b\d{4}[-/]\d{1,2}[-/]\d{1,2}\b")
     # E.164-ish phone number: optional leading +, digits with optional
     # separators (spaces, dashes, parentheses).
     phone_pattern = re.compile(
         r"(?:\+?\d[\d\s\-\(\)]{7,}\d)",
     )
-    text = iban_pattern.sub("[REDACTED]", text)
+    text = date_of_birth_pattern.sub("[REDACTED]", text)
     return phone_pattern.sub("[REDACTED]", text)
 
 
@@ -99,7 +96,7 @@ def redact_message(
     """Redact a message before persistence.
 
     Applies known-value redaction first, then pattern-based redaction for
-    IBANs and phone numbers.
+    dates of birth and phone numbers.
     """
     redacted = redact_sensitive_values(text, sensitive_values or set())
     if enable_patterns:

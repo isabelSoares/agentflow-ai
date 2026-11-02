@@ -14,7 +14,7 @@ from healthcare_support.agents.llm import (
 )
 from healthcare_support.api.app import AppState, create_app
 from healthcare_support.api.schemas import ConversationTurnResponse
-from healthcare_support.data.seed import CUSTOMERS
+from healthcare_support.data.seed import PATIENTS
 from healthcare_support.domain.routing import IntentClassification, SupportIntent
 
 
@@ -34,7 +34,7 @@ def client() -> TestClient:
     from healthcare_support.agents.graph import build_verification_graph
 
     app_state.verification_graph = build_verification_graph(
-        app_state.customer_repository,
+        app_state.patient_repository,
         extractor,
         default_phone_region=app_state.settings.default_phone_region,
     )
@@ -66,7 +66,7 @@ def routed_client() -> TestClient:
     from healthcare_support.agents.graph import build_verification_graph
 
     app_state.verification_graph = build_verification_graph(
-        app_state.customer_repository,
+        app_state.patient_repository,
         extractor,
         default_phone_region=app_state.settings.default_phone_region,
         intent_classifier=classifier,
@@ -155,11 +155,11 @@ class TestSendMessage:
             f"/conversations/{cid}/messages", json={"text": "I am Lisa"}, headers=headers
         )
         reply = response.json()["reply"]
-        for customer in CUSTOMERS:
-            assert customer.phone not in reply
-            assert customer.iban not in reply
-            assert customer.secret_answer not in reply
-            assert customer.name not in reply
+        for patient in PATIENTS:
+            assert patient.phone not in reply
+            assert patient.date_of_birth not in reply
+            assert patient.secret_answer not in reply
+            assert patient.name not in reply
 
     def test_premium_classification_exposed_after_authentication(self, client: TestClient) -> None:
         cid, headers = start_session(client)
@@ -269,7 +269,7 @@ def contextual_client() -> TestClient:
     from healthcare_support.agents.graph import build_verification_graph
 
     app_state.verification_graph = build_verification_graph(
-        app_state.customer_repository,
+        app_state.patient_repository,
         extractor,
         default_phone_region=app_state.settings.default_phone_region,
         intent_classifier=classifier,
@@ -326,7 +326,7 @@ class TestVerificationAcrossMessages:
         from healthcare_support.agents.graph import build_verification_graph
 
         app_state.verification_graph = build_verification_graph(
-            app_state.customer_repository,
+            app_state.patient_repository,
             extractor,
             default_phone_region=app_state.settings.default_phone_region,
         )
@@ -467,7 +467,7 @@ class TestHistoryUnavailability:
         from healthcare_support.agents.graph import build_verification_graph
 
         app_state.verification_graph = build_verification_graph(
-            app_state.customer_repository,
+            app_state.patient_repository,
             app_state.extractor,
             default_phone_region=app_state.settings.default_phone_region,
         )

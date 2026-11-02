@@ -9,7 +9,10 @@ def test_checkpoint_projection_removes_transient_values_and_human_messages() -> 
     state = {
         "user_input": "my secret answer",
         "pending_secret_answer": "Yoda",
-        "messages": [HumanMessage(content="my IBAN"), {"role": "assistant", "content": "Hi"}],
+        "messages": [
+            HumanMessage(content="my date of birth"),
+            {"role": "assistant", "content": "Hi"},
+        ],
         "status": "collecting",
     }
 

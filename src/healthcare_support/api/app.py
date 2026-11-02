@@ -19,8 +19,8 @@ from healthcare_support.agents.llm import (
 )
 from healthcare_support.config import Settings
 from healthcare_support.data.history_store import HistoryStore
-from healthcare_support.data.memory import InMemoryCustomerRepository
-from healthcare_support.data.repository import CustomerRepository
+from healthcare_support.data.memory import InMemoryPatientRepository
+from healthcare_support.data.repository import PatientRepository
 from healthcare_support.data.session_access import SessionAccessStore
 from healthcare_support.data.support_directory import default_support_directory
 from healthcare_support.observability.logging import setup_logging
@@ -36,13 +36,13 @@ class AppState:
 
     def __init__(self) -> None:
         self.settings: Settings = Settings()
-        self.customer_repository: CustomerRepository = InMemoryCustomerRepository()
+        self.patient_repository: PatientRepository = InMemoryPatientRepository()
         self.extractor: LLMExtractor = self._build_extractor(self.settings)
         self.intent_classifier: SupportIntentClassifier = self._build_intent_classifier(
             self.settings
         )
         self.verification_graph = build_verification_graph(
-            self.customer_repository,
+            self.patient_repository,
             self.extractor,
             default_phone_region=self.settings.default_phone_region,
             intent_classifier=self.intent_classifier,
@@ -147,9 +147,9 @@ def create_app(app_state: AppState | None = None) -> FastAPI:
     from healthcare_support.api import routes
 
     app = FastAPI(
-        title="AgentFlow AI — Secure Multi-Agent Customer Support",
+        title="AgentFlow AI — Secure Multi-Agent Patient Support",
         description=(
-            "Secure, context-aware multi-agent customer support. The banking flow is the "
+            "Secure, context-aware multi-agent patient support. The banking flow is the "
             "reference demo adapter; deterministic nodes own every security decision."
         ),
         version="0.1.0",

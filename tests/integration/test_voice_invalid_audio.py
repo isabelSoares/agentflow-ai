@@ -37,7 +37,7 @@ def client() -> TestClient:
     from healthcare_support.agents.graph import build_verification_graph
 
     app_state.verification_graph = build_verification_graph(
-        app_state.customer_repository,
+        app_state.patient_repository,
         extractor,
         default_phone_region=app_state.settings.default_phone_region,
     )

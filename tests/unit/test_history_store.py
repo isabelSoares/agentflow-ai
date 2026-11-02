@@ -82,7 +82,7 @@ class TestResetSession:
         snapshot = store._graph.get_state(store._config("session-a"))
         assert snapshot.values is not None
         assert snapshot.values.get("messages") == []
-        assert snapshot.values.get("matched_customer_id") is None
+        assert snapshot.values.get("matched_patient_id") is None
         assert snapshot.values.get("status") == "collecting"
 
 
@@ -113,8 +113,8 @@ class TestTruncation:
 
 
 class TestRedaction:
-    def test_iban_redacted_in_user_message(self, store: HistoryStore) -> None:
-        store.add_user_message("session-a", "My IBAN is DE89370400440532013000")
+    def test_date_of_birth_redacted_in_user_message(self, store: HistoryStore) -> None:
+        store.add_user_message("session-a", "My date of birth is 1990-01-15")
         history = store.get_history("session-a")
-        assert "DE89370400440532013000" not in history[0]["content"]
+        assert "1990-01-15" not in history[0]["content"]
         assert "[REDACTED]" in history[0]["content"]

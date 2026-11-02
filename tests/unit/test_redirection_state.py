@@ -17,7 +17,7 @@ def evaluator() -> AdvancedGuardrailEvaluator:
 def _input(content: str, conversation_id: str = "loop-conv") -> GuardrailInput:
     return GuardrailInput(
         content=content,
-        content_type="customer_input",
+        content_type="patient_input",
         conversation_id=conversation_id,
         status=ConversationStatus.COLLECTING,
         messages=[],

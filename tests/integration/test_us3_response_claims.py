@@ -12,8 +12,8 @@ from healthcare_support.agents.llm import (
     LLMExtractor,
 )
 from healthcare_support.agents.state import make_initial_state
-from healthcare_support.data.memory import InMemoryCustomerRepository
-from healthcare_support.data.seed import CUSTOMERS
+from healthcare_support.data.memory import InMemoryPatientRepository
+from healthcare_support.data.seed import PATIENTS
 
 
 class _PermissiveFakeExtractor(LLMExtractor):
@@ -26,12 +26,12 @@ class _PermissiveFakeExtractor(LLMExtractor):
 
 
 @pytest.fixture
-def repository() -> InMemoryCustomerRepository:
-    return InMemoryCustomerRepository(CUSTOMERS)
+def repository() -> InMemoryPatientRepository:
+    return InMemoryPatientRepository(PATIENTS)
 
 
 @pytest.fixture
-def graph(repository: InMemoryCustomerRepository):
+def graph(repository: InMemoryPatientRepository):
     return build_verification_graph(
         repository,
         _PermissiveFakeExtractor(),
@@ -52,7 +52,7 @@ class TestUnsupportedClaims:
     def test_unsupported_guarantee_replaced(self, graph) -> None:
         state = make_initial_state("us3-claim")
         state["status"] = "authenticated"
-        state["customer_classification"] = "regular"
+        state["patient_classification"] = "regular"
         state["reply"] = "Our bank guarantees a 15% annual return."
         result = _run(graph, "us3-claim", "Thanks", state)
         assert "15%" not in result["reply"]
@@ -63,7 +63,7 @@ class TestIrrelevantResponses:
     def test_irrelevant_mortgage_response_replaced(self, graph) -> None:
         state = make_initial_state("us3-relevance")
         state["status"] = "authenticated"
-        state["customer_classification"] = "regular"
+        state["patient_classification"] = "regular"
         state["support_intent"] = "yacht_insurance"
         state["reply"] = "Our mortgage rates start at 3.5%."
         result = _run(graph, "us3-relevance", "Can you tell me about yacht insurance?", state)
@@ -75,7 +75,7 @@ class TestUnknownProduct:
     def test_unknown_product_does_not_invent_details(self, graph) -> None:
         state = make_initial_state("us3-unknown")
         state["status"] = "authenticated"
-        state["customer_classification"] = "regular"
+        state["patient_classification"] = "regular"
         state["reply"] = "Our new orbital banking account offers 5% guaranteed returns."
         result = _run(graph, "us3-unknown", "Tell me about orbital banking", state)
         assert "orbital" not in result["reply"].lower()

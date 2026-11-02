@@ -118,4 +118,4 @@ Reports service liveness and requires no proof. Used by deployment checks, not b
 - The ownership-proof header name is unchanged.
 - CORS methods and allowed headers are unchanged.
 - No endpoint accepts a conversation identifier as proof of ownership.
-- No response exposes customer PII.
+- No response exposes patient PII.

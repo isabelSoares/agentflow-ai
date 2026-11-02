@@ -11,7 +11,7 @@ from healthcare_support.agents.node_strategies import (
 )
 from healthcare_support.agents.state import GraphState
 from healthcare_support.core.routing import route_support_request
-from healthcare_support.domain.conversation import ConversationStatus, CustomerClassification
+from healthcare_support.domain.conversation import ConversationStatus, PatientClassification
 from healthcare_support.observability.audit import build_audit_event, emit
 
 
@@ -21,22 +21,22 @@ def make_specialist_node(dependencies: WorkflowDependencies) -> Any:
             return {}
         if dependencies.intent_classifier is None:
             return {}
-        classification_value = state.get("customer_classification")
+        classification_value = state.get("patient_classification")
         try:
-            customer_classification = (
-                CustomerClassification(classification_value)
+            patient_classification = (
+                PatientClassification(classification_value)
                 if classification_value is not None
                 else None
             )
         except ValueError:
-            customer_classification = None
+            patient_classification = None
 
         intent_classification = dependencies.intent_classifier.classify(
             last_user_text(state), sanitized_history(state)
         )
         decision = route_support_request(
             is_authenticated=True,
-            customer_classification=customer_classification,
+            patient_classification=patient_classification,
             intent_classification=intent_classification,
             support_directory=dependencies.support_directory,
         )

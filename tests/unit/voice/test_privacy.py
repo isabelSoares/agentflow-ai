@@ -42,7 +42,7 @@ def _build_app_state() -> AppState:
     from healthcare_support.agents.graph import build_verification_graph
 
     app_state.verification_graph = build_verification_graph(
-        app_state.customer_repository,
+        app_state.patient_repository,
         extractor,
         default_phone_region=app_state.settings.default_phone_region,
     )
@@ -54,7 +54,7 @@ def _build_app_state() -> AppState:
     app_state.voice_config = app_state.voice_config.model_copy(
         update={"enabled": True, "stt_enabled": True, "tts_enabled": False}
     )
-    app_state.stt_client = FakeSTT(default="My IBAN is DE89370400440532013000")
+    app_state.stt_client = FakeSTT(default="My date of birth is 1990-01-15")
     app_state.tts_client = FakeTTS()
     app_state.voice_service = build_voice_service(
         config=app_state.voice_config,
@@ -102,5 +102,5 @@ def test_voice_response_does_not_expose_transcript(client: TestClient) -> None:
 
     assert response.status_code == 200
     body = response.json()
-    assert "DE89370400440532013000" not in body["reply"]
-    assert "IBAN" not in body.get("reply", "")
+    assert "1990-01-15" not in body["reply"]
+    assert "date of birth" not in body.get("reply", "")

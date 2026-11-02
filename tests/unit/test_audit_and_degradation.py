@@ -18,9 +18,7 @@ def evaluator() -> AdvancedGuardrailEvaluator:
     return AdvancedGuardrailEvaluator()
 
 
-def _advanced_input(
-    content: str, *, content_type: str = "customer_input"
-) -> AdvancedGuardrailInput:
+def _advanced_input(content: str, *, content_type: str = "patient_input") -> AdvancedGuardrailInput:
     guardrail_input = GuardrailInput(
         content=content,
         content_type=content_type,
@@ -55,7 +53,7 @@ class TestDecisionRecording:
     ) -> None:
         decision = evaluator.evaluate(_advanced_input("I need help with my account"))
         assert decision.outcome.value == "allowed"
-        assert decision.audit_metadata.get("content_type") == "customer_input"
+        assert decision.audit_metadata.get("content_type") == "patient_input"
 
 
 class TestSafeDegradation:
@@ -71,7 +69,7 @@ class TestSafeDegradation:
             result = evaluator.check_input(
                 GuardrailInput(
                     content="I need help with my account",
-                    content_type="customer_input",
+                    content_type="patient_input",
                     conversation_id="us5-degrade",
                     status=ConversationStatus.AUTHENTICATED,
                     messages=[],

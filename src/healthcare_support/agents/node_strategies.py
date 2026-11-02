@@ -24,8 +24,8 @@ from healthcare_support.core.responses import (
     PROHIBITED_ACTION_MESSAGE,
     UNAVAILABLE_GUARDIAL_MESSAGE,
 )
-from healthcare_support.data.repository import CustomerRepository
-from healthcare_support.domain.conversation import ConversationStatus, CustomerClassification
+from healthcare_support.data.repository import PatientRepository
+from healthcare_support.domain.conversation import ConversationStatus, PatientClassification
 from healthcare_support.domain.guardrails import GuardrailInput, GuardrailOutput
 from healthcare_support.domain.routing import SupportDirectory, SupportIntent
 from healthcare_support.observability.audit import build_audit_event, emit
@@ -49,7 +49,7 @@ NODE_NAMES = (
 class WorkflowDependencies:
     """All external dependencies available to node strategies."""
 
-    repository: CustomerRepository
+    repository: PatientRepository
     extractor: LLMExtractor
     default_phone_region: str
     intent_classifier: SupportIntentClassifier | None
@@ -78,12 +78,12 @@ def sanitized_history(state: GraphState) -> list[dict[str, str]]:
     ]
 
 
-def find_customer(repository: CustomerRepository, customer_id: str | None) -> Any:
-    if customer_id is None:
+def find_patient(repository: PatientRepository, patient_id: str | None) -> Any:
+    if patient_id is None:
         return None
-    for customer in repository.list_all():
-        if customer.id == customer_id:
-            return customer
+    for patient in repository.list_all():
+        if patient.id == patient_id:
+            return patient
     return None
 
 
@@ -109,10 +109,10 @@ def build_guardrail_input(
     content: str,
     sensitive_values: frozenset[str] | None = None,
 ) -> GuardrailInput:
-    classification_value = state.get("customer_classification")
+    classification_value = state.get("patient_classification")
     try:
         classification = (
-            CustomerClassification(classification_value)
+            PatientClassification(classification_value)
             if classification_value is not None
             else None
         )
@@ -136,13 +136,13 @@ def build_guardrail_input(
         content_type=content_type,
         conversation_id=state.get("conversation_id", ""),
         status=status,
-        matched_customer_id=state.get("matched_customer_id"),
-        customer_classification=classification,
+        matched_patient_id=state.get("matched_patient_id"),
+        patient_classification=classification,
         support_intent=intent,
         messages=guardrail_messages(state),
         sensitive_values=sensitive_values or frozenset(),
         has_collected_attributes=any(
-            state.get(key) for key in ("attr_name", "attr_phone", "attr_iban")
+            state.get(key) for key in ("attr_name", "attr_phone", "attr_date_of_birth")
         ),
     )
 
@@ -159,7 +159,7 @@ def emit_guardrail_event(state: GraphState, decision: GuardrailOutput) -> None:
             authenticated=state.get("status") == ConversationStatus.AUTHENTICATED.value,
             identification_attempts=state.get("identification_attempts", 0),
             secret_answer_attempts=state.get("secret_answer_attempts", 0),
-            classification=state.get("customer_classification"),
+            classification=state.get("patient_classification"),
         )
     )
 
@@ -206,7 +206,7 @@ __all__ = [
     "build_guardrail_input",
     "build_node_strategies",
     "emit_guardrail_event",
-    "find_customer",
+    "find_patient",
     "last_user_text",
     "safe_reply_for",
     "sanitized_history",

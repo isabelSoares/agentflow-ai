@@ -21,7 +21,7 @@ def session_proof_header(
 
 
 class HealthResponse(BaseModel):
-    """Liveness response with no session or customer data."""
+    """Liveness response with no session or patient data."""
 
     status: Literal["ok"]
 

@@ -1,6 +1,6 @@
 """Typed, approved support destinations.
 
-Department names and contact details are configuration, not customer data. The
+Department names and contact details are configuration, not patient data. The
 defaults below preserve the existing approved support numbers and add the
 insurance specialist destination required by the Specialist Agent. Contact
 values should be overridden via application settings in production.
@@ -17,14 +17,14 @@ def default_support_directory() -> SupportDirectory:
         departments={
             "standard_support": SupportDepartment(
                 key="standard_support",
-                display_name="Standard Customer Support",
+                display_name="Standard Patient Support",
                 contact="+1112112112",
                 specializations=set(),
                 available=True,
             ),
             "premium_support": SupportDepartment(
                 key="premium_support",
-                display_name="Premium Customer Support",
+                display_name="Premium Patient Support",
                 contact="+1999888999",
                 specializations=set(),
                 available=True,

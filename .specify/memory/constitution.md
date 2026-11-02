@@ -4,10 +4,10 @@
 
 ### I. Security First
 
-Sensitive customer data (name, phone number, IBAN, account details, secret answers) MUST
+Sensitive patient data (name, phone number, IBAN, account details, secret answers) MUST
 NEVER be exposed to unauthenticated or unauthorized users. Pre-authentication responses MUST
-NOT confirm or deny whether any attribute value exists in customer records. A feature that
-handles customer data is complete only after demonstrating non-disclosure under adversarial
+NOT confirm or deny whether any attribute value exists in patient records. A feature that
+handles patient data is complete only after demonstrating non-disclosure under adversarial
 probing.
 
 Rationale: this is a banking assistant; a single data leak is a regulatory and
@@ -15,7 +15,7 @@ trust-destroying event, so confidentiality outranks convenience in every trade-o
 
 ### II. Deterministic Verification
 
-Customer identification (attribute matching), secret-answer verification and account
+Patient identification (attribute matching), secret-answer verification and account
 classification (e.g., premium vs. regular) MUST be implemented as deterministic code and
 MUST NOT depend on LLM judgment. The LLM may conduct the conversation, but every security
 or classification decision MUST be reproducible from the same inputs.
@@ -45,7 +45,7 @@ change, not asserted by inspection.
 ### V. Type Safety
 
 All Python code MUST use type hints. All data crossing module or process boundaries (API
-requests/responses, customer records, workflow state) MUST be modeled with Pydantic models
+requests/responses, patient records, workflow state) MUST be modeled with Pydantic models
 rather than untyped dictionaries.
 
 Rationale: typed contracts catch integration errors at development time and make layer

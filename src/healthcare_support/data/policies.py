@@ -5,7 +5,7 @@ Guardrails enforces these rules but does not invent, modify, or persist them.
 
 from __future__ import annotations
 
-from healthcare_support.domain.conversation import CustomerClassification
+from healthcare_support.domain.conversation import PatientClassification
 from healthcare_support.domain.guardrails import BankingPolicyRule
 
 
@@ -14,9 +14,7 @@ def default_banking_policy() -> dict[str, BankingPolicyRule]:
     return {
         "loan_request": BankingPolicyRule(
             action_type="loan_request",
-            allowed_tiers=frozenset(
-                {CustomerClassification.PREMIUM, CustomerClassification.REGULAR}
-            ),
+            allowed_tiers=frozenset({PatientClassification.PREMIUM, PatientClassification.REGULAR}),
             requires_authentication=True,
             allow_routing_as_inquiry=True,
             prohibited_commitments=frozenset(
@@ -25,9 +23,7 @@ def default_banking_policy() -> dict[str, BankingPolicyRule]:
         ),
         "credit_card_request": BankingPolicyRule(
             action_type="credit_card_request",
-            allowed_tiers=frozenset(
-                {CustomerClassification.PREMIUM, CustomerClassification.REGULAR}
-            ),
+            allowed_tiers=frozenset({PatientClassification.PREMIUM, PatientClassification.REGULAR}),
             requires_authentication=True,
             allow_routing_as_inquiry=True,
             prohibited_commitments=frozenset(
@@ -36,9 +32,7 @@ def default_banking_policy() -> dict[str, BankingPolicyRule]:
         ),
         "insurance_request": BankingPolicyRule(
             action_type="insurance_request",
-            allowed_tiers=frozenset(
-                {CustomerClassification.PREMIUM, CustomerClassification.REGULAR}
-            ),
+            allowed_tiers=frozenset({PatientClassification.PREMIUM, PatientClassification.REGULAR}),
             requires_authentication=True,
             allow_routing_as_inquiry=True,
             prohibited_commitments=frozenset(
@@ -47,27 +41,21 @@ def default_banking_policy() -> dict[str, BankingPolicyRule]:
         ),
         "fund_transfer": BankingPolicyRule(
             action_type="fund_transfer",
-            allowed_tiers=frozenset(
-                {CustomerClassification.PREMIUM, CustomerClassification.REGULAR}
-            ),
+            allowed_tiers=frozenset({PatientClassification.PREMIUM, PatientClassification.REGULAR}),
             requires_authentication=True,
             allow_routing_as_inquiry=False,
             prohibited_commitments=frozenset({"completion", "approval"}),
         ),
         "account_modification": BankingPolicyRule(
             action_type="account_modification",
-            allowed_tiers=frozenset(
-                {CustomerClassification.PREMIUM, CustomerClassification.REGULAR}
-            ),
+            allowed_tiers=frozenset({PatientClassification.PREMIUM, PatientClassification.REGULAR}),
             requires_authentication=True,
             allow_routing_as_inquiry=False,
             prohibited_commitments=frozenset({"completion", "approval"}),
         ),
         "balance_inquiry": BankingPolicyRule(
             action_type="balance_inquiry",
-            allowed_tiers=frozenset(
-                {CustomerClassification.PREMIUM, CustomerClassification.REGULAR}
-            ),
+            allowed_tiers=frozenset({PatientClassification.PREMIUM, PatientClassification.REGULAR}),
             requires_authentication=True,
             allow_routing_as_inquiry=True,
             prohibited_commitments=frozenset(),
@@ -76,9 +64,9 @@ def default_banking_policy() -> dict[str, BankingPolicyRule]:
             action_type="general_inquiry",
             allowed_tiers=frozenset(
                 {
-                    CustomerClassification.PREMIUM,
-                    CustomerClassification.REGULAR,
-                    CustomerClassification.NON_CUSTOMER,
+                    PatientClassification.PREMIUM,
+                    PatientClassification.REGULAR,
+                    PatientClassification.NON_PATIENT,
                 }
             ),
             requires_authentication=False,
@@ -87,7 +75,7 @@ def default_banking_policy() -> dict[str, BankingPolicyRule]:
         ),
         "premium_banking": BankingPolicyRule(
             action_type="premium_banking",
-            allowed_tiers=frozenset({CustomerClassification.PREMIUM}),
+            allowed_tiers=frozenset({PatientClassification.PREMIUM}),
             requires_authentication=True,
             allow_routing_as_inquiry=True,
             prohibited_commitments=frozenset(),

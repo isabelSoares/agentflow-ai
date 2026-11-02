@@ -6,7 +6,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class VoiceRequest(BaseModel):
-    """A customer's spoken input and its associated metadata.
+    """A patient's spoken input and its associated metadata.
 
     The raw audio bytes are intentionally not stored in this model; they are
     handled as untrusted binary input by the API layer and passed directly to
@@ -39,7 +39,7 @@ class SpeechResult(BaseModel):
     audio: bytes | None = None
     content_type: str | None = None
     failed: bool = False
-    customer_message: str | None = None
+    patient_message: str | None = None
 
 
 class VoiceConfig(BaseModel):

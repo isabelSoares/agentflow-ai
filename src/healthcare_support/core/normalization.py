@@ -6,11 +6,11 @@ verification core.
 
 from __future__ import annotations
 
+import re
 import unicodedata
+from datetime import date
 
 import phonenumbers
-from schwifty import IBAN
-from schwifty.exceptions import SchwiftyException
 
 
 def normalize_name(name: str | None) -> str | None:
@@ -60,14 +60,21 @@ def normalize_phone(phone: str | None, default_region: str = "DE") -> str | None
     return phonenumbers.format_number(parsed, phonenumbers.PhoneNumberFormat.E164)
 
 
-def normalize_iban(iban: str | None) -> str | None:
-    """Return compact electronic IBAN or None if invalid."""
-    if not iban:
+_DATE_OF_BIRTH_PATTERN = re.compile(r"^\s*(\d{4})[-/](\d{1,2})[-/](\d{1,2})\s*$")
+
+
+def normalize_date_of_birth(value: str | None) -> str | None:
+    """Return an ISO date (YYYY-MM-DD) or None if the value is invalid."""
+    if not value:
+        return None
+    match = _DATE_OF_BIRTH_PATTERN.match(value)
+    if match is None:
         return None
     try:
-        return IBAN(iban).compact
-    except SchwiftyException:
+        parsed = date(int(match.group(1)), int(match.group(2)), int(match.group(3)))
+    except ValueError:
         return None
+    return parsed.isoformat()
 
 
 def normalize_answer(answer: str | None) -> str | None:

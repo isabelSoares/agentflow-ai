@@ -10,7 +10,7 @@ from healthcare_support.agents.llm import (
     ScriptedFakeSupportIntentClassifier,
 )
 from healthcare_support.agents.nodes import make_nodes
-from healthcare_support.data.memory import InMemoryCustomerRepository
+from healthcare_support.data.memory import InMemoryPatientRepository
 from healthcare_support.data.support_directory import default_support_directory
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -188,7 +188,7 @@ def test_consistency_table_covers_all_graph_nodes() -> None:
     table = _section(architecture, "## Workflow Consistency")
 
     node_map = make_nodes(
-        InMemoryCustomerRepository(),
+        InMemoryPatientRepository(),
         ScriptedFakeExtractor(),
         intent_classifier=ScriptedFakeSupportIntentClassifier(),
         support_directory=default_support_directory(),

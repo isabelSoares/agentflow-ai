@@ -26,7 +26,7 @@ from healthcare_support.domain.advanced_guardrails import (
     RedirectionState,
     TrustedBankingCatalog,
 )
-from healthcare_support.domain.conversation import ConversationStatus, CustomerClassification
+from healthcare_support.domain.conversation import ConversationStatus, PatientClassification
 from healthcare_support.domain.guardrails import (
     GuardrailDecisionOutcome,
     GuardrailInput,
@@ -35,7 +35,7 @@ from healthcare_support.domain.guardrails import (
 
 
 class RedirectionStateTracker:
-    """In-memory tracker of consecutive off-topic customer turns."""
+    """In-memory tracker of consecutive off-topic patient turns."""
 
     def __init__(self, threshold: int = 2) -> None:
         self._threshold = threshold
@@ -74,7 +74,7 @@ class RedirectionStateTracker:
 
 
 class _TopicRelevanceClassifier:
-    """Detect clearly off-topic or out-of-scope customer messages."""
+    """Detect clearly off-topic or out-of-scope patient messages."""
 
     _GREETINGS = re.compile(
         r"\b(hello|hi|hey|good\s+(morning|afternoon|evening)|how\s+are\s+you|what's\s+up)\b",
@@ -87,12 +87,12 @@ class _TopicRelevanceClassifier:
     )
     _IDENTIFICATION_RESPONSE = re.compile(
         r"\b(my\s+name\s+is|i\s+am\s+[a-z]|answer\s+is|it\s+is\s+[a-z0-9]|\+\d[\d\s-]{7,20}|"
-        r"[A-Z]{2}\d{2}[A-Z0-9]{11,30})\b",
+        r"\d{4}[-/]\d{1,2}[-/]\d{1,2})\b",
         re.IGNORECASE,
     )
     _BANKING_SCOPE = re.compile(
-        r"\b(account|balance|loan|mortgage|insurance|card|credit|debit|transfer|payment|iban|"
-        r"phone|premium|yacht|fraud|suspicious|transaction|bank|banking|customer\s+support|"
+        r"\b(account|balance|loan|mortgage|insurance|card|credit|debit|transfer|payment|date\s+of\s+birth|dob|"
+        r"phone|premium|yacht|fraud|suspicious|transaction|bank|banking|patient\s+support|"
         r"help|open\s+hours|opening\s+hours|branch|deposit|withdraw|savings|checking|"
         r"settings|update\s+my|online\s+banking|mobile\s+app)\b",
         re.IGNORECASE,
@@ -147,13 +147,13 @@ class _TopicRelevanceClassifier:
         if self._BANKING_SCOPE.search(lowered):
             return CheckVerdict.PASS, None
 
-        # Once the customer is identified or authenticated, let downstream agents
+        # Once the patient is identified or authenticated, let downstream agents
         # (Bouncer/Specialist) decide how to handle ambiguous requests.
         if context.status in {ConversationStatus.IDENTIFIED, ConversationStatus.AUTHENTICATED}:
             return CheckVerdict.PASS, None
 
         # Allow short workflow responses and ambiguous-but-not-off-topic messages
-        # to avoid blocking legitimate customer interactions.
+        # to avoid blocking legitimate patient interactions.
         if len(lowered.split()) <= 5:
             return CheckVerdict.PASS, None
 
@@ -204,12 +204,12 @@ class _HarmfulContentClassifier:
 
 
 class _ResponseRelevanceValidator:
-    """Detect assistant responses that do not address the customer's request."""
+    """Detect assistant responses that do not address the patient's request."""
 
     _TOPIC_MARKERS: dict[str, list[str]] = {
         "yacht_insurance": ["yacht", "boat", "marine"],
         "insurance": ["insurance", "policy", "coverage", "claim"],
-        "account_assistance": ["account", "balance", "iban", "phone", "details"],
+        "account_assistance": ["account", "balance", "date_of_birth", "phone", "details"],
         "premium_banking": ["premium", "dedicated", "relationship manager"],
         "mortgage": ["mortgage", "mortgages", "rate", "rates", "interest rate"],
         "general_banking": ["bank", "banking", "help", "support"],
@@ -248,8 +248,8 @@ class _ResponseRelevanceValidator:
         ):
             return CheckVerdict.BLOCK, "relevance_failure"
         if (
-            re.search(r"you\s+are\s+(a\s+)?premium\s+customer", response_lower)
-            and context.customer_classification != CustomerClassification.PREMIUM
+            re.search(r"you\s+are\s+(a\s+)?premium\s+patient", response_lower)
+            and context.patient_classification != PatientClassification.PREMIUM
         ):
             return CheckVerdict.BLOCK, "relevance_failure"
 
@@ -413,7 +413,7 @@ class AdvancedGuardrailEvaluator:
 
     def evaluate(self, input_: AdvancedGuardrailInput) -> AdvancedGuardrailDecision:
         """Run all relevant checks and return a composite decision record."""
-        if input_.guardrail_input.content_type == "customer_input":
+        if input_.guardrail_input.content_type == "patient_input":
             output = self.check_input(input_.guardrail_input)
         else:
             output = self.check_output(input_.guardrail_input)
@@ -496,7 +496,7 @@ def _build_context(input_: GuardrailInput) -> ConversationContext:
     return ConversationContext(
         current_agent=current_agent,
         status=input_.status,
-        customer_classification=input_.customer_classification,
+        patient_classification=input_.patient_classification,
         support_intent=input_.support_intent,
         recent_messages=input_.messages,
         has_collected_attributes=input_.has_collected_attributes,

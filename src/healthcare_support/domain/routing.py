@@ -1,6 +1,6 @@
 """Routing domain: intents, departments, and deterministic routing decisions.
 
-No customer PII or secret data appears in these models. They represent only
+No patient PII or secret data appears in these models. They represent only
 approved support destinations and the untrusted, structured intent produced by
 the classifier.
 """

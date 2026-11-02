@@ -12,16 +12,16 @@ from healthcare_support.core.responses import (
     WRONG_SECRET_ANSWER,
 )
 from healthcare_support.domain.conversation import TerminationReason
-from healthcare_support.domain.customer import Customer
+from healthcare_support.domain.patient import Patient
 
 MAX_ATTEMPTS = 3
 
 
-def check_secret_answer(provided: str | None, customer: Customer) -> bool:
+def check_secret_answer(provided: str | None, patient: Patient) -> bool:
     """True when the normalized provided answer matches the registered answer."""
     if provided is None:
         return False
-    return normalize_answer(provided) == normalize_answer(customer.secret_answer)
+    return normalize_answer(provided) == normalize_answer(patient.secret_answer)
 
 
 class VerificationResult:
@@ -42,14 +42,14 @@ class VerificationResult:
 
 def process_secret_attempt(
     provided: str | None,
-    customer: Customer,
+    patient: Patient,
     attempts_so_far: int,
 ) -> VerificationResult:
     """Evaluate one secret-answer attempt, applying the 3-attempt limit.
 
     Returns the new terminal state and the reply to send.
     """
-    if check_secret_answer(provided, customer):
+    if check_secret_answer(provided, patient):
         return VerificationResult(
             authenticated=True,
             terminated=False,

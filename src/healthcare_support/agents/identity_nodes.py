@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from healthcare_support.agents.node_strategies import WorkflowDependencies, find_customer
+from healthcare_support.agents.node_strategies import WorkflowDependencies, find_patient
 from healthcare_support.agents.state import GraphState
 from healthcare_support.core import matching, verification
 from healthcare_support.core.responses import (
@@ -32,13 +32,15 @@ def make_identity_nodes(dependencies: WorkflowDependencies) -> dict[str, Any]:
             return {"reply": DATA_REQUEST_REFUSAL}
 
         attrs = ProvidedAttributes(
-            name=state.get("attr_name"), phone=state.get("attr_phone"), iban=state.get("attr_iban")
+            name=state.get("attr_name"),
+            phone=state.get("attr_phone"),
+            date_of_birth=state.get("attr_date_of_birth"),
         )
         result = matching.evaluate_match(
             attrs, dependencies.repository, dependencies.default_phone_region
         )
         if result.outcome == matching.MatchOutcome.UNIQUE:
-            customer = result.customers[0]
+            patient = result.patients[0]
             emit(
                 build_audit_event(
                     event_type="identified",
@@ -49,8 +51,8 @@ def make_identity_nodes(dependencies: WorkflowDependencies) -> dict[str, Any]:
             )
             return {
                 "status": ConversationStatus.IDENTIFIED.value,
-                "matched_customer_id": customer.id,
-                "reply": f"{SECRET_QUESTION_PREFIX}{customer.secret_question}",
+                "matched_patient_id": patient.id,
+                "reply": f"{SECRET_QUESTION_PREFIX}{patient.secret_question}",
             }
         if result.outcome == matching.MatchOutcome.AMBIGUOUS:
             emit(
@@ -85,18 +87,18 @@ def make_identity_nodes(dependencies: WorkflowDependencies) -> dict[str, Any]:
     def authenticate_node(state: GraphState) -> dict[str, Any]:
         if state["status"] != ConversationStatus.IDENTIFIED.value:
             return {}
-        customer = find_customer(dependencies.repository, state.get("matched_customer_id"))
-        if customer is None:
+        patient = find_patient(dependencies.repository, state.get("matched_patient_id"))
+        if patient is None:
             return {"reply": IDENTIFICATION_FAILURE}
         intent = state.get("extraction_intent")
         provided = state.get("pending_secret_answer")
         if provided is None or not str(provided).strip():
             if intent == ExtractionIntent.REQUEST_DATA.value:
                 return {"reply": DATA_REQUEST_REFUSAL}
-            return {"reply": f"{SECRET_QUESTION_PREFIX}{customer.secret_question}"}
+            return {"reply": f"{SECRET_QUESTION_PREFIX}{patient.secret_question}"}
 
         result = verification.process_secret_attempt(
-            provided, customer, state["secret_answer_attempts"]
+            provided, patient, state["secret_answer_attempts"]
         )
         if result.authenticated:
             emit(

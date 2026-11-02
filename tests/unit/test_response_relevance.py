@@ -6,7 +6,7 @@ import pytest
 from langchain_core.messages import HumanMessage
 
 from healthcare_support.core.advanced_guardrails import AdvancedGuardrailEvaluator
-from healthcare_support.domain.conversation import ConversationStatus, CustomerClassification
+from healthcare_support.domain.conversation import ConversationStatus, PatientClassification
 from healthcare_support.domain.guardrails import GuardrailInput
 from healthcare_support.domain.routing import SupportIntent
 
@@ -21,7 +21,7 @@ def _output(
     request: str,
     *,
     status: ConversationStatus = ConversationStatus.AUTHENTICATED,
-    classification: CustomerClassification | None = None,
+    classification: PatientClassification | None = None,
     intent: SupportIntent | None = None,
 ) -> GuardrailInput:
     return GuardrailInput(
@@ -29,7 +29,7 @@ def _output(
         content_type="assistant_output",
         conversation_id="us3-conv",
         status=status,
-        customer_classification=classification,
+        patient_classification=classification,
         support_intent=intent,
         messages=[HumanMessage(content=request)],
     )

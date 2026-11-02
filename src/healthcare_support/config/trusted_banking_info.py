@@ -56,14 +56,14 @@ DEFAULT_TRUSTED_BANKING_CATALOG = TrustedBankingCatalog(
         "mortgage_rates": TrustedBankingEntry(
             topic="mortgage_rates",
             verified_statements=[
-                "Mortgage rates vary based on term, loan-to-value ratio, and customer profile.",
+                "Mortgage rates vary based on term, loan-to-value ratio, and patient profile.",
             ],
             coverage_status=CoverageStatus.PARTIAL,
         ),
         "premium_banking": TrustedBankingEntry(
             topic="premium_banking",
             verified_statements=[
-                "Premium banking customers have access to dedicated relationship managers.",
+                "Premium banking patients have access to dedicated relationship managers.",
             ],
             coverage_status=CoverageStatus.PARTIAL,
         ),

@@ -8,7 +8,7 @@ from healthcare_support.agents.node_strategies import (
     WorkflowDependencies,
     build_guardrail_input,
     emit_guardrail_event,
-    find_customer,
+    find_patient,
     last_user_text,
     safe_reply_for,
 )
@@ -25,7 +25,7 @@ def make_guardrail_nodes(dependencies: WorkflowDependencies) -> dict[str, Any]:
         if not text.strip():
             return {"reply": EMPTY_RE_PROMPT}
         decision = evaluator.evaluate(
-            build_guardrail_input(state, content_type="customer_input", content=text)
+            build_guardrail_input(state, content_type="patient_input", content=text)
         )
         emit_guardrail_event(state, decision)
         if decision.outcome.value != "allowed":
@@ -44,11 +44,16 @@ def make_guardrail_nodes(dependencies: WorkflowDependencies) -> dict[str, Any]:
             return {}
 
         sensitive_values: set[str] = set()
-        customer = find_customer(dependencies.repository, state.get("matched_customer_id"))
-        if customer is not None:
+        patient = find_patient(dependencies.repository, state.get("matched_patient_id"))
+        if patient is not None:
             sensitive_values.update(
                 value
-                for value in (customer.name, customer.phone, customer.iban, customer.secret_answer)
+                for value in (
+                    patient.name,
+                    patient.phone,
+                    patient.date_of_birth,
+                    patient.secret_answer,
+                )
                 if value
             )
         decision = evaluator.evaluate(

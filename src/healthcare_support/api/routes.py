@@ -79,7 +79,7 @@ def send_message(
         in (ConversationStatus.IDENTIFIED.value, ConversationStatus.AUTHENTICATED.value),
         authenticated=status == ConversationStatus.AUTHENTICATED.value,
         terminated=bool(result.get("terminated")),
-        classification=result.get("customer_classification"),
+        classification=result.get("patient_classification"),
         routing_status=result.get("routing_status"),
         routing_intent=result.get("support_intent"),
         support_department=result.get("support_department"),
@@ -147,7 +147,7 @@ async def send_voice_message(
     except AudioValidationError as exc:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-            detail=exc.customer_message,
+            detail=exc.patient_message,
         ) from exc
 
     voice_request = VoiceRequest(

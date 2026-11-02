@@ -13,15 +13,15 @@ from healthcare_support.agents.llm import (
     ScriptedFakeSupportIntentClassifier,
 )
 from healthcare_support.agents.state import make_initial_state
-from healthcare_support.data.memory import InMemoryCustomerRepository
-from healthcare_support.data.seed import CUSTOMERS
+from healthcare_support.data.memory import InMemoryPatientRepository
+from healthcare_support.data.seed import PATIENTS
 from healthcare_support.domain.conversation import ConversationStatus
 from healthcare_support.domain.routing import IntentClassification, SupportIntent
 
 
 @pytest.fixture
-def repository() -> InMemoryCustomerRepository:
-    return InMemoryCustomerRepository(CUSTOMERS)
+def repository() -> InMemoryPatientRepository:
+    return InMemoryPatientRepository(PATIENTS)
 
 
 def run_turn(graph, conversation_id: str, text: str) -> dict:
@@ -34,7 +34,7 @@ def run_turn(graph, conversation_id: str, text: str) -> dict:
 
 class TestUS1MultiTurnContext:
     def test_follow_up_references_prior_context(
-        self, repository: InMemoryCustomerRepository
+        self, repository: InMemoryPatientRepository
     ) -> None:
         # Authenticate first, then test that the Specialist uses history to
         # interpret a short contextual follow-up.
@@ -87,7 +87,7 @@ class TestUS1MultiTurnContext:
 
 
 class TestUS2VerificationAcrossMessages:
-    def test_name_then_phone_advances(self, repository: InMemoryCustomerRepository) -> None:
+    def test_name_then_phone_advances(self, repository: InMemoryPatientRepository) -> None:
         extractor = ScriptedFakeExtractor(
             [
                 ExtractionResult(name="Lisa", intent=ExtractionIntent.PROVIDE_IDENTIFICATION),
@@ -110,7 +110,7 @@ class TestUS2VerificationAcrossMessages:
 
 
 class TestUS3SessionIsolation:
-    def test_sessions_do_not_share_history(self, repository: InMemoryCustomerRepository) -> None:
+    def test_sessions_do_not_share_history(self, repository: InMemoryPatientRepository) -> None:
         extractor = ScriptedFakeExtractor(
             [
                 ExtractionResult(name="Lisa", intent=ExtractionIntent.PROVIDE_IDENTIFICATION),
@@ -134,7 +134,7 @@ class TestUS3SessionIsolation:
 
 
 class TestUS4SessionReset:
-    def test_reset_clears_state(self, repository: InMemoryCustomerRepository) -> None:
+    def test_reset_clears_state(self, repository: InMemoryPatientRepository) -> None:
         extractor = ScriptedFakeExtractor(
             [
                 ExtractionResult(
@@ -159,7 +159,7 @@ class TestUS4SessionReset:
 
 
 class TestUS5ContextAwareGuardrails:
-    def test_short_contextual_reply_allowed(self, repository: InMemoryCustomerRepository) -> None:
+    def test_short_contextual_reply_allowed(self, repository: InMemoryPatientRepository) -> None:
         extractor = ScriptedFakeExtractor(
             [
                 ExtractionResult(
@@ -204,7 +204,7 @@ class TestUS5ContextAwareGuardrails:
 
 class TestUS6HistoryLimitsAndFailure:
     def test_long_conversation_preserves_trusted_state(
-        self, repository: InMemoryCustomerRepository
+        self, repository: InMemoryPatientRepository
     ) -> None:
         extractor = ScriptedFakeExtractor(
             [
@@ -224,7 +224,7 @@ class TestUS6HistoryLimitsAndFailure:
         run_turn(graph, cid, "I am Lisa, phone +14155552671")
         auth_state = run_turn(graph, cid, "Yoda")
         assert auth_state["status"] == ConversationStatus.AUTHENTICATED.value
-        assert auth_state["customer_classification"] == "premium"
+        assert auth_state["patient_classification"] == "premium"
 
         # Send many chitchat turns; authentication/classification state must survive.
         final_state = auth_state
@@ -232,4 +232,4 @@ class TestUS6HistoryLimitsAndFailure:
             final_state = run_turn(graph, cid, f"turn {i}")
 
         assert final_state["status"] == ConversationStatus.AUTHENTICATED.value
-        assert final_state["customer_classification"] == "premium"
+        assert final_state["patient_classification"] == "premium"

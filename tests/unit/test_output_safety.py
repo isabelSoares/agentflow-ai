@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 
 from healthcare_support.core.advanced_guardrails import AdvancedGuardrailEvaluator
-from healthcare_support.domain.conversation import ConversationStatus, CustomerClassification
+from healthcare_support.domain.conversation import ConversationStatus, PatientClassification
 from healthcare_support.domain.guardrails import GuardrailInput
 
 
@@ -20,7 +20,7 @@ def _output(content: str) -> GuardrailInput:
         content_type="assistant_output",
         conversation_id="us4-conv",
         status=ConversationStatus.AUTHENTICATED,
-        customer_classification=CustomerClassification.REGULAR,
+        patient_classification=PatientClassification.REGULAR,
         messages=[],
     )
 

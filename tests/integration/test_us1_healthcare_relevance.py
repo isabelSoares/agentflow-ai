@@ -1,4 +1,4 @@
-"""Integration tests for User Story 1: banking relevance and redirection."""
+"""Integration tests for User Story 1: topic relevance and redirection."""
 
 from __future__ import annotations
 
@@ -16,8 +16,8 @@ from healthcare_support.agents.llm import (
     SupportIntentClassifier,
 )
 from healthcare_support.agents.state import make_initial_state
-from healthcare_support.data.memory import InMemoryCustomerRepository
-from healthcare_support.data.seed import CUSTOMERS
+from healthcare_support.data.memory import InMemoryPatientRepository
+from healthcare_support.data.seed import PATIENTS
 
 
 class _PermissiveFakeExtractor(LLMExtractor):
@@ -41,17 +41,17 @@ class _PermissiveFakeExtractor(LLMExtractor):
         if phone_match:
             phone = phone_match.group(1).replace(" ", "").replace("-", "")
 
-        iban = None
-        iban_match = _re.search(r"([A-Z]{2}\d{2}[A-Z0-9\s]{10,30})", user_text)
-        if iban_match:
-            iban = iban_match.group(1).replace(" ", "")
+        date_of_birth = None
+        date_of_birth_match = _re.search(r"(\d{4}[-/]\d{1,2}[-/]\d{1,2})", user_text)
+        if date_of_birth_match:
+            date_of_birth = date_of_birth_match.group(1)
 
-        if any([name, phone, iban]):
+        if any([name, phone, date_of_birth]):
             intent = ExtractionIntent.PROVIDE_IDENTIFICATION
         else:
             intent = ExtractionIntent.CHITCHAT
 
-        return ExtractionResult(intent=intent, name=name, phone=phone, iban=iban)
+        return ExtractionResult(intent=intent, name=name, phone=phone, date_of_birth=date_of_birth)
 
 
 def _fake_intent_classifier() -> SupportIntentClassifier:
@@ -70,12 +70,12 @@ def _fake_intent_classifier() -> SupportIntentClassifier:
 
 
 @pytest.fixture
-def repository() -> InMemoryCustomerRepository:
-    return InMemoryCustomerRepository(CUSTOMERS)
+def repository() -> InMemoryPatientRepository:
+    return InMemoryPatientRepository(PATIENTS)
 
 
 @pytest.fixture
-def graph(repository: InMemoryCustomerRepository):
+def graph(repository: InMemoryPatientRepository):
     return build_verification_graph(
         repository,
         _PermissiveFakeExtractor(),
@@ -120,8 +120,8 @@ class TestVerificationAndPremium:
     def test_premium_insurance_allowed(self, graph) -> None:
         state = make_initial_state("us1-premium")
         state["status"] = "authenticated"
-        state["matched_customer_id"] = "cust-1"
-        state["customer_classification"] = "premium"
+        state["matched_patient_id"] = "cust-1"
+        state["patient_classification"] = "premium"
         result = _run(
             graph, "us1-premium", "I need specialized yacht insurance", initial_state=state
         )
@@ -142,8 +142,8 @@ class TestClarification:
     def test_short_clarification_allowed(self, graph) -> None:
         state = make_initial_state("us1-clarify")
         state["status"] = "authenticated"
-        state["matched_customer_id"] = "cust-2"
-        state["customer_classification"] = "regular"
+        state["matched_patient_id"] = "cust-2"
+        state["patient_classification"] = "regular"
         state["support_intent"] = "ambiguous"
         result = _run(graph, "us1-clarify", "Yes, I meant my account", initial_state=state)
         decision = result.get("guardrail_decision") or {}

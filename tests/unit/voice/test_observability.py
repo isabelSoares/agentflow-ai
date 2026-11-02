@@ -37,7 +37,7 @@ def client() -> TestClient:
     from healthcare_support.agents.graph import build_verification_graph
 
     app_state.verification_graph = build_verification_graph(
-        app_state.customer_repository,
+        app_state.patient_repository,
         extractor,
         default_phone_region=app_state.settings.default_phone_region,
     )
@@ -107,4 +107,4 @@ def test_voice_request_audit_does_not_include_raw_audio(
         if record.name == "healthcare_support.audit"
     )
     assert audio.hex() not in audit_messages
-    assert "my iban" not in audit_messages.lower()
+    assert "my date of birth" not in audit_messages.lower()

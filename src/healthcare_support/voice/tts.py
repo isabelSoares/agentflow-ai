@@ -73,7 +73,7 @@ class OpenAITextToSpeech:
             logger.exception("OpenAI TTS synthesis failed")
             return SpeechResult(
                 failed=True,
-                customer_message="Speech generation is unavailable. The text response is still available.",
+                patient_message="Speech generation is unavailable. The text response is still available.",
             )
 
 
@@ -95,6 +95,6 @@ class FakeTTS:
         if self._fail:
             return SpeechResult(
                 failed=True,
-                customer_message="Speech generation failed.",
+                patient_message="Speech generation failed.",
             )
         return SpeechResult(audio=self._audio, content_type=self._content_type)

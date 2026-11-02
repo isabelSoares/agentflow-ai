@@ -1,4 +1,4 @@
-"""Domain models for customers and conversations.
+"""Domain models for patients and conversations.
 
 PII/secret fields exist only inside domain objects; they are never serialized to API
 responses or logs.
@@ -6,21 +6,21 @@ responses or logs.
 
 from __future__ import annotations
 
+from datetime import date
+
 import phonenumbers
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-from schwifty import IBAN
-from schwifty.exceptions import SchwiftyException
 
 
-class Customer(BaseModel):
-    """A registered bank customer. `secret_answer` is NEVER logged."""
+class Patient(BaseModel):
+    """A registered patient. `secret_answer` is NEVER logged."""
 
     model_config = ConfigDict(frozen=True)
 
     id: str = Field(min_length=1)
     name: str = Field(min_length=1)
     phone: str  # E.164 format, validated below
-    iban: str  # electronic format, validated below
+    date_of_birth: str  # ISO date (YYYY-MM-DD), validated below
     secret_question: str = Field(min_length=1)
     secret_answer: str = Field(min_length=1)
     is_premium: bool = False
@@ -36,10 +36,10 @@ class Customer(BaseModel):
             raise ValueError("Invalid phone number")
         return phonenumbers.format_number(parsed, phonenumbers.PhoneNumberFormat.E164)
 
-    @field_validator("iban")
+    @field_validator("date_of_birth")
     @classmethod
-    def _validate_iban(cls, value: str) -> str:
+    def _validate_date_of_birth(cls, value: str) -> str:
         try:
-            return IBAN(value).compact
-        except SchwiftyException as exc:
-            raise ValueError(f"Invalid IBAN: {exc}") from exc
+            return date.fromisoformat(value).isoformat()
+        except ValueError as exc:
+            raise ValueError("Invalid date of birth; expected YYYY-MM-DD") from exc

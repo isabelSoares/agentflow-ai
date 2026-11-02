@@ -1,4 +1,4 @@
-"""Deterministic customer classification logic for the Bouncer Agent.
+"""Deterministic patient classification logic for the Bouncer Agent.
 
 This module contains no LLM imports and no orchestration dependencies. All
 classification decisions are reproducible pure functions of the inputs.
@@ -6,8 +6,8 @@ classification decisions are reproducible pure functions of the inputs.
 
 from __future__ import annotations
 
-from healthcare_support.domain.conversation import CustomerClassification
-from healthcare_support.domain.customer import Customer
+from healthcare_support.domain.conversation import PatientClassification
+from healthcare_support.domain.patient import Patient
 
 
 class ClassificationError(Exception):
@@ -18,21 +18,21 @@ class UnverifiedError(ClassificationError):
     """Raised when classification is requested before successful verification."""
 
 
-def classify_customer(
-    customer: Customer | None,
+def classify_patient(
+    patient: Patient | None,
     *,
     is_verified: bool,
-) -> CustomerClassification:
+) -> PatientClassification:
     """Classify a caller based on trusted account data.
 
     Args:
-        customer: The authorized customer record, or ``None`` if no record was found.
+        patient: The authorized patient record, or ``None`` if no record was found.
         is_verified: Whether the Greeter Agent has successfully verified the caller.
 
     Returns:
-        ``PREMIUM`` for verified customers with ``is_premium=True``,
-        ``REGULAR`` for verified active customers without premium membership,
-        ``NON_CUSTOMER`` when no customer relationship can be confirmed.
+        ``PREMIUM`` for verified patients with ``is_premium=True``,
+        ``REGULAR`` for verified active patients without premium membership,
+        ``NON_PATIENT`` when no patient relationship can be confirmed.
 
     Raises:
         UnverifiedError: If ``is_verified`` is false.
@@ -40,10 +40,10 @@ def classify_customer(
     if not is_verified:
         raise UnverifiedError("Classification requires successful identity verification.")
 
-    if customer is None:
-        return CustomerClassification.NON_CUSTOMER
+    if patient is None:
+        return PatientClassification.NON_PATIENT
 
-    if customer.is_premium:
-        return CustomerClassification.PREMIUM
+    if patient.is_premium:
+        return PatientClassification.PREMIUM
 
-    return CustomerClassification.REGULAR
+    return PatientClassification.REGULAR

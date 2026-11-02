@@ -1,6 +1,6 @@
 """Fixed, non-disclosing response templates used by the verification flow.
 
-No template in this module contains placeholders for customer record data, so
+No template in this module contains placeholders for patient record data, so
 pre-authentication replies cannot leak PII by construction.
 """
 
@@ -8,12 +8,12 @@ from __future__ import annotations
 
 GREETING = (
     "Hello! I'm your banking support assistant. "
-    "To get started, could you please tell me your name, phone number, or IBAN?"
+    "To get started, could you please tell me your name, phone number, or date of birth?"
 )
 
 NON_DISCLOSING_IDENTIFICATION_REPLY = (
     "I need a bit more information because I wasn't able to verify you. "
-    "Please provide another detail, such as your name, phone number, or full IBAN."
+    "Please provide another detail, such as your name, phone number, or date of birth."
 )
 
 ASK_MORE_ATTRIBUTES = NON_DISCLOSING_IDENTIFICATION_REPLY
@@ -42,10 +42,10 @@ DATA_REQUEST_REFUSAL = "I'm not able to share that information until your identi
 
 MANIPULATION_RE_PROMPT = (
     "I'm here to help with banking support. "
-    "Please provide your name, phone number, or IBAN so I can verify you."
+    "Please provide your name, phone number, or date of birth so I can verify you."
 )
 
-EMPTY_RE_PROMPT = "I didn't catch that. Please provide your name, phone number, or IBAN."
+EMPTY_RE_PROMPT = "I didn't catch that. Please provide your name, phone number, or date of birth."
 
 CLOSED_CONVERSATION = (
     "This verification session has ended. If you need further assistance, "
@@ -66,14 +66,14 @@ REGULAR_ROUTING = (
     "for assistance."
 )
 
-NON_CUSTOMER_RESPONSE = (
-    "Thank you for reaching out. Dedicated customer support is only available to "
-    "existing customers. If you'd like to learn more about becoming a "
-    "customer, please visit our website or your nearest branch."
+NON_PATIENT_RESPONSE = (
+    "Thank you for reaching out. Dedicated patient support is only available to "
+    "existing patients. If you'd like to learn more about becoming a "
+    "patient, please visit our website or your nearest branch."
 )
 
 PREMIUM_RESTRICTION_MESSAGE = (
-    "That service is available exclusively to premium customers. "
+    "That service is available exclusively to premium patients. "
     "For assistance with other options, please let me know what you need help with."
 )
 

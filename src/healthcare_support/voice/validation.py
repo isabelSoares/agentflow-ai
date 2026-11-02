@@ -22,7 +22,7 @@ class AudioValidationResult:
 
     is_valid: bool
     rejected_reason: str | None = None
-    customer_message: str | None = None
+    patient_message: str | None = None
 
 
 class AudioValidationError(Exception):
@@ -31,10 +31,10 @@ class AudioValidationError(Exception):
     The message is safe to expose to API consumers.
     """
 
-    def __init__(self, reason: str, customer_message: str) -> None:
+    def __init__(self, reason: str, patient_message: str) -> None:
         self.reason = reason
-        self.customer_message = customer_message
-        super().__init__(customer_message)
+        self.patient_message = patient_message
+        super().__init__(patient_message)
 
 
 class AudioValidator:
@@ -49,7 +49,7 @@ class AudioValidator:
         if not result.is_valid:
             raise AudioValidationError(
                 reason=result.rejected_reason or "invalid_audio",
-                customer_message=result.customer_message or "The audio could not be processed.",
+                patient_message=result.patient_message or "The audio could not be processed.",
             )
 
     def validate(self, audio: bytes, content_type: str) -> AudioValidationResult:
@@ -58,21 +58,21 @@ class AudioValidator:
             return AudioValidationResult(
                 is_valid=False,
                 rejected_reason="empty_audio",
-                customer_message="The audio file appears to be empty. Please try again.",
+                patient_message="The audio file appears to be empty. Please try again.",
             )
 
         if content_type not in self._config.supported_input_types:
             return AudioValidationResult(
                 is_valid=False,
                 rejected_reason="unsupported_format",
-                customer_message="The audio format is not supported. Please use a supported format.",
+                patient_message="The audio format is not supported. Please use a supported format.",
             )
 
         if len(audio) > self._config.max_audio_bytes:
             return AudioValidationResult(
                 is_valid=False,
                 rejected_reason="file_too_large",
-                customer_message="The audio file is too large. Please send a shorter recording.",
+                patient_message="The audio file is too large. Please send a shorter recording.",
             )
 
         duration = self._estimate_duration(audio, content_type)
@@ -80,7 +80,7 @@ class AudioValidator:
             return AudioValidationResult(
                 is_valid=False,
                 rejected_reason="duration_too_long",
-                customer_message="The audio recording is too long. Please send a shorter message.",
+                patient_message="The audio recording is too long. Please send a shorter message.",
             )
 
         return AudioValidationResult(is_valid=True)

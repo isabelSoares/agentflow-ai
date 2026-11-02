@@ -14,7 +14,7 @@ the detailed narrative and does not duplicate the diagram source.
 
 | View | Purpose | Location |
 |------|---------|----------|
-| System Architecture Diagram | Project-level view of customer channels, the service boundary, deterministic controls, state, and external dependencies. | [`docs/system-diagram.md`](system-diagram.md) |
+| System Architecture Diagram | Project-level view of patient channels, the service boundary, deterministic controls, state, and external dependencies. | [`docs/system-diagram.md`](system-diagram.md) |
 | Architecture Overview | Full-stack components, trust boundaries, dependencies, and optional integrations. | [README: Architecture](../README.md#architecture) |
 | Multi-Agent Workflow | Status-driven transitions across turns, outcomes, and termination handling. | [README: Multi-Agent Workflow](../README.md#multi-agent-workflow) |
 
@@ -31,10 +31,10 @@ workflow as transcribed text; they do not bypass identity checks or guardrails.
 | **Session-ownership gate** | Verifies the presented proof against the stored proof before any graph or history state is touched. | Deterministic; runs outside LangGraph. |
 | **LangGraph orchestration** | Executes the per-turn graph and carries persisted conversation status. | Orchestrates only; does not make identity decisions. |
 | **Greeter** | Collects identity attributes, performs 2-of-3 matching, asks the secret question, and verifies the answer. | Deterministic identity and verification logic. |
-| **Bouncer** | Classifies an authenticated customer as premium, regular, or non-customer. | Deterministic classification. |
+| **Bouncer** | Classifies an authenticated patient as premium, regular, or non-patient. | Deterministic classification. |
 | **Specialist** | Routes authenticated requests to standard support, premium support, or a specialist desk. | Deterministic routing with validated intent. |
 | **Input Guardrail** | Blocks empty, manipulative, unsafe, or pre-authentication data requests. | Deterministic policy checks before extraction. |
-| **Output Guardrail** | Checks the final reply for privacy and policy violations and replaces unsafe output. | Deterministic; every customer-facing reply passes through it. |
+| **Output Guardrail** | Checks the final reply for privacy and policy violations and replaces unsafe output. | Deterministic; every patient-facing reply passes through it. |
 | **Deterministic business logic** | Matching, secret verification, classification, routing, and proof verification. | Never delegated to the LLM. |
 | **Conversation history** | Stores redacted user and assistant messages with bounded context. | Session-scoped; stored in the checkpointed `messages` channel. |
 | **Session store** | Stores proof digests, active state, and termination state. | Owns access and session lifecycle. |
@@ -52,12 +52,12 @@ and Respond nodes.
 | Turn shape | Starting status | Nodes that run | Typical outcome |
 |------------|-----------------|----------------|-----------------|
 | First contact | `collecting` | Input Guardrail, Extract, Identify, Output Guardrail, Respond | Unique match asks the secret question. Ambiguous or insufficient details ask for clarification. No match triggers a safe retry or termination after the attempt limit. |
-| Secret-question answer | `identified` | Input Guardrail, Extract, Authenticate, Classify, Output Guardrail, Respond | A correct answer authenticates the customer and returns the classification message. An incorrect answer retries or terminates after the attempt limit. |
+| Secret-question answer | `identified` | Input Guardrail, Extract, Authenticate, Classify, Output Guardrail, Respond | A correct answer authenticates the patient and returns the classification message. An incorrect answer retries or terminates after the attempt limit. |
 | Authenticated request | `authenticated` | Input Guardrail, Extract, Specialist, Output Guardrail, Respond | The request is routed to the appropriate department, clarified, or handled with a safe fallback. |
 | Blocked input | Any active status | Input Guardrail, Output Guardrail, Respond | A safe refusal is returned without extraction or business logic. |
 | Session termination | Any active status | Relevant turn nodes, Output Guardrail, Respond | The reply is returned, then the API layer deactivates the session. |
 
-A unique identity match does not authenticate the customer in the same turn: the
+A unique identity match does not authenticate the patient in the same turn: the
 Identify node produces the secret question and ends the turn. On the next turn,
 Extract observes `identified` status and routes to Authenticate. This cross-turn
 behavior is why the diagram does not draw `identify -> authenticate` as a normal
@@ -68,15 +68,15 @@ edge.
 | Boundary | Decision | Enforcement | LLM trusted? |
 |----------|----------|-------------|--------------|
 | Session ownership | A request may use a session only when its proof matches the stored proof. | Constant-time proof verification in `src/healthcare_support/data/session_access.py`, enforced in `src/healthcare_support/api/invoker.py` before graph invocation. | No |
-| Identity matching | At least two of name, phone, and IBAN must match exactly after normalization. | `src/healthcare_support/core/matching.py` | No |
+| Identity matching | At least two of name, phone, and date of birth must match exactly after normalization. | `src/healthcare_support/core/matching.py` | No |
 | Secret-question verification | The normalized answer must match the registered answer; attempts are limited. | `src/healthcare_support/core/verification.py` | No |
-| Customer classification | Classification uses the trusted repository record for the verified customer. | `src/healthcare_support/core/classification.py` | No |
+| Patient classification | Classification uses the trusted repository record for the verified patient. | `src/healthcare_support/core/classification.py` | No |
 | Support routing | Routing requires authenticated status, a trusted classification, and a validated intent. | `src/healthcare_support/core/routing.py` | No; extracted intent is advisory |
 | Input guardrails | Unsafe, manipulative, empty, or pre-authentication data requests are refused. | `src/healthcare_support/services/guardrails_service.py` and the guardrail node. | No |
 | Output guardrails | Privacy and policy violations are replaced before the reply is returned. | `src/healthcare_support/services/guardrails_service.py` and the output guardrail node. | No |
 | Natural-language extraction | The LLM extracts attributes and intent from text. | `src/healthcare_support/agents/llm.py` | Yes, for extraction only |
 
-The LLM never authenticates a customer, grants authorization, or directly selects
+The LLM never authenticates a patient, grants authorization, or directly selects
 a privileged support destination. Deterministic code validates every security
 decision.
 
@@ -145,7 +145,7 @@ Do not add a second Mermaid copy to this document. When the workflow changes:
 
 The focused test parses the Mermaid blocks and compares their node IDs with the
 graph registry from `src/healthcare_support/agents/nodes.py` (the same registry used
-by `src/healthcare_support/agents/graph.py`). It also checks that every customer
+by `src/healthcare_support/agents/graph.py`). It also checks that every patient
 response passes through the Output Guardrail, that unreachable paths are not drawn
 as normal transitions, and that the consistency table covers every registered
 node. Session-gate behavior is verified against
