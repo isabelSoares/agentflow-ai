@@ -263,9 +263,14 @@ The backend image installs locked runtime dependencies only and exposes FastAPI 
 
 ```bash
 docker build -t agentflow-ai .
-docker run --rm -p 8000:8000 agentflow-ai
-curl -fsS http://localhost:8000/health
+docker run --rm -d --name agentflow-ai -p 8000:8000 agentflow-ai
+# The server needs a few seconds to boot; poll instead of a single curl,
+# otherwise the port proxy resets the connection before uvicorn is listening.
+for i in $(seq 1 30); do curl -fsS http://localhost:8000/health && break; sleep 1; done
+docker rm -f agentflow-ai
 ```
+
+If the poll never succeeds, inspect `docker logs agentflow-ai` and the image's `HEALTHCHECK` status (`docker inspect -f '{{.State.Health.Status}}' agentflow-ai`) — a single immediate `curl` can fail with "Connection reset by peer" while the app is still starting.
 
 The frontend is a static build (`npm run build`) and can be served by any static host or reverse proxy. In production, route `/api` to the backend and keep the `X-Session-Proof` header exposed.
 
