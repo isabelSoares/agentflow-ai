@@ -15,20 +15,22 @@ def test_committed_secrets_scan_detects_patterns(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr(checks, "REPO_ROOT", tmp_path)
-    (tmp_path / "config.py").write_text('AWS_KEY = "AKIAIOSFODNN7ABCDEFG"\n')
+    # Built at runtime so the scanner's own regex does not match this test file.
+    (tmp_path / "config.py").write_text('AWS_KEY = "' + "AKIA" + "IOSFODNN7ABCDEFG" + '"\n')
     monkeypatch.setattr(checks, "_tracked_files", lambda: ["config.py"])
     ok, details = checks.scan_for_committed_secrets()
     assert ok is False
     assert "config.py" in details
     assert "aws-access-key" in details
-    assert "AKIAIOSFODNN7ABCDEFG" not in details  # value never reported
+    assert ("AKIA" + "IOSFODNN7ABCDEFG") not in details  # value never reported
 
 
 def test_committed_secrets_scan_detects_private_key(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr(checks, "REPO_ROOT", tmp_path)
-    (tmp_path / "key.pem").write_text("-----BEGIN RSA PRIVATE KEY-----\nMII...\n")
+    # Built at runtime so the scanner's own regex does not match this test file.
+    (tmp_path / "key.pem").write_text("-----BEGIN " + "RSA PRIVATE KEY-----\nMII...\n")
     monkeypatch.setattr(checks, "_tracked_files", lambda: ["key.pem"])
     ok, details = checks.scan_for_committed_secrets()
     assert ok is False
