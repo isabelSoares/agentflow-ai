@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { createConversation, resetConversation, sendMessage } from './api'
+import { ApiError, createConversation, isBackendUnreachable, resetConversation, sendMessage } from './api'
+import { createOfflineSession, offlineGreeting, offlineSend, type OfflineSession } from './offlineDemo'
 import { ChatPanel } from './components/ChatPanel'
 import { TelemetryPanel } from './components/TelemetryPanel'
 import {
@@ -67,6 +68,8 @@ function App() {
   const [telemetry, setTelemetry] = useState<Telemetry>(EMPTY_TELEMETRY)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [offlineSession, setOfflineSession] = useState<OfflineSession | null>(null)
+  const [offlineAvailable, setOfflineAvailable] = useState(false)
   const started = useRef(false)
 
   async function startSession() {
@@ -74,17 +77,34 @@ function App() {
     setError(null)
     try {
       const { turn, proof } = await createConversation()
+      setOfflineSession(null)
+      setOfflineAvailable(false)
       setSession({ id: turn.conversation_id, proof })
       setTelemetry(EMPTY_TELEMETRY)
       setMessages([{ id: messageId(), role: 'assistant', text: turn.reply }])
     } catch (caught) {
+      if (caught instanceof ApiError && isBackendUnreachable(caught.status)) {
+        setOfflineAvailable(true)
+      }
       setError(toMessage(caught))
       setSession(null)
+      setOfflineSession(null)
       setTelemetry(EMPTY_TELEMETRY)
       setMessages(STARTER_MESSAGES)
     } finally {
       setBusy(false)
     }
+  }
+
+  function startOfflineSession() {
+    const offline = createOfflineSession()
+    const turn = offlineGreeting(offline)
+    setOfflineSession(offline)
+    setOfflineAvailable(false)
+    setError(null)
+    setSession({ id: turn.conversation_id, proof: 'offline-local' })
+    setTelemetry(EMPTY_TELEMETRY)
+    setMessages([{ id: messageId(), role: 'assistant', text: turn.reply }])
   }
 
   useEffect(() => {
@@ -98,6 +118,18 @@ function App() {
     setBusy(true)
     setError(null)
     setMessages((current) => [...current, { id: messageId(), role: 'user', text }])
+
+    if (offlineSession) {
+      const { session: next, turn } = offlineSend(offlineSession, text)
+      setOfflineSession(next)
+      setTelemetry(telemetryFromTurn(turn))
+      setMessages((current) => [
+        ...current,
+        { id: messageId(), role: 'assistant', text: turn.reply },
+      ])
+      setBusy(false)
+      return
+    }
 
     try {
       const { turn, proof } = await sendMessage(session.id, session.proof, text)
@@ -118,6 +150,18 @@ function App() {
     if (!session || busy) return
     setBusy(true)
     setError(null)
+
+    if (offlineSession) {
+      const offline = createOfflineSession()
+      const turn = offlineGreeting(offline)
+      setOfflineSession(offline)
+      setSession({ id: turn.conversation_id, proof: 'offline-local' })
+      setTelemetry(EMPTY_TELEMETRY)
+      setMessages([{ id: messageId(), role: 'assistant', text: turn.reply }])
+      setBusy(false)
+      return
+    }
+
     try {
       const { turn, proof } = await resetConversation(session.id, session.proof)
       setSession({ id: turn.conversation_id, proof })
@@ -192,9 +236,12 @@ function App() {
             busy={busy}
             sessionActive={Boolean(session)}
             error={error}
+            offlineMode={offlineSession !== null}
+            offlineAvailable={offlineAvailable}
             onSend={handleSend}
             onReset={handleReset}
             onStart={startSession}
+            onStartOffline={startOfflineSession}
           />
           <TelemetryPanel telemetry={telemetry} session={session} busy={busy} />
         </section>
