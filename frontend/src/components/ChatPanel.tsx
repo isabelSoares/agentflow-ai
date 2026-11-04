@@ -12,9 +12,12 @@ interface ChatPanelProps {
   busy: boolean
   sessionActive: boolean
   error: string | null
+  offlineMode: boolean
+  offlineAvailable: boolean
   onSend: (text: string) => Promise<void>
   onReset: () => Promise<void>
   onStart: () => Promise<void>
+  onStartOffline: () => void
 }
 
 export function ChatPanel({
@@ -22,9 +25,12 @@ export function ChatPanel({
   busy,
   sessionActive,
   error,
+  offlineMode,
+  offlineAvailable,
   onSend,
   onReset,
   onStart,
+  onStartOffline,
 }: ChatPanelProps) {
   const [draft, setDraft] = useState('')
   const endRef = useRef<HTMLDivElement>(null)
@@ -46,8 +52,8 @@ export function ChatPanel({
     <section className="panel chat-panel" aria-label="Support conversation">
       <div className="panel-heading">
         <div>
-          <p className="eyebrow">Interactive demo</p>
-          <h2>Support conversation</h2>
+          <p className="eyebrow">Interactive patient demo</p>
+          <h2>Patient support conversation</h2>
         </div>
         <div className="chat-actions">
           {sessionActive ? (
@@ -60,17 +66,37 @@ export function ChatPanel({
               Reset session
             </button>
           ) : (
-            <button
-              type="button"
-              className="button button-ghost"
-              onClick={() => void onStart()}
-              disabled={busy}
-            >
-              {busy ? 'Starting...' : 'Start session'}
-            </button>
+            <>
+              <button
+                type="button"
+                className="button button-ghost"
+                onClick={() => void onStart()}
+                disabled={busy}
+              >
+                {busy ? 'Starting...' : 'Start session'}
+              </button>
+              {offlineAvailable && (
+                <button
+                  type="button"
+                  className="button button-ghost"
+                  onClick={onStartOffline}
+                  disabled={busy}
+                >
+                  Run offline demo
+                </button>
+              )}
+            </>
           )}
         </div>
       </div>
+
+      {offlineMode && (
+        <p className="suggestion-hint" role="status">
+          Offline demo mode: this page is a static build without an API backend, so the
+          deterministic demo scenario runs in your browser instead of against the FastAPI
+          service. Run the full stack locally for the live API flow.
+        </p>
+      )}
 
       <div className="messages" aria-live="polite">
         {messages.map((message) => (

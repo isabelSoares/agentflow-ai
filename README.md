@@ -217,7 +217,18 @@ The frontend is deployed to GitHub Pages by the [`Pages` workflow](.github/workf
 
 **https://isabelsoares.github.io/agentflow-ai/**
 
-The page renders the full demo UI. The chat calls `/api` on its own origin by default, so to wire the live demo to a backend, rebuild with `VITE_API_BASE_URL=https://<your-backend-host>` and add the Pages origin to the backend's `CORS_ALLOWED_ORIGINS`.
+GitHub Pages is a **static** host: it serves files with GET/HEAD only and has no FastAPI backend behind it. A chat request (`POST /api/conversations`) is therefore rejected by the Pages server with **405 Method Not Allowed** — that is the "Request failed with status 405" you see when clicking *Start session* on the live page. The page now explains this in the error banner and offers a **Run offline demo** button: an in-browser engine (`frontend/src/offlineDemo.ts`) that mirrors the backend's deterministic scenario (seed patients, 2-of-3 identity matching, secret question, premium/regular routing), so the live page is fully interactive without a backend.
+
+To run the demo against the **real API** instead, wire a backend to the page: rebuild with `VITE_API_BASE_URL=https://<your-backend-host>` and add the Pages origin to the backend's `CORS_ALLOWED_ORIGINS`. Locally, `npm run dev` proxies `/api` to `http://127.0.0.1:8000` (see Quickstart).
+
+### How the demo works
+
+1. The React client (`frontend/src/api.ts`) POSTs to `/api/conversations` to start a session. The Vite dev/preview server strips the `/api` prefix and proxies to the FastAPI backend on port 8000; the backend's own routes stay at `/conversations`.
+2. FastAPI (`src/healthcare_support/api/routes.py`) creates a conversation, initializes the LangGraph state, and returns the greeting plus an `X-Session-Proof` header. Every later request must carry that proof — the conversation ID alone is not enough.
+3. Each message runs one LangGraph turn (`src/healthcare_support/agents/graph.py`): input guardrail → LLM extraction (advisory only) → deterministic identify (2-of-3 attribute match) → authenticate (secret answer, 3 attempts) → classify (premium/regular) → specialist routing → output guardrail → reply. All security decisions are deterministic Python; the model never grants access.
+4. The client renders the reply in the chat panel and the sanitized turn state (identity, authorization, classification, routing) in the telemetry panel. No PII or proof values are displayed.
+
+Without an LLM key the backend uses safe deterministic fake adapters, and the live Pages build uses the equivalent offline engine in the browser.
 
 ## Quickstart
 
@@ -264,6 +275,10 @@ The production build uses the same `/api` default. `npm run preview` mirrors the
 #### Troubleshooting a 404 on session start
 
 A 404 on `POST /conversations` means the browser reached the static frontend host instead of the API gateway. Confirm that `VITE_API_BASE_URL` is empty or set to a reachable API origin, that the dev/preview server is running, and that production routes `/api/*` to the backend. The backend's own routes stay at `/conversations`.
+
+#### Troubleshooting a 405 on session start
+
+A 405 on `POST /api/conversations` means the request hit a static file host (such as GitHub Pages) that only allows GET/HEAD — there is no API backend behind that origin, so POST is rejected with "Method Not Allowed". On the live Pages build this is expected: use the **Run offline demo** button on the page, or run the full stack locally (backend on port 8000 + `npm run dev`). To give the deployed page a real backend, rebuild with `VITE_API_BASE_URL=https://<your-backend-host>` and allow the Pages origin in `CORS_ALLOWED_ORIGINS`.
 
 ### 3. Run with Docker
 
