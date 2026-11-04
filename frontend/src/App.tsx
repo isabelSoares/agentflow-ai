@@ -10,6 +10,7 @@ import {
   type Session,
   type Telemetry,
 } from './types'
+import { applyAppearance, readAppearance, writeAppearance, type AppearanceMode } from './theme'
 
 const STARTER_MESSAGES: ChatMessage[] = [
   {
@@ -70,7 +71,15 @@ function App() {
   const [error, setError] = useState<string | null>(null)
   const [offlineSession, setOfflineSession] = useState<OfflineSession | null>(null)
   const [offlineAvailable, setOfflineAvailable] = useState(false)
+  const [appearance, setAppearance] = useState<AppearanceMode>(() => readAppearance())
   const started = useRef(false)
+
+  function toggleAppearance() {
+    const next: AppearanceMode = appearance === 'dark' ? 'light' : 'dark'
+    setAppearance(next)
+    writeAppearance(next)
+    applyAppearance(next)
+  }
 
   async function startSession() {
     setBusy(true)
@@ -197,6 +206,26 @@ function App() {
             API docs
           </a>
         </nav>
+        <button
+          type="button"
+          className="theme-toggle"
+          onClick={toggleAppearance}
+          aria-pressed={appearance === 'dark'}
+          aria-label={appearance === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          title={appearance === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          {appearance === 'dark' ? (
+            <svg aria-hidden="true" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <circle cx="12" cy="12" r="4" fill="currentColor" stroke="none" />
+              <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+            </svg>
+          ) : (
+            <svg aria-hidden="true" viewBox="0 0 24 24" width="15" height="15" fill="currentColor">
+              <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" />
+            </svg>
+          )}
+          <span>{appearance === 'dark' ? 'Light' : 'Dark'}</span>
+        </button>
       </header>
 
       <main id="top">
