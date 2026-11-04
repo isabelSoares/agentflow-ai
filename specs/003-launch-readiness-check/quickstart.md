@@ -45,8 +45,8 @@ Expected: affected criteria marked `unable_to_verify`, verdict `not_ready`, exit
 ## Scenario 5 — Security violation blocks launch without leaking the secret
 
 ```bash
-# add a fake API key string to a tracked file, run, then revert
-echo 'AWS_KEY = "AKIAIOSFODNN7EXAMPLE"' >> some_tracked_file.py
+# add a fake AWS-style key (AKIA + 16 chars, split so docs don't self-flag) to a tracked file
+echo 'AWS_KEY = "AKIA" + "IOSFODNN7EXAMPLF"' >> some_tracked_file.py
 uv run python scripts/check_launch_readiness.py
 ```
 

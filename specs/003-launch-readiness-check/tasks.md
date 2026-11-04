@@ -29,8 +29,8 @@ description: "Task list for launch readiness verification feature"
 
 **Purpose**: Create the readiness package skeleton and CLI entry point per plan.md
 
-- [ ] T001 Create package skeleton `src/healthcare_support/readiness/__init__.py` (empty exports) and `scripts/check_launch_readiness.py` thin wrapper that calls `healthcare_support.readiness.cli:main`
-- [ ] T002 Create test directory `tests/unit/readiness/` with `__init__.py` so pytest collects it
+- [x] T001 Create package skeleton `src/healthcare_support/readiness/__init__.py` (empty exports) and `scripts/check_launch_readiness.py` thin wrapper that calls `healthcare_support.readiness.cli:main`
+- [x] T002 Create test directory `tests/unit/readiness/` with `__init__.py` so pytest collects it
 
 ---
 
@@ -40,11 +40,11 @@ description: "Task list for launch readiness verification feature"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 [P] Create Pydantic models in `src/healthcare_support/readiness/models.py` per data-model.md: `Verdict` enum (`ready`/`not_ready`), `CriterionStatus` enum (`pass`/`fail`/`unable_to_verify`), `CriterionResult` (fields: name: str, category: str, status: CriterionStatus, details: str, remediation: str; validator: remediation MUST be non-empty when status != pass, details MUST be non-empty), `ReadinessReport` (fields: verdict: Verdict, run_at: datetime, results: list[CriterionResult])
-- [ ] T004 [P] Implement deterministic fail-closed verdict aggregation and report rendering (text + JSON) in `src/healthcare_support/readiness/report.py`: verdict is `ready` iff every result status is `pass`; render functions emit only names/statuses/remediation — never secret values or PII (FR-007, FR-008, FR-010)
-- [ ] T005 Implement subprocess runner with per-criterion timeout in `src/healthcare_support/readiness/runner.py`: runs a command, captures summarized output (no raw dump), returns CriterionResult with `unable_to_verify` on timeout/missing tool (default 240s, configurable via --timeout)
-- [ ] T006 [P] Implement CLI argument parsing and exit codes in `src/healthcare_support/readiness/cli.py` per contracts/cli-schema.md: flags `--json`, `--timeout SECONDS`; exit 0 = ready, 1 = not_ready, 2 = check error
-- [ ] T007 [P] Write foundational unit tests in `tests/unit/readiness/test_models.py` and `tests/unit/readiness/test_report.py`: enum values, remediation-required validator, verdict aggregation (all pass → ready; any fail/unable_to_verify → not_ready), redaction guarantee on rendered output
+- [x] T003 [P] Create Pydantic models in `src/healthcare_support/readiness/models.py` per data-model.md: `Verdict` enum (`ready`/`not_ready`), `CriterionStatus` enum (`pass`/`fail`/`unable_to_verify`), `CriterionResult` (fields: name: str, category: str, status: CriterionStatus, details: str, remediation: str; validator: remediation MUST be non-empty when status != pass, details MUST be non-empty), `ReadinessReport` (fields: verdict: Verdict, run_at: datetime, results: list[CriterionResult])
+- [x] T004 [P] Implement deterministic fail-closed verdict aggregation and report rendering (text + JSON) in `src/healthcare_support/readiness/report.py`: verdict is `ready` iff every result status is `pass`; render functions emit only names/statuses/remediation — never secret values or PII (FR-007, FR-008, FR-010)
+- [x] T005 Implement subprocess runner with per-criterion timeout in `src/healthcare_support/readiness/runner.py`: runs a command, captures summarized output (no raw dump), returns CriterionResult with `unable_to_verify` on timeout/missing tool (default 240s, configurable via --timeout)
+- [x] T006 [P] Implement CLI argument parsing and exit codes in `src/healthcare_support/readiness/cli.py` per contracts/cli-schema.md: flags `--json`, `--timeout SECONDS`; exit 0 = ready, 1 = not_ready, 2 = check error
+- [x] T007 [P] Write foundational unit tests in `tests/unit/readiness/test_models.py` and `tests/unit/readiness/test_report.py`: enum values, remediation-required validator, verdict aggregation (all pass → ready; any fail/unable_to_verify → not_ready), redaction guarantee on rendered output
 
 **Checkpoint**: Foundation ready — models, verdict logic, runner, and CLI skeleton are in place and unit-tested
 
@@ -58,14 +58,14 @@ description: "Task list for launch readiness verification feature"
 
 ### Tests for User Story 1
 
-- [ ] T008 [P] [US1] Unit tests in `tests/unit/readiness/test_checks.py` for each evaluator: offline-tests, frontend-tests, lint, format, type-check, coverage-gate, frontend-build, deployment-config — mocking the runner to return pass/fail/timeout and asserting the produced CriterionResult (covers spec edge cases: mid-development failures still complete; missing tool → unable_to_verify; offline run evaluates all offline criteria)
-- [ ] T009 [P] [US1] CLI end-to-end test in `tests/unit/readiness/test_cli.py`: invoke `cli.main` with `--json` against a stubbed criterion set; assert exit codes 0/1/2 and JSON schema matches contracts/cli-schema.md
+- [x] T008 [P] [US1] Unit tests in `tests/unit/readiness/test_checks.py` for each evaluator: offline-tests, frontend-tests, lint, format, type-check, coverage-gate, frontend-build, deployment-config — mocking the runner to return pass/fail/timeout and asserting the produced CriterionResult (covers spec edge cases: mid-development failures still complete; missing tool → unable_to_verify; offline run evaluates all offline criteria)
+- [x] T009 [P] [US1] CLI end-to-end test in `tests/unit/readiness/test_cli.py`: invoke `cli.main` with `--json` against a stubbed criterion set; assert exit codes 0/1/2 and JSON schema matches contracts/cli-schema.md
 
 ### Implementation for User Story 1
 
-- [ ] T010 [P] [US1] Implement criterion evaluators in `src/healthcare_support/readiness/checks.py` invoking the exact CI gate commands from `.github/workflows/ci.yml`: `ruff check src tests`, `ruff format --check src tests`, `mypy src`, `pytest -m "not live_llm and not live_speech" --cov=src/healthcare_support --cov-branch --cov-fail-under=80`, frontend `npm test` / `npm run build` (skipped-and-blocking when `frontend/` absent)
-- [ ] T011 [US1] Implement deployment-config criterion in `src/healthcare_support/readiness/checks.py`: presence of Dockerfile, `.github/workflows/ci.yml`, required env var NAMES present (values never read into the report) per FR-004
-- [ ] T012 [US1] Wire all US1 criteria into `run_all_checks()` in `src/healthcare_support/readiness/checks.py`, aggregate via `report.py`, and connect in `cli.py` so the command prints the full report and sets the exit code (FR-001, FR-002, FR-003, FR-004, FR-009)
+- [x] T010 [P] [US1] Implement criterion evaluators in `src/healthcare_support/readiness/checks.py` invoking the exact CI gate commands from `.github/workflows/ci.yml`: `ruff check src tests`, `ruff format --check src tests`, `mypy src`, `pytest -m "not live_llm and not live_speech" --cov=src/healthcare_support --cov-branch --cov-fail-under=80`, frontend `npm test` / `npm run build` (skipped-and-blocking when `frontend/` absent)
+- [x] T011 [US1] Implement deployment-config criterion in `src/healthcare_support/readiness/checks.py`: presence of Dockerfile, `.github/workflows/ci.yml`, required env var NAMES present (values never read into the report) per FR-004
+- [x] T012 [US1] Wire all US1 criteria into `run_all_checks()` in `src/healthcare_support/readiness/checks.py`, aggregate via `report.py`, and connect in `cli.py` so the command prints the full report and sets the exit code (FR-001, FR-002, FR-003, FR-004, FR-009)
 
 **Checkpoint**: User Story 1 fully functional and testable independently — `check_launch_readiness.py` yields a correct verdict on healthy and failing states
 
@@ -79,12 +79,12 @@ description: "Task list for launch readiness verification feature"
 
 ### Tests for User Story 2
 
-- [ ] T013 [P] [US2] Unit tests in `tests/unit/readiness/test_remediation.py`: for every criterion in the catalog, a fail and an unable_to_verify result MUST carry non-empty remediation text referencing the relevant command; rendered text and JSON outputs contain remediation for 100% of non-pass criteria (SC-004)
+- [x] T013 [P] [US2] Unit tests in `tests/unit/readiness/test_remediation.py`: for every criterion in the catalog, a fail and an unable_to_verify result MUST carry non-empty remediation text referencing the relevant command; rendered text and JSON outputs contain remediation for 100% of non-pass criteria (SC-004)
 
 ### Implementation for User Story 2
 
-- [ ] T014 [US2] Add the static remediation catalog (one entry per criterion name from data-model.md's criterion catalog, e.g. offline-tests → "Run `uv run pytest -m \"not live_llm and not live_speech\"` and fix the failing tests") to `src/healthcare_support/readiness/checks.py` and attach it when building each CriterionResult (FR-006)
-- [ ] T015 [US2] Extend text rendering in `src/healthcare_support/readiness/report.py` to group results by category and print remediation lines under each non-pass criterion, ending with `LAUNCH READINESS: READY` / `LAUNCH READINESS: NOT READY` (FR-010)
+- [x] T014 [US2] Add the static remediation catalog (one entry per criterion name from data-model.md's criterion catalog, e.g. offline-tests → "Run `uv run pytest -m \"not live_llm and not live_speech\"` and fix the failing tests") to `src/healthcare_support/readiness/checks.py` and attach it when building each CriterionResult (FR-006)
+- [x] T015 [US2] Extend text rendering in `src/healthcare_support/readiness/report.py` to group results by category and print remediation lines under each non-pass criterion, ending with `LAUNCH READINESS: READY` / `LAUNCH READINESS: NOT READY` (FR-010)
 
 **Checkpoint**: User Stories 1 AND 2 both work independently — verdicts are correct and every failure is actionable
 
@@ -98,14 +98,14 @@ description: "Task list for launch readiness verification feature"
 
 ### Tests for User Story 3
 
-- [ ] T016 [P] [US3] Unit tests in `tests/unit/readiness/test_security.py`: committed-secret pattern scan detects key/token/private-key patterns in tracked files and redacts values from details; dependency-audit maps pip-audit output to pass/fail/unable_to_verify; boundary check asserts sanitized response models and absence of secret-answer fields in log statements
+- [x] T016 [P] [US3] Unit tests in `tests/unit/readiness/test_security.py`: committed-secret pattern scan detects key/token/private-key patterns in tracked files and redacts values from details; dependency-audit maps pip-audit output to pass/fail/unable_to_verify; boundary check asserts sanitized response models and absence of secret-answer fields in log statements
 
 ### Implementation for User Story 3
 
-- [ ] T017 [P] [US3] Implement `committed-secrets` criterion in `src/healthcare_support/readiness/checks.py`: scan `git ls-files` output for API-key/token/private-key patterns; report only file path + pattern name, never the matched value (FR-005, FR-008)
-- [ ] T018 [P] [US3] Implement `dependency-audit` criterion in `src/healthcare_support/readiness/checks.py` using existing `pip-audit` against the locked dependency set; offline DB failure → `unable_to_verify` (research R3/R6)
-- [ ] T019 [US3] Implement `no-pii-in-boundary` criterion in `src/healthcare_support/readiness/checks.py`: verify API response models are the sanitized Pydantic models and no log statement includes secret-answer/credential fields (static import + source check, deterministic per Principle II)
-- [ ] T020 [US3] Register all three security criteria in `run_all_checks()` in `src/healthcare_support/readiness/checks.py` (FR-005)
+- [x] T017 [P] [US3] Implement `committed-secrets` criterion in `src/healthcare_support/readiness/checks.py`: scan `git ls-files` output for API-key/token/private-key patterns; report only file path + pattern name, never the matched value (FR-005, FR-008)
+- [x] T018 [P] [US3] Implement `dependency-audit` criterion in `src/healthcare_support/readiness/checks.py` using existing `pip-audit` against the locked dependency set; offline DB failure → `unable_to_verify` (research R3/R6)
+- [x] T019 [US3] Implement `no-pii-in-boundary` criterion in `src/healthcare_support/readiness/checks.py`: verify API response models are the sanitized Pydantic models and no log statement includes secret-answer/credential fields (static import + source check, deterministic per Principle II)
+- [x] T020 [US3] Register all three security criteria in `run_all_checks()` in `src/healthcare_support/readiness/checks.py` (FR-005)
 
 **Checkpoint**: All user stories independently functional — full check covers tests, quality gates, deployment, and security
 
@@ -115,10 +115,10 @@ description: "Task list for launch readiness verification feature"
 
 **Purpose**: CI integration, constitution compliance validation, and quickstart verification
 
-- [ ] T021 Add a readiness job to `.github/workflows/ci.yml` that runs `uv run python scripts/check_launch_readiness.py` after the quality/frontend jobs and fails the workflow on exit code 1 (FR-009, SC-005)
-- [ ] T022 [P] Run full offline validation per quickstart.md scenarios 1–6: `uv run pytest tests/unit/readiness/ -m "not live_llm and not live_speech"`, plus ruff, mypy strict, and coverage gate on the new module — all must pass (constitution quality gate)
-- [ ] T023 [P] Update `docs/` with a short "Launch readiness check" section linking to `specs/003-launch-readiness-check/quickstart.md` (FR-010 stakeholder readability)
-- [ ] T024 Final constitution compliance pass: confirm Principle I (no PII/secrets in report — T004/T017 tests), II (deterministic verdict — T004), III (module independent of api/agents — T001), IV (offline tests map to acceptance scenarios — T007–T016), V (Pydantic + type hints, mypy strict — T022), VI (structured logs of criterion outcomes without sensitive values), VII (no unjustified abstractions)
+- [x] T021 Add a readiness job to `.github/workflows/ci.yml` that runs `uv run python scripts/check_launch_readiness.py` after the quality/frontend jobs and fails the workflow on exit code 1 (FR-009, SC-005)
+- [x] T022 [P] Run full offline validation per quickstart.md scenarios 1–6: `uv run pytest tests/unit/readiness/ -m "not live_llm and not live_speech"`, plus ruff, mypy strict, and coverage gate on the new module — all must pass (constitution quality gate)
+- [x] T023 [P] Update `docs/` with a short "Launch readiness check" section linking to `specs/003-launch-readiness-check/quickstart.md` (FR-010 stakeholder readability)
+- [x] T024 Final constitution compliance pass: confirm Principle I (no PII/secrets in report — T004/T017 tests), II (deterministic verdict — T004), III (module independent of api/agents — T001), IV (offline tests map to acceptance scenarios — T007–T016), V (Pydantic + type hints, mypy strict — T022), VI (structured logs of criterion outcomes without sensitive values), VII (no unjustified abstractions)
 
 ---
 
