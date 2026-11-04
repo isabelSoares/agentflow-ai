@@ -28,13 +28,13 @@ function buildStages(telemetry: Telemetry, busy: boolean): Stage[] {
       state: 'on',
     },
     {
-      name: 'Identity',
-      detail: 'Deterministic 2-of-3 matching',
+      name: 'Patient identity',
+      detail: 'Deterministic 2-of-3 match against records',
       state: identityComplete ? 'complete' : busy ? 'active' : 'idle',
     },
     {
-      name: 'Authorization',
-      detail: 'Secret-answer verification',
+      name: 'Verification',
+      detail: 'Secret-answer check, attempt-limited',
       state: telemetry.authenticated
         ? 'complete'
         : busy && telemetry.identified
@@ -43,7 +43,7 @@ function buildStages(telemetry: Telemetry, busy: boolean): Stage[] {
     },
     {
       name: 'Classification',
-      detail: 'Patient classification and resolution',
+      detail: 'Premium/regular patient tier',
       state: telemetry.classification
         ? 'complete'
         : busy && telemetry.authenticated
@@ -52,7 +52,7 @@ function buildStages(telemetry: Telemetry, busy: boolean): Stage[] {
     },
     {
       name: 'Routing',
-      detail: 'Intent and department selection',
+      detail: 'Support intent and care department',
       state: routingComplete ? 'complete' : busy && telemetry.authenticated ? 'active' : 'idle',
     },
     {

@@ -52,8 +52,8 @@ export function ChatPanel({
     <section className="panel chat-panel" aria-label="Support conversation">
       <div className="panel-heading">
         <div>
-          <p className="eyebrow">Interactive demo</p>
-          <h2>Support conversation</h2>
+          <p className="eyebrow">Interactive patient demo</p>
+          <h2>Patient support conversation</h2>
         </div>
         <div className="chat-actions">
           {sessionActive ? (

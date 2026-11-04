@@ -34,13 +34,13 @@ export function TelemetryPanel({ telemetry, session, busy }: TelemetryPanelProps
           </strong>
         </div>
         <div className="security-item">
-          <span className="security-label">Identity</span>
+          <span className="security-label">Patient identity</span>
           <strong className={telemetry.identified ? 'is-good' : 'is-warn'}>
             {telemetry.identified ? 'Matched' : 'Pending'}
           </strong>
         </div>
         <div className="security-item">
-          <span className="security-label">Authorization</span>
+          <span className="security-label">Verification</span>
           <strong className={telemetry.authenticated ? 'is-good' : 'is-warn'}>
             {telemetry.authenticated ? 'Verified' : 'Pending'}
           </strong>

@@ -15,7 +15,7 @@ const STARTER_MESSAGES: ChatMessage[] = [
   {
     id: 'welcome',
     role: 'assistant',
-    text: 'Start a session to watch the AgentFlow workflow identify, authorize, classify, and route a support request.',
+    text: 'Start a session to watch the AgentFlow workflow identify, authorize, classify, and route a patient support request.',
   },
 ]
 
@@ -183,7 +183,7 @@ function App() {
           </span>
           <span>
             <strong>AgentFlow AI</strong>
-            <small>Secure multi-agent support</small>
+            <small>Secure multi-agent patient support</small>
           </span>
         </a>
         <nav className="site-nav" aria-label="Primary">
@@ -206,8 +206,8 @@ function App() {
             <h1>Secure multi-agent patient support, end to end.</h1>
             <p className="hero-body">
               AgentFlow AI explores how specialized agents collaborate to deliver secure,
-              context-aware support. Natural-language understanding meets deterministic identity
-              verification, authorization, patient classification, and intelligent routing.
+              context-aware patient support. Natural-language understanding meets deterministic
+              identity verification, authorization, patient classification, and care-team routing.
             </p>
             <div className="tech-pills" aria-label="Technology stack">
               <span>Python</span>
@@ -314,9 +314,9 @@ function App() {
       </main>
 
       <footer className="site-footer">
-        <span>AgentFlow AI</span>
-        <span>Independent project by Isabel Soares</span>
-        <span>Built with Python, FastAPI, LangGraph, React, and TypeScript</span>
+          <span>AgentFlow AI</span>
+          <span>Healthcare support reference demo by Isabel Soares</span>
+          <span>Built with Python, FastAPI, LangGraph, React, and TypeScript</span>
       </footer>
     </div>
   )
