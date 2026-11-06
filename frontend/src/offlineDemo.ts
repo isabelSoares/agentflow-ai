@@ -10,6 +10,10 @@ import type { ConversationTurn } from './types'
  * secret-question check, and the premium/regular routing of the backend's
  * scripted adapters (see `src/healthcare_support/data/seed.py`,
  * `core/matching.py`, `core/verification.py`, and `core/routing.py`).
+ *
+ * Pre-authentication chitchat (messages without identity attributes) gets a
+ * conversational reply and never consumes an identification attempt, mirroring
+ * the backend's CHITCHAT handling in `agents/identity_nodes.py`.
  */
 
 const MAX_ATTEMPTS = 3
@@ -21,6 +25,10 @@ const GREETING =
 const ASK_MORE_ATTRIBUTES =
   "I need a bit more information because I wasn't able to verify you. " +
   'Please provide another detail, such as your name, phone number, or date of birth.'
+
+const CHITCHAT_REPLY =
+  "Hi! I'm happy to chat. When you're ready for support, just share your name " +
+  "plus your phone number or date of birth and I'll verify you."
 
 const SECRET_QUESTION_PREFIX =
   'Thank you. To complete verification, please answer your security question: '
@@ -199,7 +207,10 @@ function extractAttributes(text: string): { name: string | null; phone: string |
   const dobMatch = /\b(\d{4}[-/]\d{1,2}[-/]\d{1,2})\b/.exec(text)
   const dob = dobMatch ? normalizeDateOfBirth(dobMatch[1]) : null
 
-  const words = normalizeName(text).split(' ')
+  const words = normalizeName(text)
+    .split(' ')
+    .map((word) => word.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, ''))
+    .filter(Boolean)
   let name: string | null = null
   for (const patient of PATIENTS) {
     const parts = normalizeName(patient.name).split(' ')
@@ -373,8 +384,14 @@ export function offlineSend(session: OfflineSession, text: string): { session: O
         turn: toTurn(next, `${SECRET_QUESTION_PREFIX}${result.patient.secretQuestion}`),
       }
     }
-    if (result.outcome === 'ambiguous' || result.outcome === 'insufficient') {
+    if (result.outcome === 'ambiguous') {
       return { session, turn: toTurn(session, ASK_MORE_ATTRIBUTES) }
+    }
+    // Messages without any identity-like attributes are chitchat, not identity
+    // claims: answer conversationally and never consume an identification attempt.
+    const chitchat = !attributes.name && !attributes.phone && !attributes.dob
+    if (result.outcome === 'insufficient' || chitchat) {
+      return { session, turn: toTurn(session, chitchat ? CHITCHAT_REPLY : ASK_MORE_ATTRIBUTES) }
     }
     const attempts = session.identificationAttempts + 1
     if (attempts >= MAX_ATTEMPTS) {
