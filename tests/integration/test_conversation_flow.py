@@ -130,6 +130,33 @@ class TestUS1Identification:
         assert state["status"] == ConversationStatus.IDENTIFIED.value
         assert "Which is the name of my dog?" in state["reply"]
 
+    def test_chitchat_label_does_not_shield_failed_database_match(
+        self, repository: InMemoryPatientRepository
+    ) -> None:
+        # Security decisions come from the deterministic repository match, not
+        # the advisory LLM label: attributes that match no patient in the
+        # database consume an identification attempt even when labeled chitchat.
+        extractor = ScriptedFakeExtractor(
+            [
+                ExtractionResult(
+                    name="Zed", phone="+14155550099", intent=ExtractionIntent.CHITCHAT
+                ),
+            ]
+            * 3
+        )
+        graph = build_verification_graph(repository, extractor)
+        cid = "conv-us1-chitchat-nomatch"
+        graph.update_state({"configurable": {"thread_id": cid}}, make_initial_state(cid))
+        for i in range(2):
+            state = run_turn(graph, cid, f"hi, I am Zed, phone +14155550099 ({i})")
+            assert state["status"] == ConversationStatus.COLLECTING.value
+            assert state["terminated"] is False
+            assert state["identification_attempts"] == i + 1
+            assert "wasn't able to verify" in state["reply"].lower()
+        final = run_turn(graph, cid, "hi again, still Zed, +14155550099")
+        assert final["terminated"] is True
+        assert "not currently a client" in final["reply"].lower()
+
 
 class TestUS2Authentication:
     def test_correct_answer_authenticates(self, repository: InMemoryPatientRepository) -> None:
