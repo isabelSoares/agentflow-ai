@@ -47,6 +47,11 @@ MANIPULATION_RE_PROMPT = (
 
 EMPTY_RE_PROMPT = "I didn't catch that. Please provide your name, phone number, or date of birth."
 
+CHITCHAT_REPLY = (
+    "Hi! I'm happy to chat. When you're ready for support, just share your name "
+    "plus your phone number or date of birth and I'll verify you."
+)
+
 CLOSED_CONVERSATION = (
     "This verification session has ended. If you need further assistance, "
     "please start a new conversation."

@@ -10,6 +10,7 @@ from healthcare_support.core import matching, verification
 from healthcare_support.core.responses import (
     ASK_DISAMBIGUATION,
     ASK_MORE_ATTRIBUTES,
+    CHITCHAT_REPLY,
     DATA_REQUEST_REFUSAL,
     IDENTIFICATION_FAILURE,
     SECRET_QUESTION_PREFIX,
@@ -63,8 +64,14 @@ def make_identity_nodes(dependencies: WorkflowDependencies) -> dict[str, Any]:
                 )
             )
             return {"reply": ASK_DISAMBIGUATION}
+        # The LLM chitchat label only picks the reply tone for turns that carry
+        # no verifiable identity claim (< 2 attributes). Attempt counting is a
+        # security decision and is driven solely by the deterministic database
+        # match: NO_MATCH means the provided attributes match no patient in the
+        # repository, so an attempt is consumed regardless of the LLM label.
+        chitchat = state.get("extraction_intent") == ExtractionIntent.CHITCHAT.value
         if result.outcome == matching.MatchOutcome.INSUFFICIENT_DATA:
-            return {"reply": ASK_MORE_ATTRIBUTES}
+            return {"reply": CHITCHAT_REPLY if chitchat else ASK_MORE_ATTRIBUTES}
 
         new_attempts = state["identification_attempts"] + 1
         emit(

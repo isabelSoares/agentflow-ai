@@ -81,9 +81,28 @@ describe('offline demo engine', () => {
     expect(after.turn.reply).toContain('session has ended')
   })
 
-  it('does not consume an attempt when fewer than 2 attributes are provided', () => {
+  it('answers chitchat conversationally without consuming an attempt', () => {
     const session = createOfflineSession()
     const { session: next, turn } = offlineSend(session, 'hello there')
+    expect(turn.reply).toContain('happy to chat')
+    expect(turn.identified).toBe(false)
+    expect(next.identificationAttempts).toBe(0)
+  })
+
+  it('never terminates no matter how much chitchat is sent', () => {
+    let session = createOfflineSession()
+    for (let i = 0; i < 10; i += 1) {
+      const result = offlineSend(session, 'just chatting, no identity details here')
+      session = result.session
+      expect(result.turn.reply).toContain('happy to chat')
+      expect(result.turn.terminated).toBe(false)
+    }
+    expect(session.identificationAttempts).toBe(0)
+  })
+
+  it('still asks for more detail when only one attribute is provided', () => {
+    const session = createOfflineSession()
+    const { session: next, turn } = offlineSend(session, 'My name is Lisa.')
     expect(turn.reply).toContain("wasn't able to verify you")
     expect(next.identificationAttempts).toBe(0)
   })

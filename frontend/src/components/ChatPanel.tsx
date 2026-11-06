@@ -2,9 +2,9 @@ import { useEffect, useRef, useState, type FormEvent } from 'react'
 import type { ChatMessage } from '../types'
 
 const SUGGESTIONS = [
-  "Hi, I'm Lisa. My phone is +14155552671 and my date of birth is 1990-01-15.",
-  "My dog's name is Yoda.",
+  'Hi there!',
   'I need help with a medical bill.',
+  "Hi, I'm Lisa — my phone is +14155552671 and my date of birth is 1990-01-15.",
 ]
 
 interface ChatPanelProps {
@@ -139,8 +139,9 @@ export function ChatPanel({
             ))}
           </div>
           <p className="suggestion-hint">
-            The full live flow needs a configured LLM provider. Without a key, the API uses safe
-            deterministic adapters.
+            Chat freely — share your name plus phone number or date of birth whenever you want to
+            verify and get routed. The full live flow needs a configured LLM provider; without a
+            key, the API uses safe deterministic adapters.
           </p>
         </div>
       )}
