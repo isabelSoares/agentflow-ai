@@ -14,6 +14,7 @@ This contract defines the observable behavior of the demo when the page loads wi
 | HTTP `404` | `unavailable` | Offline demo starts automatically; offline notice shown |
 | HTTP `405` | `unavailable` | Offline demo starts automatically; offline notice shown |
 | HTTP `501` | `unavailable` | Offline demo starts automatically; offline notice shown |
+| HTTP `502`, `503`, `504` (gateway/upstream unavailable) | `unavailable` | Offline demo starts automatically; offline notice shown |
 | Startup timeout | `unavailable` | Offline demo starts automatically; offline notice shown |
 | Any other HTTP error (e.g. `403`, `500`) | `error` | Actionable error shown; offline demo NOT started |
 

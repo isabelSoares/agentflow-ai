@@ -46,7 +46,7 @@ offline ──reset──▶ offline (fresh demo session)
 | Value | Trigger | Result |
 |-------|---------|--------|
 | `available` | Successful session creation | Start live session |
-| `unavailable` | Network failure, `404`, `405`, `501`, or startup timeout | Start offline demo automatically |
+| `unavailable` | Network failure, `404`, `405`, `501`, gateway-unavailable `502`/`503`/`504`, or startup timeout | Start offline demo automatically |
 | `error` | Other application failure (`403`, `500`, etc.) | Show actionable error; do not start offline demo |
 
 **Validation rules**:

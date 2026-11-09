@@ -17,9 +17,9 @@
 
 ## Decision 1: Classify "backend unavailable" from the startup request outcome
 
-**Decision**: Reuse the existing `isBackendUnreachable(status)` classification (`0` network failure, `404`, `405`, `501`) to decide when to start the offline demo automatically. Treat `403`, `500`, and other application responses as genuine errors that do not trigger the fallback.
+**Decision**: Reuse the existing `isBackendUnreachable(status)` classification (`0` network failure, `404`, `405`, `501`, and gateway-unavailable `502`/`503`/`504`) to decide when to start the offline demo automatically. Treat `403`, `500`, and other application responses as genuine errors that do not trigger the fallback.
 
-**Rationale**: A static host rejects `POST` with `405`; a wrong gateway route yields `404`/`501`; an offline device yields a network failure (`0`). These are exactly the conditions where no backend can serve the demo. Application-level errors mean a backend *is* present and failing, which the visitor must see.
+**Rationale**: A static host rejects `POST` with `405`; a wrong gateway route yields `404`/`501`; an offline device yields a network failure (`0`); and a reverse proxy with no live upstream yields `502`/`503`/`504` (verified with the Vite preview proxy when the backend port is closed). These are exactly the conditions where no backend can serve the demo. Application-level errors mean a backend *is* present and failing, which the visitor must see.
 
 **Alternatives considered**:
 - *Fallback on any non-OK response*: rejected because it would hide authorization and server defects (violates spec FR-010).

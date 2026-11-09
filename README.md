@@ -217,7 +217,9 @@ The frontend is deployed to GitHub Pages by the [`Pages` workflow](.github/workf
 
 **https://isabelsoares.github.io/agentflow-ai/**
 
-GitHub Pages is a **static** host: it serves files with GET/HEAD only and has no FastAPI backend behind it. A chat request (`POST /api/conversations`) is therefore rejected by the Pages server with **405 Method Not Allowed** — that is the "Request failed with status 405" you see when clicking *Start session* on the live page. The page now explains this in the error banner and offers a **Run offline demo** button: an in-browser engine (`frontend/src/offlineDemo.ts`) that mirrors the backend's deterministic scenario (seed patients, 2-of-3 identity matching, secret question, premium/regular routing), so the live page is fully interactive without a backend.
+GitHub Pages is a **static** host: it serves files with GET/HEAD only and has no FastAPI backend behind it, so a chat request (`POST /api/conversations`) is rejected with **405 Method Not Allowed**. The page handles this automatically: when the startup request cannot reach a backend, it starts the in-browser demo (`frontend/src/offlineDemo.ts`) instead of showing an error. That engine mirrors the backend's deterministic scenario (seed patients, 2-of-3 identity matching, secret question, premium/regular routing), so the live page is fully interactive without a backend. A non-blocking **Offline demo mode** notice explains what is happening, and the demo area includes a **Try this scenario** guide with the fictional sample details so a first-time visitor can complete identity verification, classification, and routing on the page.
+
+When an API backend is reachable, the page uses it and hides the offline notice. If the backend becomes available after the offline demo started, select **Try live service** to switch to a live session without reloading.
 
 To run the demo against the **real API** instead, wire a backend to the page: rebuild with `VITE_API_BASE_URL=https://<your-backend-host>` and add the Pages origin to the backend's `CORS_ALLOWED_ORIGINS`. Locally, `npm run dev` proxies `/api` to `http://127.0.0.1:8000` (see Quickstart).
 
@@ -274,11 +276,11 @@ The production build uses the same `/api` default. `npm run preview` mirrors the
 
 #### Troubleshooting a 404 on session start
 
-A 404 on `POST /conversations` means the browser reached the static frontend host instead of the API gateway. Confirm that `VITE_API_BASE_URL` is empty or set to a reachable API origin, that the dev/preview server is running, and that production routes `/api/*` to the backend. The backend's own routes stay at `/conversations`.
+A 404 on `POST /conversations` means the browser reached the static frontend host instead of the API gateway. Confirm that `VITE_API_BASE_URL` is empty or set to a reachable API origin, that the dev/preview server is running, and that production routes `/api/*` to the backend. The backend's own routes stay at `/conversations`. On the public static build a 404 is treated like an unavailable backend: the page starts the in-browser demo automatically.
 
 #### Troubleshooting a 405 on session start
 
-A 405 on `POST /api/conversations` means the request hit a static file host (such as GitHub Pages) that only allows GET/HEAD — there is no API backend behind that origin, so POST is rejected with "Method Not Allowed". On the live Pages build this is expected: use the **Run offline demo** button on the page, or run the full stack locally (backend on port 8000 + `npm run dev`). To give the deployed page a real backend, rebuild with `VITE_API_BASE_URL=https://<your-backend-host>` and allow the Pages origin in `CORS_ALLOWED_ORIGINS`.
+A 405 on `POST /api/conversations` means the request hit a static file host (such as GitHub Pages) that only allows GET/HEAD — there is no API backend behind that origin, so POST is rejected with "Method Not Allowed". On the live Pages build this is expected and is handled for the visitor: the page starts the offline demo automatically and shows a non-blocking **Offline demo mode** notice. Select **Try live service** after a backend becomes available, or run the full stack locally (backend on port 8000 + `npm run dev`). To give the deployed page a real backend, rebuild with `VITE_API_BASE_URL=https://<your-backend-host>` and allow the Pages origin in `CORS_ALLOWED_ORIGINS`.
 
 ### 3. Run with Docker
 

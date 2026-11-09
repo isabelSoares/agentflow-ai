@@ -28,7 +28,7 @@ Web application layout: frontend code in `frontend/src/`, frontend tests in `fro
 
 **Purpose**: Establish a green baseline. No new dependencies are required.
 
-- [ ] T001 Confirm the current frontend baseline passes by running `cd frontend && npm test && npm run build`; record any pre-existing failures before changing code (no file changes).
+- [X] T001 Confirm the current frontend baseline passes by running `cd frontend && npm test && npm run build`; record any pre-existing failures before changing code (no file changes).
 
 ---
 
@@ -38,8 +38,8 @@ Web application layout: frontend code in `frontend/src/`, frontend tests in `fro
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T002 Add shared demo types in `frontend/src/types.ts`: `DemoSource = 'none' | 'live' | 'offline'`, `BackendAvailability = 'available' | 'unavailable' | 'error'`, and a `ScenarioStep` type with `order: number`, `instruction: string`, and `example: string | null`.
-- [ ] T003 [P] Add a bounded startup timeout and startup-outcome helper in `frontend/src/api.ts`: classify no response, `404`, `405`, `501`, and timeout as `unavailable`; classify other HTTP failures (for example `403`, `500`) as `error`; successful creation as `available`; use a `6000ms` default timeout and treat an aborted request as status `0`.
+- [X] T002 Add shared demo types in `frontend/src/types.ts`: `DemoSource = 'none' | 'live' | 'offline'`, `BackendAvailability = 'available' | 'unavailable' | 'error'`, and a `ScenarioStep` type with `order: number`, `instruction: string`, and `example: string | null`.
+- [X] T003 [P] Add a bounded startup timeout and startup-outcome helper in `frontend/src/api.ts`: classify no response, `404`, `405`, `501`, gateway-unavailable `502`/`503`/`504`, and timeout as `unavailable`; classify other HTTP failures (for example `403`, `500`) as `error`; successful creation as `available`; use a `6000ms` default timeout and treat an aborted request as status `0`.
 
 **Checkpoint**: Shared types and availability classification ready.
 
@@ -55,15 +55,15 @@ Web application layout: frontend code in `frontend/src/`, frontend tests in `fro
 
 > Write these tests FIRST and confirm they fail before implementation.
 
-- [ ] T004 [P] [US1] Update `frontend/src/__tests__/App.offline.test.tsx`: a mocked `405` MUST auto-start the offline demo, MUST NOT render a blocking `role="alert"`, MUST show a `role="status"` offline notice, MUST NOT show raw `405`/`404` text as a failure, and MUST let the visitor complete identify → secret answer → billing route with an enabled composer.
-- [ ] T005 [P] [US1] Add `frontend/src/__tests__/apiTimeout.test.ts`: a startup request that never resolves within the timeout is classified `unavailable` and triggers the offline demo; successful creation is classified `available`.
+- [X] T004 [P] [US1] Update `frontend/src/__tests__/App.offline.test.tsx`: a mocked `405` MUST auto-start the offline demo, MUST NOT render a blocking `role="alert"`, MUST show a `role="status"` offline notice, MUST NOT show raw `405`/`404` text as a failure, and MUST let the visitor complete identify → secret answer → billing route with an enabled composer.
+- [X] T005 [P] [US1] Add `frontend/src/__tests__/apiTimeout.test.ts`: a startup request that never resolves within the timeout is classified `unavailable` and triggers the offline demo; successful creation is classified `available`.
 
 ### Implementation for User Story 1
 
-- [ ] T006 [US1] Implement automatic fallback in `frontend/src/App.tsx`: when the startup outcome is `unavailable`, start the offline demo immediately (`createOfflineSession` + `offlineGreeting`), set the source to `offline`, clear any error, and ensure at most one startup attempt is in flight (duplicate session creation MUST be prevented while starting).
-- [ ] T007 [US1] Replace the blocking error presentation in `frontend/src/components/ChatPanel.tsx` with a non-blocking offline notice rendered only when the source is `offline`; the notice MUST state that the demo runs in the browser without an API backend, MUST use `role="status"`, and MUST NOT include a raw HTTP status code as the primary message.
-- [ ] T008 [P] [US1] Add styles for the offline notice and composer/status states in `frontend/src/styles.css`; status MUST NOT rely on color alone.
-- [ ] T009 [US1] Wire the source state and callbacks through `frontend/src/App.tsx` to `frontend/src/components/ChatPanel.tsx`, remove the obsolete `offlineAvailable` / `onStartOffline` second-click flow, and enable the message input and send action whenever a session is active (`live` or `offline`).
+- [X] T006 [US1] Implement automatic fallback in `frontend/src/App.tsx`: when the startup outcome is `unavailable`, start the offline demo immediately (`createOfflineSession` + `offlineGreeting`), set the source to `offline`, clear any error, and ensure at most one startup attempt is in flight (duplicate session creation MUST be prevented while starting).
+- [X] T007 [US1] Replace the blocking error presentation in `frontend/src/components/ChatPanel.tsx` with a non-blocking offline notice rendered only when the source is `offline`; the notice MUST state that the demo runs in the browser without an API backend, MUST use `role="status"`, and MUST NOT include a raw HTTP status code as the primary message.
+- [X] T008 [P] [US1] Add styles for the offline notice and composer/status states in `frontend/src/styles.css`; status MUST NOT rely on color alone.
+- [X] T009 [US1] Wire the source state and callbacks through `frontend/src/App.tsx` to `frontend/src/components/ChatPanel.tsx`, remove the obsolete `offlineAvailable` / `onStartOffline` second-click flow, and enable the message input and send action whenever a session is active (`live` or `offline`).
 
 **Checkpoint**: User Story 1 is fully functional on a static host and testable independently.
 
@@ -77,13 +77,13 @@ Web application layout: frontend code in `frontend/src/`, frontend tests in `fro
 
 ### Tests for User Story 2 ⚠️
 
-- [ ] T010 [P] [US2] Add `frontend/src/__tests__/App.guidance.test.tsx`: the project summary and ordered scenario steps are rendered; the sample identity (`Lisa`, `+14155552671`, `1990-01-15`), sample secret answer (`Yoda`), and a billing request are discoverable; guidance appears in both live and offline modes and is not dismissible.
+- [X] T010 [P] [US2] Add `frontend/src/__tests__/App.guidance.test.tsx`: the project summary and ordered scenario steps are rendered; the sample identity (`Lisa`, `+14155552671`, `1990-01-15`), sample secret answer (`Yoda`), and a billing request are discoverable; guidance appears in both live and offline modes and is not dismissible.
 
 ### Implementation for User Story 2
 
-- [ ] T011 [P] [US2] Create `frontend/src/demoGuidance.ts` with the project summary, three ordered `ScenarioStep` entries, and only fictional sample values (`Lisa`, `+14155552671`, `1990-01-15`, `Yoda`, a billing request); no real personal data, credentials, or secret answers.
-- [ ] T012 [US2] Create `frontend/src/components/DemoGuide.tsx` and render it in `frontend/src/components/ChatPanel.tsx`: show the summary, ordered steps with associated example values, a note that the sample record is fictional, and a note that the same steps run against the live API when a backend is connected.
-- [ ] T013 [US2] Add guidance styles in `frontend/src/styles.css` (depends on T008 because both edit the same file); preserve heading hierarchy and document-order readability.
+- [X] T011 [P] [US2] Create `frontend/src/demoGuidance.ts` with the project summary, three ordered `ScenarioStep` entries, and only fictional sample values (`Lisa`, `+14155552671`, `1990-01-15`, `Yoda`, a billing request); no real personal data, credentials, or secret answers.
+- [X] T012 [US2] Create `frontend/src/components/DemoGuide.tsx` and render it in `frontend/src/components/ChatPanel.tsx`: show the summary, ordered steps with associated example values, a note that the sample record is fictional, and a note that the same steps run against the live API when a backend is connected.
+- [X] T013 [US2] Add guidance styles in `frontend/src/styles.css` (depends on T008 because both edit the same file); preserve heading hierarchy and document-order readability.
 
 **Checkpoint**: User Story 2 works independently and remains available in both demo sources.
 
@@ -97,13 +97,13 @@ Web application layout: frontend code in `frontend/src/`, frontend tests in `fro
 
 ### Tests for User Story 3 ⚠️
 
-- [ ] T014 [P] [US3] Add `frontend/src/__tests__/App.livePreference.test.tsx`: a successful live start shows no offline notice; an offline session followed by a successful "Try live service" switches to `live` and clears prior messages; an unavailable retry stays offline without an error; a genuine error during retry shows an actionable error and keeps the offline demo usable.
+- [X] T014 [P] [US3] Add `frontend/src/__tests__/App.livePreference.test.tsx`: a successful live start shows no offline notice; an offline session followed by a successful "Try live service" switches to `live` and clears prior messages; an unavailable retry stays offline without an error; a genuine error during retry shows an actionable error and keeps the offline demo usable.
 
 ### Implementation for User Story 3
 
-- [ ] T015 [US3] Add a `retryLive` flow in `frontend/src/App.tsx`: attempt a live session; on `available` switch the source to `live`, clear the offline notice, and start a fresh live conversation; on `unavailable` remain offline with no error; on `error` show the actionable message and remain offline. Switching sources MUST clear previous messages so the conversation is coherent.
-- [ ] T016 [US3] Add a "Try live service" action in `frontend/src/components/ChatPanel.tsx`, visible only when the source is `offline`, disabled while busy, and reachable by keyboard.
-- [ ] T017 [US3] Ensure every live start path (initial load and retry) clears the offline source and notice in `frontend/src/App.tsx`, so a reachable backend never displays the offline notice.
+- [X] T015 [US3] Add a `retryLive` flow in `frontend/src/App.tsx`: attempt a live session; on `available` switch the source to `live`, clear the offline notice, and start a fresh live conversation; on `unavailable` remain offline with no error; on `error` show the actionable message and remain offline. Switching sources MUST clear previous messages so the conversation is coherent.
+- [X] T016 [US3] Add a "Try live service" action in `frontend/src/components/ChatPanel.tsx`, visible only when the source is `offline`, disabled while busy, and reachable by keyboard.
+- [X] T017 [US3] Ensure every live start path (initial load and retry) clears the offline source and notice in `frontend/src/App.tsx`, so a reachable backend never displays the offline notice.
 
 **Checkpoint**: User Story 3 works independently; live remains the preferred source.
 
@@ -117,12 +117,12 @@ Web application layout: frontend code in `frontend/src/`, frontend tests in `fro
 
 ### Tests for User Story 4 ⚠️
 
-- [ ] T018 [P] [US4] Add `frontend/src/__tests__/App.errors.test.tsx`: startup with `403` and with `500` MUST NOT start the offline demo or show the offline notice, MUST show a readable actionable message in a `role="alert"`, MUST keep the composer disabled, and MUST offer a retry.
+- [X] T018 [P] [US4] Add `frontend/src/__tests__/App.errors.test.tsx`: startup with `403` and with `500` MUST NOT start the offline demo or show the offline notice, MUST show a readable actionable message in a `role="alert"`, MUST keep the composer disabled, and MUST offer a retry.
 
 ### Implementation for User Story 4
 
-- [ ] T019 [US4] Enforce the classification boundary in `frontend/src/App.tsx` and `frontend/src/api.ts`: only `unavailable` outcomes start the offline demo; `error` outcomes render `toMessage(caught)` and keep the source `none` (offline demo MUST NOT start for a genuine service error).
-- [ ] T020 [US4] Keep the error banner accessible and retryable in `frontend/src/components/ChatPanel.tsx`: retain `role="alert"` for genuine errors, show the "Start session" retry when no session exists, and ensure the offline notice is absent during genuine errors.
+- [X] T019 [US4] Enforce the classification boundary in `frontend/src/App.tsx` and `frontend/src/api.ts`: only `unavailable` outcomes start the offline demo; `error` outcomes render `toMessage(caught)` and keep the source `none` (offline demo MUST NOT start for a genuine service error).
+- [X] T020 [US4] Keep the error banner accessible and retryable in `frontend/src/components/ChatPanel.tsx`: retain `role="alert"` for genuine errors, show the "Start session" retry when no session exists, and ensure the offline notice is absent during genuine errors.
 
 **Checkpoint**: All four user stories are independently functional; genuine errors remain visible.
 
@@ -132,11 +132,11 @@ Web application layout: frontend code in `frontend/src/`, frontend tests in `fro
 
 **Purpose**: Documentation, accessibility verification, and full validation.
 
-- [ ] T021 [P] Update `README.md` live-demo and troubleshooting sections: describe the automatic in-browser fallback, the guided scenario, the "Try live service" retry, and remove references to requiring a manual "Run offline demo" click.
-- [ ] T022 [P] Accessibility review of the offline notice, guidance, and retry action: confirm `role="status"` announcements, keyboard operability, heading hierarchy, and that status is not conveyed by color alone.
-- [ ] T023 Run the static/no-backend validation in `specs/004-static-chat-fallback/quickstart.md` (sections 1 and 2) and record the observed outcome.
-- [ ] T024 Run the live, retry, and genuine-error validations in `specs/004-static-chat-fallback/quickstart.md` (sections 3 through 5) and record the observed outcome.
-- [ ] T025 Run the full automated gate: `cd frontend && npm test && npm run build`, then `uv run pytest -m "not live_llm and not live_speech" --cov=src/healthcare_support --cov-branch --cov-report=term-missing --cov-fail-under=80`, `uv run mypy src`, `uv run ruff check src tests`, and `uv run ruff format --check src tests`.
+- [X] T021 [P] Update `README.md` live-demo and troubleshooting sections: describe the automatic in-browser fallback, the guided scenario, the "Try live service" retry, and remove references to requiring a manual "Run offline demo" click.
+- [X] T022 [P] Accessibility review of the offline notice, guidance, and retry action: confirm `role="status"` announcements, keyboard operability, heading hierarchy, and that status is not conveyed by color alone.
+- [X] T023 Run the static/no-backend validation in `specs/004-static-chat-fallback/quickstart.md` (sections 1 and 2) and record the observed outcome.
+- [X] T024 Run the live, retry, and genuine-error validations in `specs/004-static-chat-fallback/quickstart.md` (sections 3 through 5) and record the observed outcome.
+- [X] T025 Run the full automated gate: `cd frontend && npm test && npm run build`, then `uv run pytest -m "not live_llm and not live_speech" --cov=src/healthcare_support --cov-branch --cov-report=term-missing --cov-fail-under=80`, `uv run mypy src`, `uv run ruff check src tests`, and `uv run ruff format --check src tests`.
 
 ---
 
