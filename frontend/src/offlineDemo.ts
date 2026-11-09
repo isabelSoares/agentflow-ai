@@ -154,6 +154,88 @@ export interface OfflineSession {
   secretAnswerAttempts: number
 }
 
+const NAME_STOPWORDS = new Set([
+  'i',
+  "i'm",
+  'im',
+  'my',
+  'me',
+  'we',
+  'you',
+  'he',
+  'she',
+  'they',
+  'it',
+  'this',
+  'that',
+  'the',
+  'a',
+  'an',
+  'hi',
+  'hello',
+  'hey',
+  'thanks',
+  'thank',
+  'please',
+  'can',
+  'could',
+  'would',
+  'should',
+  'help',
+  'need',
+  'want',
+  'phone',
+  'number',
+  'date',
+  'birth',
+  'born',
+  'name',
+  'is',
+  'am',
+  'are',
+  'was',
+  'were',
+  'and',
+  'or',
+  'of',
+  'to',
+  'for',
+  'with',
+  'billing',
+  'bill',
+  'insurance',
+  'appointment',
+  'doctor',
+  'medical',
+  'support',
+  'agentflow',
+  'ai',
+  'morning',
+  'afternoon',
+  'evening',
+  'good',
+  'yes',
+  'no',
+  'ok',
+  'okay',
+  'sure',
+  'well',
+  'so',
+  'but',
+  'not',
+  'client',
+  'here',
+  'there',
+  'just',
+  'chatting',
+  'identity',
+  'details',
+  'question',
+  'result',
+  'test',
+  'symptom',
+])
+
 function normalizeName(value: string): string {
   return value
     .normalize('NFKD')
@@ -175,15 +257,19 @@ function namePartsMatch(provided: string, registered: string): boolean {
 }
 
 function normalizePhone(value: string): string | null {
-  const digits = value.replace(/[^\d+]/g, '')
-  if (!/^\+\d{6,15}$/.test(digits)) return null
+  const digits = value.replace(/\D/g, '')
+  if (digits.length < 7 || digits.length > 15) return null
   return digits
 }
 
-function normalizeDateOfBirth(value: string): string | null {
-  const match = /^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/.exec(value.trim())
-  if (!match) return null
-  const [, year, month, day] = match
+function phonePartsMatch(provided: string, registered: string): boolean {
+  if (provided === registered) return true
+  const shorter = provided.length <= registered.length ? provided : registered
+  const longer = provided.length <= registered.length ? registered : provided
+  return shorter.length >= 7 && longer.endsWith(shorter)
+}
+
+function parseDateParts(year: string, month: string, day: string): string | null {
   const parsed = new Date(Number(year), Number(month) - 1, Number(day))
   if (
     parsed.getFullYear() !== Number(year) ||
@@ -195,37 +281,96 @@ function normalizeDateOfBirth(value: string): string | null {
   return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
 }
 
+function normalizeDateOfBirth(value: string): string | null {
+  const trimmed = value.trim()
+  const yearFirst = /^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/.exec(trimmed)
+  if (yearFirst) return parseDateParts(yearFirst[1], yearFirst[2], yearFirst[3])
+  const dayFirst = /^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/.exec(trimmed)
+  if (dayFirst) return parseDateParts(dayFirst[3], dayFirst[2], dayFirst[1])
+  return null
+}
+
 function normalizeAnswer(value: string): string | null {
   const answer = value.trim().toLowerCase()
   return answer ? answer : null
 }
 
-function extractAttributes(text: string): { name: string | null; phone: string | null; dob: string | null } {
-  const phoneMatch = /\+\d[\d\s().-]{5,}\d/.exec(text)
-  const phone = phoneMatch ? normalizePhone(phoneMatch[0]) : null
+function hasNonStopword(value: string): boolean {
+  return value
+    .split(/\s+/)
+    .filter(Boolean)
+    .some((token) => !NAME_STOPWORDS.has(normalizeName(token)))
+}
 
-  const dobMatch = /\b(\d{4}[-/]\d{1,2}[-/]\d{1,2})\b/.exec(text)
-  const dob = dobMatch ? normalizeDateOfBirth(dobMatch[1]) : null
-
+function extractName(text: string): string | null {
   const words = normalizeName(text)
     .split(' ')
     .map((word) => word.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, ''))
     .filter(Boolean)
-  let name: string | null = null
   for (const patient of PATIENTS) {
     const parts = normalizeName(patient.name).split(' ')
     if (parts.every((part) => words.includes(part))) {
-      name = patient.name
-      break
+      return patient.name
     }
     const token = words.find((word) => parts.includes(word))
     if (token) {
-      name = token
-      break
+      return token
     }
   }
 
-  return { name, phone, dob }
+  const explicit =
+    /\b(?:my name is|name is|i am|i'm|this is|name:)\s+([\p{L}][\p{L}'’.-]*(?:\s+[\p{L}][\p{L}'’.-]*){0,3})/iu.exec(
+      text,
+    )
+  if (explicit) {
+    const candidate = explicit[1].trim()
+    if (/^\p{Lu}/u.test(candidate) && hasNonStopword(candidate)) {
+      return candidate
+    }
+  }
+
+  const capitalized =
+    text.match(/\b[\p{Lu}][\p{L}'’.-]*(?:\s+[\p{Lu}][\p{L}'’.-]*){1,3}\b/gu) ?? []
+  for (const phrase of capitalized) {
+    const tokens = phrase
+      .split(/\s+/)
+      .filter((token) => token && !NAME_STOPWORDS.has(normalizeName(token)))
+    if (tokens.length >= 2) {
+      return tokens.join(' ')
+    }
+  }
+
+  return null
+}
+
+function extractDateOfBirth(text: string): string | null {
+  const yearFirst = /\b\d{4}[-/]\d{1,2}[-/]\d{1,2}\b/.exec(text)
+  if (yearFirst) {
+    const normalized = normalizeDateOfBirth(yearFirst[0])
+    if (normalized) return normalized
+  }
+  const dayFirst = /\b\d{1,2}[-/]\d{1,2}[-/]\d{4}\b/.exec(text)
+  return dayFirst ? normalizeDateOfBirth(dayFirst[0]) : null
+}
+
+function extractPhone(text: string): string | null {
+  const withoutDates = text
+    .replace(/\b\d{4}[-/]\d{1,2}[-/]\d{1,2}\b/g, ' ')
+    .replace(/\b\d{1,2}[-/]\d{1,2}[-/]\d{4}\b/g, ' ')
+  const candidates = withoutDates.match(/\+?\d[\d\s().-]*\d/g) ?? []
+  for (const candidate of candidates) {
+    const normalized = normalizePhone(candidate)
+    if (normalized) return normalized
+  }
+  return null
+}
+
+function extractAttributes(text: string): { name: string | null; phone: string | null; dob: string | null } {
+  return {
+    name: extractName(text),
+    phone: extractPhone(text),
+    dob: extractDateOfBirth(text),
+  }
 }
 
 function evaluateMatch(attributes: {
@@ -239,7 +384,10 @@ function evaluateMatch(attributes: {
   const matches = PATIENTS.filter((patient) => {
     let score = 0
     if (attributes.name && namePartsMatch(attributes.name, patient.name)) score += 1
-    if (attributes.phone && normalizePhone(patient.phone) === attributes.phone) score += 1
+    const registeredPhone = normalizePhone(patient.phone)
+    if (attributes.phone && registeredPhone && phonePartsMatch(attributes.phone, registeredPhone)) {
+      score += 1
+    }
     if (attributes.dob && normalizeDateOfBirth(patient.dateOfBirth) === attributes.dob) score += 1
     return score >= 2
   })
