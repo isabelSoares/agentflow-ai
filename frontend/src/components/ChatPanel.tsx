@@ -140,9 +140,9 @@ export function ChatPanel({
             ))}
           </div>
           <p className="suggestion-hint">
-            Chat freely — share your name plus phone number or date of birth whenever you want to
-            verify and get routed. The full live flow needs a configured LLM provider; without a
-            key, the API uses safe deterministic adapters.
+            Chat freely — the demo evaluates the details you share against its fictional records.
+            Use the sample identity above to complete verification. The full live flow needs a
+            configured LLM provider; without a key, the API uses safe deterministic adapters.
           </p>
         </div>
       )}

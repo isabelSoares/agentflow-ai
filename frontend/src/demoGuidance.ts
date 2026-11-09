@@ -31,7 +31,9 @@ export const SCENARIO_STEPS: ScenarioStep[] = [
 ]
 
 export const SAMPLE_DATA_NOTE =
-  'The sample record is fictional and exists only to demonstrate the deterministic workflow.'
+  'The sample record is fictional and exists only to demonstrate the deterministic workflow. ' +
+  'You can type your own details in any format; only the sample identity can complete ' +
+  'verification, while other details follow the non-client outcome.'
 
 export const LIVE_NOTE =
   'When an API backend is connected, the same steps run against the live service.'
