@@ -1,6 +1,8 @@
-import type { ConversationTurn } from './types'
+import type { BackendAvailability, ConversationTurn } from './types'
 
 const PROOF_HEADER = 'X-Session-Proof'
+
+export const STARTUP_TIMEOUT_MS = 6000
 
 export function resolveApiBase(raw: string | undefined = import.meta.env.VITE_API_BASE_URL): string {
   const configured = raw?.trim() ?? ''
@@ -22,12 +24,29 @@ export class ApiError extends Error {
 
 /**
  * True when the API could not be reached at all (network failure, missing
- * /api route, or a static host rejecting POST with 405/501). These are the
- * cases where the page is served without a backend, so the offline demo can
- * take over.
+ * /api route, a static host rejecting POST, or a gateway reporting an
+ * unavailable upstream). These are the cases where the page is served
+ * without a usable backend, so the offline demo can take over.
  */
 export function isBackendUnreachable(status: number): boolean {
-  return status === 0 || status === 404 || status === 405 || status === 501
+  return (
+    status === 0 ||
+    status === 404 ||
+    status === 405 ||
+    status === 501 ||
+    status === 502 ||
+    status === 503 ||
+    status === 504
+  )
+}
+
+/**
+ * Classify a failed startup attempt. Unreachable/static-host outcomes start the
+ * in-browser demo; every other failure stays a genuine, visible error.
+ */
+export function classifyStartupFailure(error: unknown): BackendAvailability {
+  if (error instanceof ApiError && isBackendUnreachable(error.status)) return 'unavailable'
+  return 'error'
 }
 
 export interface ApiResult {
@@ -47,9 +66,12 @@ async function request(path: string, init: RequestInit & { headers?: RequestHead
         ...init.headers,
       },
     })
-  } catch {
+  } catch (caught) {
+    const aborted = caught instanceof Error && caught.name === 'AbortError'
     throw new ApiError(
-      'Cannot reach the AgentFlow API. Start the backend on port 8000 and try again.',
+      aborted
+        ? 'The demo service did not respond in time. Use the offline demo or try again.'
+        : 'Cannot reach the AgentFlow API. Start the backend on port 8000 and try again.',
       0,
     )
   }
@@ -60,7 +82,7 @@ async function request(path: string, init: RequestInit & { headers?: RequestHead
         ? 'The demo service could not be reached. Check that the API is running and /api is routed to the backend, then try again.'
         : response.status === 405 || response.status === 501
           ? 'This page is served as a static site without an API backend, so the request was rejected (405 Method Not Allowed). Use the offline demo on this page, or run the full stack locally — see the README.'
-          : `Request failed with status ${response.status}.`
+          : `The demo service returned an unexpected error (status ${response.status}). Please try again.`
     try {
       const body = (await response.json()) as { detail?: unknown }
       if (
@@ -83,8 +105,16 @@ async function request(path: string, init: RequestInit & { headers?: RequestHead
   }
 }
 
-export function createConversation(): Promise<ApiResult> {
-  return request('/conversations', { method: 'POST' })
+export function createConversation(options: { timeoutMs?: number } = {}): Promise<ApiResult> {
+  const timeoutMs = options.timeoutMs ?? STARTUP_TIMEOUT_MS
+  if (timeoutMs <= 0 || typeof AbortController === 'undefined') {
+    return request('/conversations', { method: 'POST' })
+  }
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), timeoutMs)
+  return request('/conversations', { method: 'POST', signal: controller.signal }).finally(() =>
+    clearTimeout(timer),
+  )
 }
 
 export function sendMessage(

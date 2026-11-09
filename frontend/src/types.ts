@@ -21,6 +21,16 @@ export interface ChatMessage {
   text: string
 }
 
+export type DemoSource = 'none' | 'live' | 'offline'
+
+export type BackendAvailability = 'available' | 'unavailable' | 'error'
+
+export interface ScenarioStep {
+  order: number
+  instruction: string
+  example: string | null
+}
+
 export interface Telemetry {
   identified: boolean
   authenticated: boolean
