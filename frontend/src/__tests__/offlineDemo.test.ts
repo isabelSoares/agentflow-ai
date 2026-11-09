@@ -22,6 +22,25 @@ describe('offline demo engine', () => {
     expect(turn.reply).toContain('Which is the name of my dog?')
   })
 
+  it('identifies Lisa with a local phone format and a day-first date of birth', () => {
+    const session = createOfflineSession()
+    const { turn } = offlineSend(session, 'Lisa, phone 4155552671, born 15-01-1990.')
+    expect(turn.identified).toBe(true)
+    expect(turn.reply).toContain('Which is the name of my dog?')
+  })
+
+  it('treats a visitor’s own identity as an identity attempt instead of chitchat', () => {
+    const session = createOfflineSession()
+    const { session: next, turn } = offlineSend(
+      session,
+      'hi, Isabel Soares, 912345678, 01-01-1990',
+    )
+    expect(turn.reply).not.toContain('happy to chat')
+    expect(turn.reply).toContain("wasn't able to verify you")
+    expect(turn.identified).toBe(false)
+    expect(next.identificationAttempts).toBe(1)
+  })
+
   it('detects the ambiguous shared phone number and asks for more detail', () => {
     const session = createOfflineSession()
     const { turn } = offlineSend(session, 'My phone is +351912345678 and my name is Maria.')
