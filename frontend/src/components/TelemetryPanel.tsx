@@ -1,9 +1,10 @@
-import type { Session, Telemetry } from '../types'
+import type { DemoSource, Session, Telemetry } from '../types'
 import { AgentPipeline } from './AgentPipeline'
 
 interface TelemetryPanelProps {
   telemetry: Telemetry
   session: Session | null
+  source: DemoSource
   busy: boolean
 }
 
@@ -12,9 +13,21 @@ function formatValue(value: string | null): string {
   return value.replaceAll('_', ' ').replace(/\b\w/g, (character) => character.toUpperCase())
 }
 
-export function TelemetryPanel({ telemetry, session, busy }: TelemetryPanelProps) {
-  const statusClass = busy ? 'is-busy' : session ? 'is-live' : 'is-idle'
-  const statusLabel = busy ? 'Processing' : session ? 'Session live' : 'Offline'
+export function TelemetryPanel({ telemetry, session, source, busy }: TelemetryPanelProps) {
+  const statusClass = busy
+    ? 'is-busy'
+    : source === 'offline'
+      ? 'is-offline'
+      : source === 'live'
+        ? 'is-live'
+        : 'is-idle'
+  const statusLabel = busy
+    ? 'Processing'
+    : source === 'offline'
+      ? 'Offline demo'
+      : source === 'live'
+        ? 'Session live'
+        : 'Idle'
 
   return (
     <aside className="panel telemetry-panel" aria-label="Agent telemetry">

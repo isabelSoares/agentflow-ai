@@ -3,18 +3,20 @@ import { describe, expect, it } from 'vitest'
 import { mockFetch, renderApp, sessionResponse } from '../test/demoHarness'
 
 describe('demo session failure recovery', () => {
-  it('shows an actionable error and retries into an active session', async () => {
+  it('shows an actionable error for a genuine failure and retries into a live session', async () => {
     let attempts = 0
     mockFetch(() => {
       attempts += 1
-      if (attempts === 1) return Promise.reject(new TypeError('Failed to fetch'))
+      if (attempts === 1) {
+        return Promise.resolve(new Response('Internal error', { status: 500 }))
+      }
       return sessionResponse({ reply: 'Recovered session.' })
     })
 
     renderApp()
 
     const alert = await screen.findByRole('alert')
-    expect(alert).toHaveTextContent('Cannot reach the AgentFlow API')
+    expect(alert).toHaveTextContent('Please try again')
     expect(screen.getByPlaceholderText('Start a session to begin')).toBeDisabled()
     const retry = screen.getByRole('button', { name: 'Start session' })
     expect(retry).toBeEnabled()
@@ -26,14 +28,14 @@ describe('demo session failure recovery', () => {
     expect(screen.getByPlaceholderText('Ask a support question...')).toBeEnabled()
   })
 
-  it('shows an actionable route message for a 404 without a bare status code', async () => {
+  it('treats a missing API route as unavailable and starts the offline demo', async () => {
     mockFetch(() => Promise.resolve(new Response('Not found', { status: 404 })))
 
     renderApp()
 
-    const alert = await screen.findByRole('alert')
-    expect(alert).toHaveTextContent('The demo service could not be reached.')
-    expect(alert).not.toHaveTextContent('Request failed with status 404')
-    expect(screen.getByRole('button', { name: 'Start session' })).toBeEnabled()
+    await screen.findByText(/To get started, could you please tell me your name/)
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent('Offline demo mode')
+    expect(screen.queryByText(/Request failed with status 404/)).not.toBeInTheDocument()
   })
 })
