@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { ApiError, createConversation, isBackendUnreachable, resetConversation, sendMessage } from './api'
+import { classifyStartupFailure, createConversation, resetConversation, sendMessage } from './api'
 import { createOfflineSession, offlineGreeting, offlineSend, type OfflineSession } from './offlineDemo'
 import { ChatPanel } from './components/ChatPanel'
 import { TelemetryPanel } from './components/TelemetryPanel'
@@ -7,6 +7,7 @@ import {
   EMPTY_TELEMETRY,
   type ChatMessage,
   type ConversationTurn,
+  type DemoSource,
   type Session,
   type Telemetry,
 } from './types'
@@ -69,10 +70,11 @@ function App() {
   const [telemetry, setTelemetry] = useState<Telemetry>(EMPTY_TELEMETRY)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [source, setSource] = useState<DemoSource>('none')
   const [offlineSession, setOfflineSession] = useState<OfflineSession | null>(null)
-  const [offlineAvailable, setOfflineAvailable] = useState(false)
   const [appearance, setAppearance] = useState<AppearanceMode>(() => readAppearance())
   const started = useRef(false)
+  const starting = useRef(false)
 
   function toggleAppearance() {
     const next: AppearanceMode = appearance === 'dark' ? 'light' : 'dark'
@@ -81,39 +83,67 @@ function App() {
     applyAppearance(next)
   }
 
+  function applyLiveSession(turn: ConversationTurn, proof: string | null) {
+    setOfflineSession(null)
+    setSource('live')
+    setSession({ id: turn.conversation_id, proof })
+    setTelemetry(EMPTY_TELEMETRY)
+    setMessages([{ id: messageId(), role: 'assistant', text: turn.reply }])
+    setError(null)
+  }
+
+  function beginOfflineSession() {
+    const offline = createOfflineSession()
+    const turn = offlineGreeting(offline)
+    setOfflineSession(offline)
+    setSource('offline')
+    setSession({ id: turn.conversation_id, proof: 'offline-local' })
+    setTelemetry(EMPTY_TELEMETRY)
+    setMessages([{ id: messageId(), role: 'assistant', text: turn.reply }])
+    setError(null)
+  }
+
   async function startSession() {
+    if (starting.current) return
+    starting.current = true
     setBusy(true)
     setError(null)
     try {
       const { turn, proof } = await createConversation()
-      setOfflineSession(null)
-      setOfflineAvailable(false)
-      setSession({ id: turn.conversation_id, proof })
-      setTelemetry(EMPTY_TELEMETRY)
-      setMessages([{ id: messageId(), role: 'assistant', text: turn.reply }])
+      applyLiveSession(turn, proof)
     } catch (caught) {
-      if (caught instanceof ApiError && isBackendUnreachable(caught.status)) {
-        setOfflineAvailable(true)
+      if (classifyStartupFailure(caught) === 'unavailable') {
+        beginOfflineSession()
+      } else {
+        setError(toMessage(caught))
+        setSession(null)
+        setSource('none')
+        setOfflineSession(null)
+        setTelemetry(EMPTY_TELEMETRY)
+        setMessages(STARTER_MESSAGES)
       }
-      setError(toMessage(caught))
-      setSession(null)
-      setOfflineSession(null)
-      setTelemetry(EMPTY_TELEMETRY)
-      setMessages(STARTER_MESSAGES)
     } finally {
+      starting.current = false
       setBusy(false)
     }
   }
 
-  function startOfflineSession() {
-    const offline = createOfflineSession()
-    const turn = offlineGreeting(offline)
-    setOfflineSession(offline)
-    setOfflineAvailable(false)
+  async function retryLive() {
+    if (starting.current) return
+    starting.current = true
+    setBusy(true)
     setError(null)
-    setSession({ id: turn.conversation_id, proof: 'offline-local' })
-    setTelemetry(EMPTY_TELEMETRY)
-    setMessages([{ id: messageId(), role: 'assistant', text: turn.reply }])
+    try {
+      const { turn, proof } = await createConversation()
+      applyLiveSession(turn, proof)
+    } catch (caught) {
+      if (classifyStartupFailure(caught) === 'error') {
+        setError(toMessage(caught))
+      }
+    } finally {
+      starting.current = false
+      setBusy(false)
+    }
   }
 
   useEffect(() => {
@@ -263,16 +293,15 @@ function App() {
           <ChatPanel
             messages={messages}
             busy={busy}
+            source={source}
             sessionActive={Boolean(session)}
             error={error}
-            offlineMode={offlineSession !== null}
-            offlineAvailable={offlineAvailable}
             onSend={handleSend}
             onReset={handleReset}
             onStart={startSession}
-            onStartOffline={startOfflineSession}
+            onRetryLive={retryLive}
           />
-          <TelemetryPanel telemetry={telemetry} session={session} busy={busy} />
+          <TelemetryPanel telemetry={telemetry} session={session} source={source} busy={busy} />
         </section>
 
         <section className="principles" id="principles">

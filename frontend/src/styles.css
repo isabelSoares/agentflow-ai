@@ -467,6 +467,12 @@ button:disabled {
   background: var(--panel-soft);
 }
 
+.status-pill.is-offline {
+  color: var(--warning);
+  background: var(--warning-soft);
+  border-color: color-mix(in srgb, var(--warning) 30%, transparent);
+}
+
 .chat-actions {
   display: flex;
   gap: 8px;
@@ -647,6 +653,82 @@ button:disabled {
 
 .suggestion-hint {
   margin: 10px 0 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.offline-notice {
+  margin: 0 24px 14px;
+  padding: 10px 12px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted-strong);
+  background: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, transparent);
+  border-radius: 12px;
+}
+
+.demo-guide {
+  margin: 0 24px 16px;
+  padding: 14px 16px;
+  background: var(--panel-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.demo-guide h3 {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.demo-guide-summary {
+  margin: 0 0 12px;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--muted-strong);
+}
+
+.demo-guide-steps {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 18px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted-strong);
+}
+
+.demo-guide-steps li::marker {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.demo-guide-steps span {
+  display: block;
+}
+
+.demo-guide-steps code {
+  display: inline-block;
+  max-width: 100%;
+  margin-top: 4px;
+  padding: 3px 7px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--text);
+  background: color-mix(in srgb, var(--bg-deep) 60%, transparent);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+}
+
+.demo-guide-note {
+  margin: 12px 0 0;
   font-size: 11px;
   line-height: 1.5;
   color: var(--muted);

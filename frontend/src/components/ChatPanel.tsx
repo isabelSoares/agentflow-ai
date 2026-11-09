@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import type { ChatMessage } from '../types'
+import type { ChatMessage, DemoSource } from '../types'
+import { DemoGuide } from './DemoGuide'
 
 const SUGGESTIONS = [
   'Hi there!',
@@ -10,31 +11,30 @@ const SUGGESTIONS = [
 interface ChatPanelProps {
   messages: ChatMessage[]
   busy: boolean
+  source: DemoSource
   sessionActive: boolean
   error: string | null
-  offlineMode: boolean
-  offlineAvailable: boolean
   onSend: (text: string) => Promise<void>
   onReset: () => Promise<void>
   onStart: () => Promise<void>
-  onStartOffline: () => void
+  onRetryLive: () => Promise<void>
 }
 
 export function ChatPanel({
   messages,
   busy,
+  source,
   sessionActive,
   error,
-  offlineMode,
-  offlineAvailable,
   onSend,
   onReset,
   onStart,
-  onStartOffline,
+  onRetryLive,
 }: ChatPanelProps) {
   const [draft, setDraft] = useState('')
   const endRef = useRef<HTMLDivElement>(null)
   const hasUserMessages = messages.some((message) => message.role === 'user')
+  const offlineMode = source === 'offline'
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
@@ -56,6 +56,16 @@ export function ChatPanel({
           <h2>Patient support conversation</h2>
         </div>
         <div className="chat-actions">
+          {offlineMode && (
+            <button
+              type="button"
+              className="button button-ghost"
+              onClick={() => void onRetryLive()}
+              disabled={busy}
+            >
+              {busy ? 'Connecting...' : 'Try live service'}
+            </button>
+          )}
           {sessionActive ? (
             <button
               type="button"
@@ -66,37 +76,28 @@ export function ChatPanel({
               Reset session
             </button>
           ) : (
-            <>
-              <button
-                type="button"
-                className="button button-ghost"
-                onClick={() => void onStart()}
-                disabled={busy}
-              >
-                {busy ? 'Starting...' : 'Start session'}
-              </button>
-              {offlineAvailable && (
-                <button
-                  type="button"
-                  className="button button-ghost"
-                  onClick={onStartOffline}
-                  disabled={busy}
-                >
-                  Run offline demo
-                </button>
-              )}
-            </>
+            <button
+              type="button"
+              className="button button-ghost"
+              onClick={() => void onStart()}
+              disabled={busy}
+            >
+              {busy ? 'Starting...' : 'Start session'}
+            </button>
           )}
         </div>
       </div>
 
       {offlineMode && (
-        <p className="suggestion-hint" role="status">
-          Offline demo mode: this page is a static build without an API backend, so the
-          deterministic demo scenario runs in your browser instead of against the FastAPI
-          service. Run the full stack locally for the live API flow.
+        <p className="offline-notice" role="status">
+          <strong>Offline demo mode.</strong> This page is a static build without an API backend, so
+          the deterministic demo scenario runs in your browser instead of against the FastAPI
+          service. Use <em>Try live service</em> when a backend is available, or run the full stack
+          locally for the live API flow.
         </p>
       )}
+
+      <DemoGuide />
 
       <div className="messages" aria-live="polite">
         {messages.map((message) => (
