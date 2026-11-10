@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { classifyStartupFailure, createConversation, resetConversation, sendMessage } from './api'
 import { createOfflineSession, offlineGreeting, offlineSend, type OfflineSession } from './offlineDemo'
+import { GUIDED_DEMO_PATHS, findGuidedPath } from './guidedDemoPaths'
 import { ChatPanel } from './components/ChatPanel'
 import { TelemetryPanel } from './components/TelemetryPanel'
 import {
@@ -72,9 +73,13 @@ function App() {
   const [error, setError] = useState<string | null>(null)
   const [source, setSource] = useState<DemoSource>('none')
   const [offlineSession, setOfflineSession] = useState<OfflineSession | null>(null)
+  const [activePathId, setActivePathId] = useState<string | null>(null)
+  const [pathStepIndex, setPathStepIndex] = useState(0)
   const [appearance, setAppearance] = useState<AppearanceMode>(() => readAppearance())
   const started = useRef(false)
   const starting = useRef(false)
+  const advancing = useRef(false)
+  const activePath = activePathId ? findGuidedPath(activePathId) ?? null : null
 
   function toggleAppearance() {
     const next: AppearanceMode = appearance === 'dark' ? 'light' : 'dark'
@@ -83,12 +88,18 @@ function App() {
     applyAppearance(next)
   }
 
+  function resetGuidedPath() {
+    setActivePathId(null)
+    setPathStepIndex(0)
+  }
+
   function applyLiveSession(turn: ConversationTurn, proof: string | null) {
     setOfflineSession(null)
     setSource('live')
     setSession({ id: turn.conversation_id, proof })
     setTelemetry(EMPTY_TELEMETRY)
     setMessages([{ id: messageId(), role: 'assistant', text: turn.reply }])
+    resetGuidedPath()
     setError(null)
   }
 
@@ -100,6 +111,7 @@ function App() {
     setSession({ id: turn.conversation_id, proof: 'offline-local' })
     setTelemetry(EMPTY_TELEMETRY)
     setMessages([{ id: messageId(), role: 'assistant', text: turn.reply }])
+    resetGuidedPath()
     setError(null)
   }
 
@@ -121,6 +133,7 @@ function App() {
         setOfflineSession(null)
         setTelemetry(EMPTY_TELEMETRY)
         setMessages(STARTER_MESSAGES)
+        resetGuidedPath()
       }
     } finally {
       starting.current = false
@@ -185,18 +198,53 @@ function App() {
     }
   }
 
+  function selectGuidedPath(pathId: string) {
+    if (busy) return
+    const path = findGuidedPath(pathId)
+    if (!path) return
+    beginOfflineSession()
+    setActivePathId(path.id)
+    setPathStepIndex(0)
+  }
+
+  function nextGuidedStep() {
+    if (advancing.current || busy || !offlineSession || !activePath) return
+    const step = activePath.steps[pathStepIndex]
+    if (!step) return
+    advancing.current = true
+    setError(null)
+    setMessages((current) => [...current, { id: messageId(), role: 'user', text: step.message }])
+    const { session: next, turn } = offlineSend(offlineSession, step.message)
+    setOfflineSession(next)
+    setTelemetry(telemetryFromTurn(turn))
+    setMessages((current) => [
+      ...current,
+      { id: messageId(), role: 'assistant', text: turn.reply },
+    ])
+    setPathStepIndex((index) => index + 1)
+    advancing.current = false
+  }
+
+  function restartGuidedPath() {
+    if (busy || !activePath) return
+    const pathId = activePath.id
+    beginOfflineSession()
+    setActivePathId(pathId)
+    setPathStepIndex(0)
+  }
+
+  function chooseAnotherGuidedPath() {
+    if (busy) return
+    beginOfflineSession()
+  }
+
   async function handleReset() {
     if (!session || busy) return
     setBusy(true)
     setError(null)
 
     if (offlineSession) {
-      const offline = createOfflineSession()
-      const turn = offlineGreeting(offline)
-      setOfflineSession(offline)
-      setSession({ id: turn.conversation_id, proof: 'offline-local' })
-      setTelemetry(EMPTY_TELEMETRY)
-      setMessages([{ id: messageId(), role: 'assistant', text: turn.reply }])
+      beginOfflineSession()
       setBusy(false)
       return
     }
@@ -296,10 +344,18 @@ function App() {
             source={source}
             sessionActive={Boolean(session)}
             error={error}
+            guidedPaths={GUIDED_DEMO_PATHS}
+            activePath={activePath}
+            pathStepIndex={pathStepIndex}
+            telemetry={telemetry}
             onSend={handleSend}
             onReset={handleReset}
             onStart={startSession}
             onRetryLive={retryLive}
+            onSelectPath={selectGuidedPath}
+            onNextStep={nextGuidedStep}
+            onRestartPath={restartGuidedPath}
+            onChooseAnotherPath={chooseAnotherGuidedPath}
           />
           <TelemetryPanel telemetry={telemetry} session={session} source={source} busy={busy} />
         </section>

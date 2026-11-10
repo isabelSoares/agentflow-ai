@@ -188,6 +188,7 @@ The `frontend/` application is a Vite + React + TypeScript client. It provides:
 - A session-scoped support conversation.
 - A live workflow timeline for identity, authorization, classification, and routing.
 - Sanitized telemetry with no PII and no exposure of the session proof.
+- A guided offline demo with four scripted paths that exercise premium and regular routing, identity clarification, and failed verification without requiring typed input.
 - A responsive dark interface with accessible focus states and reduced-motion support.
 
 During development, Vite proxies `/api` to `http://127.0.0.1:8000`, so no browser CORS configuration is needed. The backend also exposes a configurable `CORS_ALLOWED_ORIGINS` setting for direct cross-origin deployments.
@@ -217,7 +218,9 @@ The frontend is deployed to GitHub Pages by the [`Pages` workflow](.github/workf
 
 **https://isabelsoares.github.io/agentflow-ai/**
 
-GitHub Pages is a **static** host: it serves files with GET/HEAD only and has no FastAPI backend behind it, so a chat request (`POST /api/conversations`) is rejected with **405 Method Not Allowed**. The page handles this automatically: when the startup request cannot reach a backend, it starts the in-browser demo (`frontend/src/offlineDemo.ts`) instead of showing an error. That engine mirrors the backend's deterministic scenario (seed patients, 2-of-3 identity matching, secret question, premium/regular routing), so the live page is fully interactive without a backend. A non-blocking **Offline demo mode** notice explains what is happening, and the demo area includes a **Try this scenario** guide with the fictional sample details so a first-time visitor can complete identity verification, classification, and routing on the page.
+GitHub Pages is a **static** host: it serves files with GET/HEAD only and has no FastAPI backend behind it, so a chat request (`POST /api/conversations`) is rejected with **405 Method Not Allowed**. The page handles this automatically: when the startup request cannot reach a backend, it starts the in-browser demo (`frontend/src/offlineDemo.ts`) instead of showing an error. That engine mirrors the backend's deterministic scenario (seed patients, 2-of-3 identity matching, secret question, premium/regular routing), so the live page is fully interactive without a backend.
+
+Because the in-browser demo has no natural-language model, it does not ask visitors to type: it offers a set of **guided demo paths** defined in `frontend/src/guidedDemoPaths.ts`. Each path sends a fixed sequence of non-editable messages through the deterministic engine with a single **Next step** control. The paths cover a verified premium billing request, a verified regular appointment request, an ambiguous identity that needs more detail, and a failed-verification guardrail outcome. A non-blocking **Offline demo mode** notice explains what is happening, and the visitor can restart a path or choose another at any time.
 
 When an API backend is reachable, the page uses it and hides the offline notice. If the backend becomes available after the offline demo started, select **Try live service** to switch to a live session without reloading.
 

@@ -23,6 +23,10 @@ describe('demo session start', () => {
     expect(screen.getByRole('button', { name: 'Reset session' })).toBeEnabled()
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Start session' })).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('group', { name: 'Choose a guided demo path' }),
+    ).not.toBeInTheDocument()
+    expect(screen.queryByText(/scripted walkthrough/i)).not.toBeInTheDocument()
   })
 
   it('keeps the session starting state single-flight while the request is pending', async () => {

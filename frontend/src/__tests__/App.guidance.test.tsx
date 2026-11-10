@@ -23,13 +23,16 @@ describe('demo guidance', () => {
     await expectGuidance()
   })
 
-  it('keeps the guidance visible in offline demo mode', async () => {
+  it('explains the scripted walkthrough in offline demo mode', async () => {
     mockFetch(() => Promise.resolve(new Response('Method Not Allowed', { status: 405 })))
 
     renderApp()
 
     await screen.findByText(/To get started, could you please tell me your name/)
-    await expectGuidance()
+    expect(screen.getByText(/scripted walkthrough/i)).toBeInTheDocument()
+    expect(
+      await screen.findByRole('group', { name: 'Choose a guided demo path' }),
+    ).toBeInTheDocument()
     expect(screen.getByRole('status')).toHaveTextContent('Offline demo mode')
   })
 })
