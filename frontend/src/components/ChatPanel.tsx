@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import type { ChatMessage, DemoSource } from '../types'
+import type { ChatMessage, DemoSource, GuidedDemoPath, Telemetry } from '../types'
 import { DemoGuide } from './DemoGuide'
+import { GuidedDemoPaths } from './GuidedDemoPaths'
 
 const SUGGESTIONS = [
   'Hi there!',
@@ -14,10 +15,18 @@ interface ChatPanelProps {
   source: DemoSource
   sessionActive: boolean
   error: string | null
+  guidedPaths: GuidedDemoPath[]
+  activePath: GuidedDemoPath | null
+  pathStepIndex: number
+  telemetry: Telemetry
   onSend: (text: string) => Promise<void>
   onReset: () => Promise<void>
   onStart: () => Promise<void>
   onRetryLive: () => Promise<void>
+  onSelectPath: (pathId: string) => void
+  onNextStep: () => void
+  onRestartPath: () => void
+  onChooseAnotherPath: () => void
 }
 
 export function ChatPanel({
@@ -26,10 +35,18 @@ export function ChatPanel({
   source,
   sessionActive,
   error,
+  guidedPaths,
+  activePath,
+  pathStepIndex,
+  telemetry,
   onSend,
   onReset,
   onStart,
   onRetryLive,
+  onSelectPath,
+  onNextStep,
+  onRestartPath,
+  onChooseAnotherPath,
 }: ChatPanelProps) {
   const [draft, setDraft] = useState('')
   const endRef = useRef<HTMLDivElement>(null)
@@ -97,7 +114,7 @@ export function ChatPanel({
         </p>
       )}
 
-      <DemoGuide />
+      {!offlineMode && <DemoGuide />}
 
       <div className="messages" aria-live="polite">
         {messages.map((message) => (
@@ -123,62 +140,79 @@ export function ChatPanel({
         <div ref={endRef} />
       </div>
 
-      {!hasUserMessages && (
-        <div className="suggestions">
-          <p className="suggestions-label">Healthcare demo scenario</p>
-          <div className="suggestion-list">
-            {SUGGESTIONS.map((suggestion) => (
-              <button
-                key={suggestion}
-                type="button"
-                className="suggestion"
-                onClick={() => void onSend(suggestion)}
-                disabled={busy || !sessionActive}
-              >
-                {suggestion}
-              </button>
-            ))}
-          </div>
-          <p className="suggestion-hint">
-            Chat freely — the demo evaluates the details you share against its fictional records.
-            Use the sample identity above to complete verification. The full live flow needs a
-            configured LLM provider; without a key, the API uses safe deterministic adapters.
-          </p>
-        </div>
-      )}
-
       {error && (
         <p className="error-banner" role="alert">
           {error}
         </p>
       )}
 
-      <form
-        className="composer"
-        onSubmit={(event) => {
-          void submit(event)
-        }}
-      >
-        <label className="sr-only" htmlFor="message-input">
-          Message
-        </label>
-        <input
-          id="message-input"
-          value={draft}
-          onChange={(event) => setDraft(event.target.value)}
-          placeholder={sessionActive ? 'Ask a support question...' : 'Start a session to begin'}
-          disabled={busy || !sessionActive}
-          maxLength={2000}
-          autoComplete="off"
+      {offlineMode ? (
+        <GuidedDemoPaths
+          paths={guidedPaths}
+          activePath={activePath}
+          stepIndex={pathStepIndex}
+          busy={busy}
+          telemetry={telemetry}
+          onSelectPath={onSelectPath}
+          onNextStep={onNextStep}
+          onRestart={onRestartPath}
+          onChooseAnother={onChooseAnotherPath}
         />
-        <button
-          type="submit"
-          className="button button-primary"
-          disabled={busy || !sessionActive || !draft.trim()}
-        >
-          Send
-        </button>
-      </form>
+      ) : (
+        <>
+          {!hasUserMessages && (
+            <div className="suggestions">
+              <p className="suggestions-label">Healthcare demo scenario</p>
+              <div className="suggestion-list">
+                {SUGGESTIONS.map((suggestion) => (
+                  <button
+                    key={suggestion}
+                    type="button"
+                    className="suggestion"
+                    onClick={() => void onSend(suggestion)}
+                    disabled={busy || !sessionActive}
+                  >
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
+              <p className="suggestion-hint">
+                Chat freely — the demo evaluates the details you share against its fictional
+                records. Use the sample identity above to complete verification. The full live flow
+                needs a configured LLM provider; without a key, the API uses safe deterministic
+                adapters.
+              </p>
+            </div>
+          )}
+
+          <form
+            className="composer"
+            onSubmit={(event) => {
+              void submit(event)
+            }}
+          >
+            <label className="sr-only" htmlFor="message-input">
+              Message
+            </label>
+            <input
+              id="message-input"
+              value={draft}
+              onChange={(event) => setDraft(event.target.value)}
+              placeholder={sessionActive ? 'Ask a support question...' : 'Start a session to begin'}
+              disabled={busy || !sessionActive}
+              maxLength={2000}
+              autoComplete="off"
+            />
+            <button
+              type="submit"
+              className="button button-primary"
+              disabled={busy || !sessionActive || !draft.trim()}
+            >
+              Send
+            </button>
+          </form>
+        </>
+      )}
     </section>
   )
 }
