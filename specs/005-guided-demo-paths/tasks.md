@@ -40,7 +40,7 @@ description: "Task list for Guided Demo Paths"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T002 [P] Add `GuidedStep`, `GuidedDemoPath`, `GuidedPathStatus`, and `GuidedPathProgress` types to `frontend/src/types.ts`, with `status` restricted to `idle`, `active`, and `complete`, and `GuidedStep` fields `id`, `message`, optional `label` per `data-model.md`
+- [X] T002 [P] Add `GuidedStep` and `GuidedDemoPath` types to `frontend/src/types.ts`, with `GuidedStep` fields `id`, `message`, optional `label` per `data-model.md`; progress is derived from `activePathId` and `pathStepIndex`
 - [X] T003 [P] Create `frontend/src/guidedDemoPaths.ts` exporting `GUIDED_DEMO_PATHS` with the four paths from `contracts/guided-path-data.md` (premium, regular, clarification, failed verification) and a `findGuidedPath(id)` helper; ensure every `id` is unique, every path has at least one step, and prepared messages are fictional and sent verbatim
 
 **Checkpoint**: Types and path definitions are ready; user stories can proceed.
@@ -97,7 +97,7 @@ description: "Task list for Guided Demo Paths"
 
 ### Tests for User Story 3
 
-- [X] T014 [P] [US3] Update `frontend/src/__tests__/App.session.test.tsx` to assert live mode shows an editable composer and no guided-path picker, and that a successful "Try live service" transition clears guided state
+- [X] T014 [P] [US3] Update `frontend/src/__tests__/App.session.test.tsx`, `frontend/src/__tests__/App.livePreference.test.tsx`, and `frontend/src/__tests__/App.errors.test.tsx` to assert live mode shows an editable composer with no guided-path picker; an unavailable retry stays offline; and genuine `403`/`500` errors do not start the guided demo
 
 ### Implementation for User Story 3
 
@@ -133,9 +133,12 @@ description: "Task list for Guided Demo Paths"
 **Purpose**: Documentation, cleanup, and full validation
 
 - [X] T021 [P] Update `README.md` to describe the guided-path demo and remove instructions that imply typing free-form messages in offline mode
-- [X] T022 [P] Reconcile `frontend/src/demoGuidance.ts` and `frontend/src/components/DemoGuide.tsx` so wording matches the guided-path model and no stale "type your own details" copy remains
+- [X] T022 [P] Reconcile `frontend/src/demoGuidance.ts` and `frontend/src/components/DemoGuide.tsx` so live-mode wording is accurate and no free-text typing copy is shown in offline guided mode
 - [X] T023 Run `npm test` and `npm run build` in `frontend/` and the backend gates from `specs/005-guided-demo-paths/quickstart.md`
-- [X] T024 Execute the manual scenarios in `specs/005-guided-demo-paths/quickstart.md` (static, offline, live, accessibility) and record results
+- [X] T024 Execute the scenarios in `specs/005-guided-demo-paths/quickstart.md` (static, offline, live, accessibility) and record the evidence and limitations in `specs/005-guided-demo-paths/validation.md`
+- [X] T025 [P] Add a data-guard test to `frontend/src/__tests__/guidedDemoPaths.test.ts` proving path copy uses only the documented fictional identities and contains no credentials, email addresses, or raw HTTP status codes
+- [X] T026 [P] Add timing coverage to `frontend/src/__tests__/App.guidedPaths.test.tsx` for the SC-004 reset/switch budget (<1 s) and the SC-002 path-completion budget (<2 min)
+- [X] T027 [P] Sync `spec.md`, `plan.md`, `data-model.md`, and `tasks.md` with the analysis findings: FR-006 clarification, FR-012 actionable-error definition, Guided Step wording, derived progress state, and US3 test traceability
 
 ---
 
@@ -172,6 +175,7 @@ description: "Task list for Guided Demo Paths"
 - T010 and T011 can run in parallel (different test files)
 - T017 and T018 can run in parallel (different test files)
 - T021 and T022 can run in parallel (different docs/files)
+- T025, T026, and T027 can run in parallel (different test/docs files)
 - Implementation tasks that share `App.tsx`, `ChatPanel.tsx`, `GuidedDemoPaths.tsx`, or `styles.css` must not run in parallel
 
 ---
@@ -221,4 +225,5 @@ Task: "Extend App.guidedPaths.test.tsx for all four outcomes"
 - [Story] labels map tasks to spec user stories
 - Keep `frontend/src/offlineDemo.ts` unchanged; guided paths only supply its inputs
 - No backend, API, or security-logic changes
+- Validation evidence and requirement-to-test traceability live in `specs/005-guided-demo-paths/validation.md`
 - Commit after each task or logical group; stop at checkpoints to validate independently

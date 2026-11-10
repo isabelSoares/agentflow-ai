@@ -16,7 +16,7 @@
 
 A visitor on the static site is shown a small set of named demo paths. They pick one and advance through a fixed sequence of pre-written messages by clicking a single control. The visitor never has to type, and each step reliably produces the expected agent response and updates the visible workflow state.
 
-**Why this priority**: The current offline demo tries to interpret free-form typing, so the experience depends on the visitor phrasing messages the way the parser expects. Replacing that with scripted, non-editable steps removes the failure mode and makes the demo trustworthy for every visitor.
+**Why this priority**: The previous offline demo tried to interpret free-form typing, so the experience depended on how the visitor phrased messages. Replacing that with scripted, non-editable steps removed that failure mode and made the demo trustworthy for every visitor.
 
 **Independent Test**: Open the static page, select each available path, and advance it to the end using only clicks. Confirm every step produces the scripted response, the composer is not required, and the final outcome is reached without any typing.
 
@@ -99,13 +99,13 @@ The demo explains that it is a scripted walkthrough, so visitors understand they
 - **FR-003**: Each guided path MUST define a fixed, ordered sequence of pre-written visitor messages that the visitor cannot edit.
 - **FR-004**: The visitor MUST be able to advance a selected path one step at a time, and each step MUST send its prepared message unchanged.
 - **FR-005**: Each step MUST produce the deterministic agent response and workflow-state update expected for that path.
-- **FR-006**: The available paths MUST collectively demonstrate successful identification and verification, premium and regular classification, routing to the correct department, and a failed-verification outcome.
+- **FR-006**: The available paths MUST collectively demonstrate successful identification and verification, premium and regular classification, routing to the correct department, identity clarification for an ambiguous match, and a failed-verification outcome.
 - **FR-007**: The offline demo MUST NOT require or rely on free-form typing, and the message composer MUST be disabled, hidden, or clearly marked as unavailable while guided paths are active.
 - **FR-008**: The visitor MUST be able to select a different path or restart the current path at any time, and doing so MUST reset the conversation to a clean state.
 - **FR-009**: When a path reaches its final step, the page MUST show a clear outcome and offer restarting or choosing another path.
 - **FR-010**: The guided demo MUST use only fictional sample data and MUST NOT expose or log real personal data, credentials, or secret answers.
 - **FR-011**: When a reachable API backend serves the page, the existing live experience with an editable free-text composer MUST remain available and MUST NOT be replaced by guided-path-only behavior.
-- **FR-012**: The page MUST keep the current backend-availability behavior: prefer the live service, fall back to the guided demo when no backend is available, and show an actionable message for genuine service errors.
+- **FR-012**: The page MUST keep the current backend-availability behavior: prefer the live service, fall back to the guided demo when no backend is available, and for genuine service errors show a plain-language message that names the problem, offers a retry, and does not start the guided demo.
 - **FR-013**: Every guided step and outcome MUST update the visible workflow and telemetry consistently with the corresponding deterministic decision.
 - **FR-014**: The page MUST explain that the demo is a scripted walkthrough so visitors know they are not expected to type.
 - **FR-015**: Path selection, step advancement, restart, and path switching MUST be operable with a keyboard, and state changes MUST be announced through an accessible status mechanism.
@@ -115,7 +115,7 @@ The demo explains that it is a scripted walkthrough, so visitors understand they
 ### Key Entities *(include if feature involves data)*
 
 - **Guided Demo Path**: A named, selectable scripted scenario with a description, an ordered set of steps, and a defined final outcome.
-- **Guided Step**: A single pre-written visitor message within a path plus the deterministic response and workflow-state change it should produce.
+- **Guided Step**: A single pre-written visitor message within a path. The deterministic engine produces the corresponding response and workflow-state change; the step itself stores only the message and an optional display label.
 - **Demo Outcome**: The plain-language result at the end of a path, such as an authenticated premium routing, standard support routing, clarification needed, or failed verification.
 - **Demo Session**: The conversation state shown to the visitor while a path is running; it is reset when a path is restarted or switched.
 - **Sample Patient Record**: Fictional identity data used only to demonstrate the deterministic workflow.
@@ -131,6 +131,10 @@ The demo explains that it is a scripted walkthrough, so visitors understand they
 - **SC-005**: The public static page shows 0 raw HTTP status codes and 0 technical error banners during the guided demo.
 - **SC-006**: With a reachable backend, 100% of sessions use the live free-text experience and are not restricted to guided paths.
 - **SC-007**: Keyboard-only and screen-reader users can select a path, complete it, restart it, and switch paths, with state changes announced.
+
+## Validation Evidence
+
+Implementation evidence, automated checks, requirement-to-test traceability, and known limitations are recorded in [validation.md](./validation.md).
 
 ## Assumptions
 

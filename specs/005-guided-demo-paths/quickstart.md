@@ -3,7 +3,7 @@
 **Feature**: `005-guided-demo-paths`
 **Date**: 2026-11-09
 
-Use this guide after implementation to prove the feature works end-to-end. It references [spec.md](./spec.md), [data-model.md](./data-model.md), and the contracts in [contracts/](./contracts) instead of duplicating them.
+Use this guide after implementation to prove the feature works end-to-end. It references [spec.md](./spec.md), [data-model.md](./data-model.md), and the contracts in [contracts/](./contracts) instead of duplicating them. Record the outcome of these checks in [validation.md](./validation.md).
 
 ## Prerequisites
 

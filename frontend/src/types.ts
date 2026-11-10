@@ -45,14 +45,6 @@ export interface GuidedDemoPath {
   steps: GuidedStep[]
 }
 
-export type GuidedPathStatus = 'idle' | 'active' | 'complete'
-
-export interface GuidedPathProgress {
-  pathId: string | null
-  stepIndex: number
-  status: GuidedPathStatus
-}
-
 export interface Telemetry {
   identified: boolean
   authenticated: boolean

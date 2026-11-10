@@ -43,6 +43,8 @@ describe('guided demo paths', () => {
     expect(screen.getByText(/scripted walkthrough/i)).toBeInTheDocument()
     expect(screen.queryByPlaceholderText('Ask a support question...')).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Send' })).not.toBeInTheDocument()
+    expect(screen.queryByText('offline-local')).not.toBeInTheDocument()
+    expect(document.body.textContent).not.toMatch(/\b(?:404|405|500)\b/)
   })
 
   it('advances a selected path with prepared non-editable messages', async () => {
@@ -122,5 +124,30 @@ describe('guided demo paths', () => {
     await findProgress('Path complete')
     expect(screen.getByText(/Verification terminated/)).toBeInTheDocument()
     expect(screen.getByText(/treated as a non-client/i, { selector: '.guided-outcome strong' })).toBeInTheDocument()
+  })
+
+  it('restarts and switches paths within the one-second budget', async () => {
+    await openPathPicker()
+    fireEvent.click(screen.getByRole('button', { name: /Premium billing journey/ }))
+    await findProgress('Step 1 of 3')
+    fireEvent.click(screen.getByRole('button', { name: 'Next step' }))
+    await screen.findByText(/Which is the name of my dog\?/)
+
+    const restartStarted = performance.now()
+    fireEvent.click(screen.getByRole('button', { name: 'Restart' }))
+    await findProgress('Step 1 of 3')
+    expect(performance.now() - restartStarted).toBeLessThan(1000)
+
+    const switchStarted = performance.now()
+    fireEvent.click(screen.getByRole('button', { name: 'Choose another path' }))
+    await screen.findByRole('button', { name: /Regular appointment journey/ })
+    expect(performance.now() - switchStarted).toBeLessThan(1000)
+  })
+
+  it('completes the longest path within the two-minute budget', async () => {
+    await openPathPicker()
+    const started = performance.now()
+    await runPath(/Premium billing journey/, ['identity', 'secret', 'request'])
+    expect(performance.now() - started).toBeLessThan(120000)
   })
 })

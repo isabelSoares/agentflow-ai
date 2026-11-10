@@ -8,7 +8,7 @@
 
 ## Summary
 
-The in-browser demo currently accepts free-form typing and relies on heuristic parsing to decide identity, verification, and intent. That parser is the source of the "simulated real input does not work right" experience. This plan replaces free-form input in the offline demo with a small set of selectable **guided demo paths**. Each path is a named scenario with a fixed, non-editable sequence of pre-written visitor messages; a single "Next step" control sends the next message and the existing deterministic `offlineSend` engine produces the response and telemetry. Paths collectively demonstrate premium routing, regular routing, clarification (ambiguous identity), and failed verification/termination. The live backend experience keeps its editable free-text composer unchanged. No backend, API contract, or security logic changes.
+Before this feature, the in-browser demo accepted free-form typing and relied on heuristic parsing to decide identity, verification, and intent. That parser was the source of the "simulated real input does not work right" experience. This feature replaced free-form input in the offline demo with a small set of selectable **guided demo paths**. Each path is a named scenario with a fixed, non-editable sequence of pre-written visitor messages; a single "Next step" control sends the next message and the existing deterministic `offlineSend` engine produces the response and telemetry. Paths collectively demonstrate premium routing, regular routing, clarification (ambiguous identity), and failed verification/termination. The live backend experience keeps its editable free-text composer unchanged. No backend, API contract, or security logic changes.
 
 ## Technical Context
 
@@ -39,8 +39,8 @@ The in-browser demo currently accepts free-form typing and relies on heuristic p
 | I. Security First | Guided paths must use fictional sample data only; no real PII, credentials, or secret answers exposed or logged | PASS — reuses existing fictional sample records; pre-written messages are demo data, not secrets to real systems |
 | II. Deterministic Verification | Identity, verification, classification, and routing decisions must remain deterministic and LLM-independent | PASS — paths only supply inputs to the existing deterministic `offlineSend` engine; no LLM and no new decision logic |
 | III. Separation of Concerns | Changes stay in the presentation/client layer; backend and engine boundaries untouched | PASS — frontend-only; `offlineDemo.ts` is reused as-is; no API changes |
-| IV. Testability | Every acceptance scenario maps to automated tests; no external services required | PASS — path definitions are unit-testable; selection/advance/reset/live-unaffected behavior is covered by Vitest + Testing Library |
-| V. Type Safety | New path and progress state must be explicitly typed | PASS — add `GuidedDemoPath`, `GuidedStep`, and path-progress types to the existing typed frontend |
+| IV. Testability | Every acceptance scenario maps to automated tests; no external services required | PASS — path definitions are unit-testable; selection/advance/reset/live-unaffected behavior is covered by Vitest + Testing Library, including US3 unavailable-retry and genuine-error paths in `App.livePreference` and `App.errors` |
+| V. Type Safety | New path and progress state must be explicitly typed | PASS — `GuidedDemoPath` and `GuidedStep` are typed; progress is a derived counter (`activePathId` + `pathStepIndex`), not untyped state |
 | VI. Observability | State changes must be observable without logging PII or secrets | PASS — visible step progress, telemetry updates, and accessible status announcements; no new sensitive logging |
 | VII. Simplicity | Prefer the smallest maintainable solution; no unneeded abstractions or knobs | PASS — static data plus one progress counter on top of the existing engine; no new dependency, router, or config flag |
 
@@ -59,6 +59,7 @@ specs/005-guided-demo-paths/
 ├── contracts/           # Phase 1 output
 │   ├── guided-path-data.md
 │   └── guided-mode-ui.md
+├── validation.md        # Recorded implementation and validation evidence
 └── tasks.md             # Phase 2 output (/speckit.tasks command - NOT created here)
 ```
 
@@ -74,11 +75,15 @@ frontend/
 │   │   ├── ChatPanel.tsx             # Render guided path UI in offline mode; live composer unchanged
 │   │   ├── GuidedDemoPaths.tsx       # NEW: path picker, progress, next-step/restart controls
 │   │   └── TelemetryPanel.tsx        # No behavior change
-│   ├── types.ts                      # New guided path / progress types
+│   ├── types.ts                      # New guided path types
 │   ├── styles.css                    # Path picker, progress, and read-only message styling
 │   └── __tests__/
-│       ├── guidedDemoPaths.test.ts   # NEW: path shape, step order, expected outcomes
-│       ├── App.guidedPaths.test.tsx  # NEW: select, advance, switch, restart, zero typing
+│       ├── guidedDemoPaths.test.ts   # NEW: path shape, data guard, expected outcomes
+│       ├── App.guidedPaths.test.tsx  # NEW: select, advance, switch, restart, timing, zero typing
+│       ├── App.accessibility.test.tsx # Guided keyboard and live-region coverage
+│       ├── App.guidance.test.tsx     # Scripted-walkthrough note offline
+│       ├── App.livePreference.test.tsx # Unavailable retry stays offline; live switch clears paths
+│       ├── App.errors.test.tsx       # Genuine errors do not start the offline demo
 │       ├── App.session.test.tsx      # Live free-text composer remains available
 │       ├── App.offline.test.tsx      # Offline fallback still starts; guided mode shown
 │       └── offlineDemo.test.ts       # Existing engine coverage unchanged
@@ -89,6 +94,10 @@ tests/                                # Backend tests unchanged
 ```
 
 **Structure Decision**: Web application layout. The repository already separates the FastAPI backend (`src/healthcare_support`, `tests/`) from the React frontend (`frontend/`). This feature is confined to `frontend/src` and frontend tests. The existing `offlineDemo.ts` engine remains the single deterministic brain; guided paths provide scripted inputs to it instead of a parser, and a new presentation component owns path selection and progression.
+
+## Validation
+
+Implementation evidence, automated checks, requirement-to-test traceability, and known limitations are recorded in [validation.md](./validation.md). The timing budgets in Technical Context are guarded by automated reset/switch and path-completion tests; real-browser timing and first-time-user completion remain manual UX checks.
 
 ## Complexity Tracking
 
