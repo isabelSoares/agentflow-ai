@@ -39,9 +39,9 @@ GuidedStep {
 
 | Path | Demonstrates | Expected final signal |
 |------|--------------|-----------------------|
-| Premium support journey | Successful identity, verification, premium classification, department routing | `authenticated=true`, `classification="premium"`, `routing_status="routed"` |
-| Regular support journey | Successful identity, verification, regular classification, standard routing | `authenticated=true`, `classification="regular"`, `support_department="Standard Patient Support"` |
-| Clarification journey | Ambiguous identity that requires more detail | `routing_status="clarification_required"` or an explicit ask-for-more-attributes reply |
+| Premium billing journey | Successful identity, verification, premium classification, department routing | `authenticated=true`, `classification="premium"`, `routing_status="routed"` |
+| Regular appointment journey | Successful identity, verification, regular classification, standard routing | `authenticated=true`, `classification="regular"`, `support_department="Standard Patient Support"` |
+| Ambiguous identity journey | Ambiguous identity that requires more detail | `routing_status="clarification_required"` or an explicit ask-for-more-attributes reply |
 | Failed verification journey | Bounded attempts and guardrail termination | `terminated=true` |
 
 ## Data rules

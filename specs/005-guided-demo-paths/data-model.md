@@ -51,6 +51,8 @@ No persistent storage and no backend entities are introduced. This feature adds 
 
 **Represents**: How far the visitor has advanced through the selected path.
 
+**Implementation note**: The shipped `App` state stores this as `activePathId` and `pathStepIndex`; completion and the user-facing status are derived from `pathStepIndex` and the selected path's `steps.length`. The `GuidedPathProgress` type mirrors this conceptual model.
+
 | Field | Type | Description |
 |-------|------|-------------|
 | `pathId` | string or null | Active path, or `null` when no path is selected. |

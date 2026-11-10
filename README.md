@@ -188,6 +188,7 @@ The `frontend/` application is a Vite + React + TypeScript client. It provides:
 - A session-scoped support conversation.
 - A live workflow timeline for identity, authorization, classification, and routing.
 - Sanitized telemetry with no PII and no exposure of the session proof.
+- A guided offline demo with four scripted paths that exercise premium and regular routing, identity clarification, and failed verification without requiring typed input.
 - A responsive dark interface with accessible focus states and reduced-motion support.
 
 During development, Vite proxies `/api` to `http://127.0.0.1:8000`, so no browser CORS configuration is needed. The backend also exposes a configurable `CORS_ALLOWED_ORIGINS` setting for direct cross-origin deployments.

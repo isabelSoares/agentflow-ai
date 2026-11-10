@@ -2,6 +2,8 @@
 
 **Branch**: `005-guided-demo-paths` | **Date**: 2026-11-09 | **Spec**: [spec.md](./spec.md)
 
+**Status**: Implemented
+
 **Input**: Feature specification from `/specs/005-guided-demo-paths/spec.md`
 
 ## Summary
@@ -26,7 +28,7 @@ The in-browser demo currently accepts free-form typing and relies on heuristic p
 
 **Constraints**: Offline demo must require zero typing and be fully deterministic; no backend/API/security changes; only fictional sample data; keep the live free-text experience unchanged; no new dependencies or build-time configuration knobs
 
-**Scale/Scope**: One public demo page; 3–4 guided paths of 1–5 steps each; changes confined to `frontend/src` (new path definitions and component, modified `App`, `ChatPanel`, `types`, `styles`) plus frontend tests and README/demo docs
+**Scale/Scope**: One public demo page; 4 guided paths of 1–5 steps each; changes confined to `frontend/src` (new path definitions and component, modified `App`, `ChatPanel`, `types`, `styles`) plus frontend tests and README/demo docs
 
 ## Constitution Check
 
@@ -80,8 +82,8 @@ frontend/
 │       ├── App.session.test.tsx      # Live free-text composer remains available
 │       ├── App.offline.test.tsx      # Offline fallback still starts; guided mode shown
 │       └── offlineDemo.test.ts       # Existing engine coverage unchanged
-└── README.md                         # Update demo description to the guided-path walkthrough
 
+README.md                             # Update demo description to the guided-path walkthrough
 src/healthcare_support/               # Backend unchanged
 tests/                                # Backend tests unchanged
 ```

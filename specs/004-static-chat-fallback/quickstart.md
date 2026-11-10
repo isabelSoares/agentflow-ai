@@ -3,6 +3,8 @@
 **Feature**: `004-static-chat-fallback`
 **Date**: 2026-11-09
 
+> **Superseded (offline input UX)**: The typed demo steps below were replaced by selectable guided paths in [005-guided-demo-paths](../005-guided-demo-paths/quickstart.md). Use the 005 quickstart to validate the current offline demo; the fallback and live-preference checks here remain useful. This document is preserved as the historical record for feature 004.
+
 Use this guide after implementation to prove the feature works end-to-end. It references [spec.md](./spec.md), [data-model.md](./data-model.md), and the contracts in [contracts/](./contracts) instead of duplicating them.
 
 ## Prerequisites

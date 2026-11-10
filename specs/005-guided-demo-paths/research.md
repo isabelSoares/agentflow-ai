@@ -106,9 +106,9 @@
 ## Decision 8: Ship four paths covering the main workflow branches
 
 **Decision**: Initial paths:
-1. **Premium support journey** (Lisa): identity → security answer `Yoda` → billing request; ends authenticated, premium, routed to Insurance and Billing.
-2. **Regular support journey** (John Doe): identity → security answer `Blue` → appointment request; ends authenticated, regular, routed to Standard Patient Support.
-3. **Clarification journey** (shared phone / ambiguous name): identity that matches more than one fictional record; ends with the request for more detail.
+1. **Premium billing journey** (Lisa): identity → security answer `Yoda` → billing request; ends authenticated, premium, routed to Insurance and Billing.
+2. **Regular appointment journey** (John Doe): identity → security answer `Blue` → appointment request; ends authenticated, regular, routed to Standard Patient Support.
+3. **Ambiguous identity journey** (shared phone / ambiguous name): identity that matches more than one fictional record; ends with the request for more detail.
 4. **Failed verification journey** (unknown identity repeated): three non-matching identity attempts; ends terminated as a non-client.
 
 **Rationale**: Together these demonstrate success, premium vs regular classification, routing, clarification, and guardrail termination, satisfying FR-006 and US2. All inputs already work with the existing engine's sample records.

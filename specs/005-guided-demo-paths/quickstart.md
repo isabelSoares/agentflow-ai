@@ -49,9 +49,9 @@ Expected: every path completes with zero typing and no blocking error banner.
 
 Run each path and confirm distinct outcomes per [contracts/guided-path-data.md](./contracts/guided-path-data.md):
 
-1. **Premium support journey** reaches authenticated, premium classification, and routing to a department.
-2. **Regular support journey** reaches authenticated, regular classification, and Standard Patient Support.
-3. **Clarification journey** ends with a request for more identifying detail.
+1. **Premium billing journey** reaches authenticated, premium classification, and routing to a department.
+2. **Regular appointment journey** reaches authenticated, regular classification, and Standard Patient Support.
+3. **Ambiguous identity journey** ends with a request for more identifying detail.
 4. **Failed verification journey** ends terminated as a non-client.
 
 Expected: the set collectively demonstrates success, classification, routing, clarification, and guardrail termination.

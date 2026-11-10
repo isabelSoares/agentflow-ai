@@ -1,5 +1,7 @@
 # Feature Specification: Automatic Static-Site Demo Fallback
 
+> **Superseded (offline input UX)**: The typed in-browser demo described here was replaced by selectable guided paths in [005-guided-demo-paths](../005-guided-demo-paths/spec.md). The backend-unavailable detection and automatic fallback behavior in this specification remain current. This document is preserved as the historical record for feature 004.
+
 **Feature Branch**: `004-static-chat-fallback`
 
 **Created**: 2026-11-09

@@ -4,7 +4,9 @@
 
 **Created**: 2026-11-09
 
-**Status**: Draft
+**Status**: Implemented
+
+**Implemented**: 2026-11-10
 
 **Input**: User description: "i dont like the way like the demo tries to simulate real input but then it does not work right? i prefer to just have like a demo, maybe like a pre-built message ready to send (not editable) or something you know? or maybe a set of paths and one would select which one to go through you know? what do you think its best?"
 

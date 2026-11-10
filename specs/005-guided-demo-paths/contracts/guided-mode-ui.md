@@ -23,7 +23,7 @@ Rules:
 
 The demo area MUST present:
 
-1. A heading and a short note explaining that the demo is a scripted walkthrough and that clicking advances the conversation.
+1. A short note explaining that the demo is a scripted walkthrough and that clicking advances the conversation, plus a path group with an accessible name (for example, "Choose a guided demo path").
 2. A list of available paths, each showing its title and description.
 3. Each path as an operable control reachable by keyboard (button or radio-style selection), with a visible focus indicator.
 4. No raw HTTP status codes or technical error text.

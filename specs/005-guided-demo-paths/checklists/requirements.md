@@ -33,3 +33,4 @@
 
 - All items pass. The specification is ready for `/speckit.clarify` or `/speckit.plan`.
 - Decision recorded: guided selectable paths were chosen over a single pre-built message because they showcase more workflow branches while keeping every step non-editable and deterministic.
+- Implementation completed on 2026-11-10: all 24 tasks in [tasks.md](../tasks.md) are complete and the [quickstart](../quickstart.md) checks pass.
