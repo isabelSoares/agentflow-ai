@@ -31,6 +31,28 @@ export interface ScenarioStep {
   example: string | null
 }
 
+export interface GuidedStep {
+  id: string
+  message: string
+  label?: string | null
+}
+
+export interface GuidedDemoPath {
+  id: string
+  title: string
+  description: string
+  expectedOutcome: string
+  steps: GuidedStep[]
+}
+
+export type GuidedPathStatus = 'idle' | 'active' | 'complete'
+
+export interface GuidedPathProgress {
+  pathId: string | null
+  stepIndex: number
+  status: GuidedPathStatus
+}
+
 export interface Telemetry {
   identified: boolean
   authenticated: boolean
