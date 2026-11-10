@@ -32,6 +32,9 @@ describe('live backend preference', () => {
     await screen.findByText('Live session ready.')
     expect(screen.queryByText(/Offline demo mode/)).not.toBeInTheDocument()
     expect(screen.queryByText(OFFLINE_GREETING)).not.toBeInTheDocument()
+    expect(screen.queryByRole('group', { name: 'Choose a guided demo path' })).not.toBeInTheDocument()
+    expect(screen.queryByText(/scripted walkthrough/i)).not.toBeInTheDocument()
+    expect(screen.getByPlaceholderText('Ask a support question...')).toBeEnabled()
   })
 
   it('stays offline without an error when the live retry is still unavailable', async () => {
@@ -70,6 +73,7 @@ describe('live backend preference', () => {
     const alert = await screen.findByRole('alert')
     expect(alert).toHaveTextContent('Session proof missing.')
     expect(screen.getByRole('status')).toHaveTextContent('Offline demo mode')
-    expect(screen.getByPlaceholderText('Ask a support question...')).toBeEnabled()
+    expect(screen.getByRole('group', { name: 'Choose a guided demo path' })).toBeInTheDocument()
+    expect(screen.queryByPlaceholderText('Ask a support question...')).not.toBeInTheDocument()
   })
 })
