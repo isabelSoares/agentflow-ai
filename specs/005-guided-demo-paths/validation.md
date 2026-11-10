@@ -16,9 +16,9 @@ This record captures the checks used to verify the implemented feature and maps 
 | Frontend production build | `cd frontend && npm run build` | PASS |
 | Pages-style build and serve | `npm run build -- --base=/agentflow-ai/`, serve under `/agentflow-ai/` | PASS — index `200`; `POST /api/conversations` returns `501`, which triggers offline mode |
 | Live backend smoke | `GET /health`; `POST /conversations` on the Docker backend at port 8000 | PASS — health `200`; conversation creation `201` |
-| CI on PR #24 at commit `4326419` | GitHub checks | PASS — `quality`, `frontend`, `smoke`, `live-llm`, and `launch-readiness` green |
+| CI on PR #24 at commit `d91068e` | GitHub checks | PASS — `quality`, `frontend`, `smoke`, `live-llm`, and `launch-readiness` green |
 
-The validation commit itself must pass the same CI checks before merge.
+All required PR checks passed on the validation commit before merge.
 
 ## Requirement Traceability
 
